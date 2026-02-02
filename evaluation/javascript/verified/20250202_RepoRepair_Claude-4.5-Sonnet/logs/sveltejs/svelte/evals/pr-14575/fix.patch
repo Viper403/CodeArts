@@ -1,0 +1,79 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/component.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/component.js
+@@ -67,6 +67,28 @@
+ 	context.state.analysis.snippet_renderers.set(node, resolved);
+ 
+ 	mark_subtree_dynamic(context.path);
++
++	// Detect bind directives that come before spread attributes, which can cause the binding to be overridden
++	const bind_indices = new Map();
++	let last_spread_index = -1;
++	
++	for (let i = 0; i < node.attributes.length; i++) {
++		const attribute = node.attributes[i];
++		if (attribute.type === 'BindDirective' && attribute.name !== 'this') {
++			bind_indices.set(attribute.name, i);
++		} else if (attribute.type === 'SpreadAttribute') {
++			last_spread_index = i;
++		}
++	}
++	
++	// Check if any bindings come before the last spread
++	if (last_spread_index !== -1) {
++		for (const [name, index] of bind_indices) {
++			if (index < last_spread_index) {
++				e.bind_directive_before_spread(node.attributes[index]);
++			}
++		}
++	}
+ 
+ 	for (const attribute of node.attributes) {
+ 		if (
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/component.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/component.js
+@@ -336,6 +336,11 @@
+ 		push_prop(b.init('$$legacy', b.true));
+ 	}
+ 
++	// Add binding props last to ensure they have priority over spreads
++	if (binding_props.length > 0) {
++		props_and_spreads.push(binding_props);
++	}
++
+ 	const props_expression =
+ 		props_and_spreads.length === 0 ||
+ 		(props_and_spreads.length === 1 && Array.isArray(props_and_spreads[0]))
+
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/props.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/props.js
+@@ -16,7 +16,10 @@
+ 	if (desc && desc.set) {
+ 		props[prop] = value;
+ 		teardown(() => {
+-			props[prop] = null;
++			var current_desc = get_descriptor(props, prop);
++			if (current_desc && current_desc.set === desc.set) {
++				props[prop] = null;
++			}
+ 		});
+ 	}
+ }
+
+--- a/packages/svelte/src/internal/client/reactivity/props.js
++++ b/packages/svelte/src/internal/client/reactivity/props.js
+@@ -181,7 +181,13 @@
+ 		while (i--) {
+ 			let p = target.props[i];
+ 			if (is_function(p)) p = p();
+-			if (typeof p === 'object' && p !== null && key in p) return p[key];
++			if (typeof p === 'object' && p !== null && key in p) {
++				const desc = get_descriptor(p, key);
++				if (desc?.get) {
++					return desc.get.call(p);
++				}
++				return p[key];
++			}
+ 		}
+ 	},
+ 	set(target, key, value) {

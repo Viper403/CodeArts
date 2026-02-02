@@ -1,0 +1,90 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
+@@ -535,9 +535,9 @@
+ 		);
+ 	}
+ 
+-	if (state.events.size > 0) {
++	if (state.delegated_events.size > 0) {
+ 		body.push(
+-			b.stmt(b.call('$.delegate', b.array(Array.from(state.events).map((name) => b.literal(name)))))
++			b.stmt(b.call('$.delegate', b.array(Array.from(state.delegated_events).map((name) => b.literal(name)))))
+ 		);
+ 	}
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -471,7 +471,13 @@
+ 	for (const [reference] of scope.references) {
+ 		const binding = scope.get(reference);
+ 
+-		if (binding !== null && !scope.declarations.has(reference) && binding.initial !== node) {
++		if (binding !== null && !scope.declarations.has(reference)) {
++			// Only skip if this binding's initial value is exactly this function node
++			// (i.e., this is the function's own declaration binding)
++			if (binding.initial === node) {
++				continue;
++			}
++
+ 			if (binding.kind === 'store_sub') {
+ 				// We need both the subscription for getting the value and the store for updating
+ 				safe_push(b.id(binding.node.name.slice(1)));
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -1262,13 +1262,13 @@
+ 				state.events.add(event_name);
+ 			}
+ 			// Hoist function if we can, otherwise we leave the function as is
+-			if (delegated.type === 'hoistable') {
+-				if (delegated.function === node.expression) {
+-					const func_name = context.state.scope.root.unique('on_' + event_name);
+-					state.hoisted.push(b.var(func_name, handler));
+-					handler = func_name;
+-				}
+-				if (node.modifiers.includes('once')) {
++				// Hoist function if we can, otherwise we leave the function as is
++				if (delegated.type === 'hoistable') {
++					if (delegated.function === node.expression) {
++						const func_name = state.scope.generate('on_' + event_name);
++						state.hoisted.push(b.var(func_name, handler));
++						handler = func_name;
++					}				if (node.modifiers.includes('once')) {
+ 					handler = b.call('$.once', handler);
+ 				}
+ 				const hoistable_params = /** @type {import('estree').Expression[]} */ (
+
+--- a/packages/svelte/src/compiler/phases/3-transform/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/utils.js
+@@ -65,7 +65,8 @@
+ 		node.type === 'FunctionExpression' ||
+ 		node.type === 'FunctionDeclaration'
+ 	) {
+-		return node.metadata?.hoistable === true;
++		// Be conservative: only hoist if we have metadata AND it's explicitly marked as hoistable
++		return !!(node.metadata && node.metadata.hoistable === true);
+ 	}
+ 	return false;
+ }
+
+--- a/packages/svelte/src/internal/client/dom/elements/events.js
++++ b/packages/svelte/src/internal/client/dom/elements/events.js
+@@ -105,9 +105,14 @@
+ 			return;
+ 		}
+ 
+-		if (at_idx <= handler_idx) {
+-			// +1 because at_idx is the element which was already handled, and there can only be one delegated event per element.
+-			// Avoids on:click and onclick on the same event resulting in onclick being fired twice.
++		if (at_idx === handler_idx) {
++			// Same handler element as before - we've already processed this propagation path
++			// for this handler, so skip it entirely
++			return;
++		}
++
++		if (at_idx < handler_idx) {
++			// +1 because at_idx is the element which was already handled, and we should start from the next one
+ 			path_idx = at_idx + 1;
+ 		}
+ 	}

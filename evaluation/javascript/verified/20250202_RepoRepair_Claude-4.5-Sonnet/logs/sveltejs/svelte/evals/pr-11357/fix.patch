@@ -1,0 +1,158 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -475,6 +475,11 @@
+ 		) {
+ 			e.const_tag_invalid_placement(node);
+ 		}
++
++		// {@const} tags must contain a single declaration, not comma-separated multiple declarations
++		if (node.declaration.declarations && node.declaration.declarations.length > 1) {
++			e.const_tag_invalid_declaration(node);
++		}
+ 	},
+ 	ImportDeclaration(node, context) {
+ 		if (node.source.value === 'svelte' && context.state.analysis.runes) {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -1638,63 +1638,65 @@
+ 		);
+ 	},
+ 	ConstTag(node, { state, visit }) {
+-		const declaration = node.declaration.declarations[0];
+-		// TODO we can almost certainly share some code with $derived(...)
+-		if (declaration.id.type === 'Identifier') {
+-			state.init.push(
+-				b.const(
+-					declaration.id,
+-					b.call(
+-						// In runes mode, we want things to be fine-grained - but not in legacy mode
+-						state.analysis.runes ? '$.derived' : '$.derived_safe_equal',
+-						b.thunk(/** @type {import('estree').Expression} */ (visit(declaration.init)))
++		// Process each declaration in the const tag
++		for (const declaration of node.declaration.declarations) {
++			// TODO we can almost certainly share some code with $derived(...)
++			if (declaration.id.type === 'Identifier') {
++				state.init.push(
++					b.const(
++						declaration.id,
++						b.call(
++							// In runes mode, we want things to be fine-grained - but not in legacy mode
++							state.analysis.runes ? '$.derived' : '$.derived_safe_equal',
++							b.thunk(/** @type {import('estree').Expression} */ (visit(declaration.init)))
++						)
+ 					)
+-				)
+-			);
+-
+-			// we need to eagerly evaluate the expression in order to hit any
+-			// 'Cannot access x before initialization' errors
+-			if (state.options.dev) {
+-				state.init.push(b.stmt(b.call('$.get', declaration.id)));
+-			}
+-		} else {
+-			const identifiers = extract_identifiers(declaration.id);
+-			const tmp = b.id(state.scope.generate('computed_const'));
+-
+-			// Make all identifiers that are declared within the following computed regular
+-			// variables, as they are not signals in that context yet
+-			for (const node of identifiers) {
+-				const binding = /** @type {import('#compiler').Binding} */ (state.scope.get(node.name));
+-				binding.expression = node;
+-			}
+-
+-			// TODO optimise the simple `{ x } = y` case �� we can just return `y`
+-			// instead of destructuring it only to return a new object
+-			const fn = b.arrow(
+-				[],
+-				b.block([
+-					b.const(
+-						/** @type {import('estree').Pattern} */ (visit(declaration.id)),
+-						/** @type {import('estree').Expression} */ (visit(declaration.init))
+-					),
+-					b.return(b.object(identifiers.map((node) => b.prop('init', node, node))))
+-				])
+-			);
+-
+-			state.init.push(
+-				// In runes mode, we want things to be fine-grained - but not in legacy mode
+-				b.const(tmp, b.call(state.analysis.runes ? '$.derived' : '$.derived_safe_equal', fn))
+-			);
+-
+-			// we need to eagerly evaluate the expression in order to hit any
+-			// 'Cannot access x before initialization' errors
+-			if (state.options.dev) {
+-				state.init.push(b.stmt(b.call('$.get', tmp)));
+-			}
+-
+-			for (const node of identifiers) {
+-				const binding = /** @type {import('#compiler').Binding} */ (state.scope.get(node.name));
+-				binding.expression = b.member(b.call('$.get', tmp), node);
++				);
++
++				// we need to eagerly evaluate the expression in order to hit any
++				// 'Cannot access x before initialization' errors
++				if (state.options.dev) {
++					state.init.push(b.stmt(b.call('$.get', declaration.id)));
++				}
++			} else {
++				const identifiers = extract_identifiers(declaration.id);
++				const tmp = b.id(state.scope.generate('computed_const'));
++
++				// Make all identifiers that are declared within the following computed regular
++				// variables, as they are not signals in that context yet
++				for (const node of identifiers) {
++					const binding = /** @type {import('#compiler').Binding} */ (state.scope.get(node.name));
++					binding.expression = node;
++				}
++
++				// TODO optimise the simple `{ x } = y` case �� we can just return `y`
++				// instead of destructuring it only to return a new object
++				const fn = b.arrow(
++					[],
++					b.block([
++						b.const(
++							/** @type {import('estree').Pattern} */ (visit(declaration.id)),
++							/** @type {import('estree').Expression} */ (visit(declaration.init))
++						),
++						b.return(b.object(identifiers.map((node) => b.prop('init', node, node))))
++					])
++				);
++
++				state.init.push(
++					// In runes mode, we want things to be fine-grained - but not in legacy mode
++					b.const(tmp, b.call(state.analysis.runes ? '$.derived' : '$.derived_safe_equal', fn))
++				);
++
++				// we need to eagerly evaluate the expression in order to hit any
++				// 'Cannot access x before initialization' errors
++				if (state.options.dev) {
++					state.init.push(b.stmt(b.call('$.get', tmp)));
++				}
++
++				for (const node of identifiers) {
++					const binding = /** @type {import('#compiler').Binding} */ (state.scope.get(node.name));
++					binding.expression = b.member(b.call('$.get', tmp), node);
++				}
+ 			}
+ 		}
+ 	},
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -1252,10 +1252,11 @@
+ 		state.template.push(block_close);
+ 	},
+ 	ConstTag(node, { state, visit }) {
+-		const declaration = node.declaration.declarations[0];
+-		const pattern = /** @type {import('estree').Pattern} */ (visit(declaration.id));
+-		const init = /** @type {import('estree').Expression} */ (visit(declaration.init));
+-		state.init.push(b.declaration('const', pattern, init));
++		for (const declaration of node.declaration.declarations) {
++			const pattern = /** @type {import('estree').Pattern} */ (visit(declaration.id));
++			const init = /** @type {import('estree').Expression} */ (visit(declaration.init));
++			state.init.push(b.declaration('const', pattern, init));
++		}
+ 	},
+ 	DebugTag(node, { state, visit }) {
+ 		state.template.push(

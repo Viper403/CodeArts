@@ -1,0 +1,56 @@
+--- a/packages/svelte/src/internal/client/proxy.js
++++ b/packages/svelte/src/internal/client/proxy.js
+@@ -15,20 +15,11 @@
+ import * as e from './errors.js';
+ 
+ /**
+- * @template T
+- * @param {T} value
+- * @param {ProxyMetadata | null} [parent]
+- * @param {Source<T>} [prev] dev mode only
+- * @returns {ProxyStateObject<T> | T}
+- */
+-export function proxy(value, parent = null, prev) {
+-	// if non-proxyable, or is already a proxy, return `value`
+-	if (typeof value !== 'object' || value === null || STATE_SYMBOL in value) {
+-		return value;
+-	}
+-
+-	const prototype = get_prototype_of(value);
+-
++ * Exported symbol that can be used to mark objects as non-reactive.
++ * Objects with this symbol set to true will not be proxified.
++ * @type {symbol}
++ */
++export const RAW = Symbol('RAW');
+ 	if (prototype !== object_prototype && prototype !== array_prototype) {
+ 		return value;
+ 	}
+
+--- a/packages/svelte/src/internal/client/reactivity/props.js
++++ b/packages/svelte/src/internal/client/reactivity/props.js
+@@ -346,7 +346,7 @@
+ 		}
+ 
+ 		if (arguments.length > 0) {
+-			const new_value = mutation ? get(current_value) : runes && bindable ? proxy(value) : value;
++			const new_value = mutation ? get(current_value) : value;
+ 
+ 			if (!current_value.equals(new_value)) {
+ 				from_child = true;
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -1055,7 +1055,11 @@
+ 		}
+ 		for (let key in value) {
+ 			try {
+-				deep_read(value[key], visited);
++				const prop = value[key];
++				// Only deeply traverse if the nested object is also $state
++				if (typeof prop === 'object' && prop !== null && STATE_SYMBOL in prop) {
++					deep_read(prop, visited);
++				}
+ 			} catch (e) {
+ 				// continue
+ 			}

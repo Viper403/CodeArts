@@ -1,0 +1,18 @@
+--- a/lib/response.js
++++ b/lib/response.js
+@@ -905,11 +905,14 @@
+  */
+ 
+ res.location = function location(url) {
+-  var loc = url;
++  var loc;
+ 
+   // "back" is an alias for the referrer
+   if (url === 'back') {
+     loc = this.req.get('Referrer') || '/';
++  } else {
++    // Convert to string to handle URL objects
++    loc = String(url);
+   }
+ 
+   var lowerLoc = loc.toLowerCase();

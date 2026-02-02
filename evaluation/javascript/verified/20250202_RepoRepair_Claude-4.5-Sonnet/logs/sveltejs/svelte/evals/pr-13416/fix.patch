@@ -1,0 +1,20 @@
+--- a/packages/svelte/src/compiler/errors.js
++++ b/packages/svelte/src/compiler/errors.js
+@@ -721,6 +721,17 @@
+ }
+ 
+ /**
++ * A component is attempting to bind to a non-bindable property `%name%` belonging to %component% (i.e. `<%component% bind:%name%={...}>`). To mark a property as bindable: `let { %name% = $bindable() } = $props()`
++ * @param {null | number | NodeLike} node
++ * @param {string} name
++ * @param {string} component
++ * @returns {never}
++ */
++export function bind_not_bindable(node, name, component) {
++	e(node, "bind_not_bindable", `A component is attempting to bind to a non-bindable property \`${name}\` belonging to ${component} (i.e. \`<${component} bind:${name}={...}>\`). To mark a property as bindable: \`let { ${name} = $bindable() } = $props()\``);
++}
++
++/**
+  * %name% cannot appear more than once within a block
+  * @param {null | number | NodeLike} node
+  * @param {string} name

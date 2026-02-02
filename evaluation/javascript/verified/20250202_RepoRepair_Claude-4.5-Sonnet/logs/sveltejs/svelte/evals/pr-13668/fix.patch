@@ -1,0 +1,145 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -1084,10 +1084,12 @@
+ 		) {
+ 			snippet_name = attribute.value[0].data;
+ 			if (!regex_is_valid_identifier.test(snippet_name)) {
++				const task = `migrate this slot by hand, \`${snippet_name}\` is an invalid identifier`;
+ 				state.str.appendLeft(
+ 					node.start,
+-					`<!-- @migration-task: migrate this slot by hand, \`${snippet_name}\` is an invalid identifier -->\n${state.indent}`
++					`<!-- @migration-task: ${task} -->\n${state.indent}`
+ 				);
++				state.migration_tasks.push(task);
+ 				return;
+ 			}
+ 			state.str.remove(attribute.start, attribute.end);
+
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -60,6 +60,11 @@
+ 
+ 		this.ts = match_lang?.[2] === 'ts';
+ 
++		// Check for @migration-task comments in the template
++		if (template.includes('@migration-task')) {
++			this.has_migration_tasks = true;
++		}
++
+ 		this.root = {
+ 			css: null,
+ 			js: [],
+@@ -71,7 +76,8 @@
+ 			fragment: create_fragment(),
+ 			options: null,
+ 			metadata: {
+-				ts: this.ts
++				ts: this.ts,
++				has_migration_tasks: this.has_migration_tasks
+ 			}
+ 		};
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -769,14 +769,59 @@
+ 	/** @type {Map<string, Array<Tuple>>} */
+ 	const lookup = new Map();
+ 
+-	for (const [node, declaration] of unsorted_reactive_declarations) {
+-		for (const binding of declaration.assignments) {
+-			const statements = lookup.get(binding.node.name) ?? [];
+-			statements.push([node, declaration]);
+-			lookup.set(binding.node.name, statements);
+-		}
+-	}
+-
++		for (const [node, declaration] of unsorted_reactive_declarations) {
++			for (const binding of declaration.assignments) {
++				const statements = lookup.get(binding.node.name) ?? [];
++				statements.push([node, declaration]);
++				lookup.set(binding.node.name, statements);
++			}
++		}
++
++		// Check for @migration-task comments
++		const migration_task_pattern = /@migration-task/;
++		const check_for_migration_tasks = (/** @type {string} */ text, /** @type {number} */ start) => {
++			if (migration_task_pattern.test(text)) {
++				analysis.migration_tasks.push({ start, text: text.trim() });
++			}
++		};
++
++		// Check comments in module
++		if (root.module) {
++			for (const node of root.module.content.body) {
++				const comments = /** @type {any} */ (node).leadingComments;
++				if (comments) {
++					for (const comment of comments) {
++						check_for_migration_tasks(comment.value, comment.start);
++					}
++				}
++			}
++		}
++
++		// Check comments in instance
++		if (root.instance) {
++			for (const node of root.instance.content.body) {
++				const comments = /** @type {any} */ (node).leadingComments;
++				if (comments) {
++					for (const comment of comments) {
++						check_for_migration_tasks(comment.value, comment.start);
++					}
++				}
++			}
++		}
++
++		// Check comments in template
++		const check_fragment = (/** @type {any} */ fragment) => {
++			if (!fragment || !fragment.nodes) return;
++			for (const node of fragment.nodes) {
++				if (node.type === 'Comment' && migration_task_pattern.test(node.data)) {
++					check_for_migration_tasks(node.data, node.start);
++				}
++				if (node.type === 'Fragment' || node.type === 'IfBlock' || node.type === 'EachBlock') {
++					check_fragment(node);
++				}
++			}
++		};
++		check_fragment(root.fragment);
+ 	/** @type {Array<[string, string]>} */
+ 	const edges = [];
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/index.js
+@@ -91,13 +91,23 @@
+ 		];
+ 	}
+ 
++	const js = print(program, {
++		// include source content; makes it easier/more robust looking up the source map code
++		// (else esrap does return null for source and sourceMapContent which may trip up tooling)
++		sourceMapContent: source,
++		sourceMapSource: get_source_name(options.filename, undefined, 'input.svelte.js')
++	});
++
++	// Check for migration tasks and warn user
++	if (js.code.includes('@migration-task')) {
++		state.warnings.push({
++			code: 'migration-task',
++			message: 'Migration tasks detected. Please search for @migration-task comments in the generated code and address them manually.'
++		});
++	}
++
+ 	return {
+-		js: print(program, {
+-			// include source content; makes it easier/more robust looking up the source map code
+-			// (else esrap does return null for source and sourceMapContent which may trip up tooling)
+-			sourceMapContent: source,
+-			sourceMapSource: get_source_name(options.filename, undefined, 'input.svelte.js')
+-		}),
++		js,
+ 		css: null,
+ 		metadata: {
+ 			runes: true

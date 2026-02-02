@@ -1,0 +1,89 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -713,7 +713,10 @@
+ 				const index = parser.index - 1;
+ 				parser.eat('@');
+ 				const name = parser.read_until(/[^a-z]/);
+-				e.tag_invalid_placement(index, name, location);
++				// Allow @debug in attribute values, but not other @ tags
++				if (name !== 'debug') {
++					e.tag_invalid_placement(index, name, location);
++				}
+ 			}
+ 
+ 			flush(parser.index - 1);
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/element.js
+@@ -150,6 +150,9 @@
+ 					);
+ 				}
+ 			}
++		} else if (attribute.type === 'DebugTag') {
++			// Debug tags are allowed and should not be validated as regular attributes
++			continue;
+ 		}
+ 	}
+ }
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/special-element.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/special-element.js
+@@ -7,9 +7,16 @@
+ export function disallow_children(node) {
+ 	const { nodes } = node.fragment;
+ 
+-	if (nodes.length > 0) {
+-		const first = nodes[0];
+-		const last = nodes[nodes.length - 1];
++	// Filter out debug tags and whitespace-only text nodes
++	const invalid_nodes = nodes.filter((node) => {
++		if (node.type === 'DebugTag') return false;
++		if (node.type === 'Text' && !node.data.trim()) return false;
++		return true;
++	});
++
++	if (invalid_nodes.length > 0) {
++		const first = invalid_nodes[0];
++		const last = invalid_nodes[invalid_nodes.length - 1];
+ 
+ 		e.svelte_meta_invalid_content({ start: first.start, end: last.end }, node.name);
+ 	}
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/element.js
+@@ -198,7 +198,7 @@
+ 		}
+ 
+ 		return {
+-			has_state: chunk.metadata.expression.has_state,
++			has_state: chunk.metadata.expression.has_state || chunk.metadata.expression.has_call,
+ 			has_call: chunk.metadata.expression.has_call,
+ 			value: /** @type {Expression} */ (context.visit(chunk.expression))
+ 		};
+
+--- a/packages/svelte/src/compiler/phases/3-transform/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/index.js
+@@ -91,13 +91,17 @@
+ 		];
+ 	}
+ 
++	const js_source_name = get_source_name(options.filename, undefined, 'input.svelte.js');
++	const js = print(program, {
++		// include source content; makes it easier/more robust looking up the source map code
++		// (else esrap does return null for source and sourceMapContent which may trip up tooling)
++		sourceMapContent: source,
++		sourceMapSource: js_source_name
++	});
++	merge_with_preprocessor_map(js, options, js_source_name);
++
+ 	return {
+-		js: print(program, {
+-			// include source content; makes it easier/more robust looking up the source map code
+-			// (else esrap does return null for source and sourceMapContent which may trip up tooling)
+-			sourceMapContent: source,
+-			sourceMapSource: get_source_name(options.filename, undefined, 'input.svelte.js')
+-		}),
++		js,
+ 		css: null,
+ 		metadata: {
+ 			runes: true

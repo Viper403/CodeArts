@@ -1,0 +1,90 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -101,9 +101,9 @@
+ 				(v) => v.type === 'ExpressionTag' && v.metadata.contains_call_expression
+ 			);
+ 
+-		if (!is_attributes_reactive && contains_call_expression) {
++		if (contains_call_expression) {
+ 			state.init.push(serialize_update(update));
+-		} else if (is_attributes_reactive || directive.metadata.dynamic || contains_call_expression) {
++		} else if (is_attributes_reactive || directive.metadata.dynamic) {
+ 			state.update.push(update);
+ 		} else {
+ 			state.init.push(update);
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -215,7 +215,12 @@
+ 	}
+ 
+ 	if (binding.expression) {
+-		return typeof binding.expression === 'function' ? binding.expression(node) : binding.expression;
++		const expression = typeof binding.expression === 'function' ? binding.expression(node) : binding.expression;
++		// For derived state, we need to call the function to get the value on the server
++		if (binding.kind === 'derived' || binding.kind === 'derived_call') {
++			return b.call(expression);
++		}
++		return expression;
+ 	}
+ 
+ 	return node;
+
+--- a/packages/svelte/src/internal/client/dom/elements/class.js
++++ b/packages/svelte/src/internal/client/dom/elements/class.js
+@@ -111,4 +111,8 @@
+ 	} else {
+ 		dom.classList.remove(class_name);
+ 	}
++	
++	// Update the internal className tracking to ensure reactivity works correctly
++	// @ts-expect-error need to add __className to patched prototype
++	dom.__className = dom.className;
+ }
+
+--- a/packages/svelte/src/internal/client/reactivity/effects.js
++++ b/packages/svelte/src/internal/client/reactivity/effects.js
+@@ -479,9 +479,9 @@
+ 	effect.f ^= INERT;
+ 
+ 	// If a dependency of this effect changed while it was paused,
+-	// apply the change now
++	// schedule it to run
+ 	if (check_dirtiness(effect)) {
+-		execute_effect(effect);
++		schedule_effect(effect);
+ 	}
+ 
+ 	var child = effect.first;
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -238,18 +238,17 @@
+ 						return !is_equal;
+ 					}
+ 
+-					if (!current_skip_reaction && !dependency?.reactions?.includes(reaction)) {
+-						// If we are working with an unowned signal as part of an effect (due to !current_skip_reaction)
+-						// and the version hasn't changed, we still need to check that this reaction
+-						// if linked to the dependency source �C otherwise future updates will not be caught.
+-						reactions = dependency.reactions;
+-						if (reactions === null) {
+-							dependency.reactions = [reaction];
+-						} else {
+-							reactions.push(reaction);
+-						}
++				if (!current_skip_reaction) {
++					// If we are working with an unowned signal as part of an effect (due to !current_skip_reaction)
++					// and the version hasn't changed, we still need to check that this reaction
++					// if linked to the dependency source �C otherwise future updates will not be caught.
++					reactions = dependency.reactions;
++					if (reactions === null) {
++						dependency.reactions = [reaction];
++					} else if (!reactions.includes(reaction)) {
++						reactions.push(reaction);
+ 					}
+-				} else if ((reaction.f & DIRTY) !== 0) {
++				}				} else if ((reaction.f & DIRTY) !== 0) {
+ 					// `signal` might now be dirty, as a result of calling `check_dirtiness` and/or `update_derived`
+ 					return true;
+ 				} else if (is_disconnected) {

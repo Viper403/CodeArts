@@ -1,0 +1,102 @@
+--- a/packages/svelte/src/compiler/errors.js
++++ b/packages/svelte/src/compiler/errors.js
+@@ -658,6 +658,16 @@
+ }
+ 
+ /**
++ * `%name%` is not a valid binding on <svelte:window> �� valid bindings are innerWidth, innerHeight, outerWidth, outerHeight, scrollX, scrollY, devicePixelRatio or online
++ * @param {null | number | NodeLike} node
++ * @param {string} name
++ * @returns {never}
++ */
++export function bind_invalid_window_binding(node, name) {
++	e(node, "bind_invalid_window_binding", `\`${name}\` is not a valid binding on <svelte:window> �� valid bindings are innerWidth, innerHeight, outerWidth, outerHeight, scrollX, scrollY, devicePixelRatio or online`);
++}
++
++/**
+  * `bind:%name%` can only be used with %elements%
+  * @param {null | number | NodeLike} node
+  * @param {string} name
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -1318,6 +1318,30 @@
+ 		next();
+ 	},
+ 	BindDirective(node, context) {
++		const parent = context.path.at(-1);
++		
++		// Validate bindings on <svelte:window>
++		if (parent?.type === 'SvelteWindow') {
++			const valid_bindings = [
++				'innerWidth',
++				'innerHeight',
++				'outerWidth',
++				'outerHeight',
++				'scrollX',
++				'scrollY',
++				'devicePixelRatio',
++				'online'
++			];
++			if (!valid_bindings.includes(node.name)) {
++				e.bind_invalid_name(
++					node,
++					valid_bindings,
++					'<svelte:window>',
++					node.name
++				);
++			}
++		}
++
+ 		let i = context.path.length;
+ 		while (i--) {
+ 			const parent = context.path[i];
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -452,6 +452,26 @@
+ 						e.bind_invalid_name(node, node.name, `Did you mean '${match}'?`);
+ 					}
+ 				}
++
++				// For special Svelte elements, provide a more helpful error listing valid bindings
++				if (
++					parent.type === 'SvelteWindow' ||
++					parent.type === 'SvelteDocument' ||
++					parent.type === 'SvelteBody'
++				) {
++					const valid_bindings = Object.keys(binding_properties).filter((key) => {
++						const property = binding_properties[key];
++						return !property.valid_elements || property.valid_elements.includes(parent.type);
++					});
++					if (valid_bindings.length > 0) {
++						e.bind_invalid_name(
++							node,
++							node.name,
++							`Valid bindings are ${valid_bindings.join(', ')}`
++						);
++					}
++				}
++
+ 				e.bind_invalid_name(node, node.name);
+ 			}
+ 		}
+
+--- a/packages/svelte/src/compiler/warnings.js
++++ b/packages/svelte/src/compiler/warnings.js
+@@ -721,4 +721,15 @@
+  */
+ export function svelte_element_invalid_this(node) {
+ 	w(node, "svelte_element_invalid_this", "`this` should be an `{expression}`. Using a string attribute value will cause an error in future versions of Svelte");
++}
++
++/**
++ * `%name%` is not a valid binding on <%element%> �� valid bindings are %valid_bindings%
++ * @param {null | NodeLike} node
++ * @param {string} name
++ * @param {string} element
++ * @param {string} valid_bindings
++ */
++export function bind_invalid_name(node, name, element, valid_bindings) {
++	w(node, "bind_invalid_name", `\`${name}\` is not a valid binding on <${element}> �� valid bindings are ${valid_bindings}`);
+ }

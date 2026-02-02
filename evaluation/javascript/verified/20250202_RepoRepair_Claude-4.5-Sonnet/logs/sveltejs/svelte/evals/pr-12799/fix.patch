@@ -1,0 +1,143 @@
+--- a/packages/svelte/src/compiler/index.js
++++ b/packages/svelte/src/compiler/index.js
+@@ -63,7 +63,8 @@
+ 	const validated = validate_module_options(options, '');
+ 	state.reset(source, validated);
+ 
+-	const analysis = analyze_module(parse_acorn(source, false), validated);
++	const parsed = parse_acorn(source, true);
++	const analysis = analyze_module(parsed, validated);
+ 	return transform_module(analysis, source, validated);
+ }
+ 
+
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -901,6 +901,13 @@
+ 	const parent = path.at(-1);
+ 	if (parent?.type === 'MemberExpression' && parent.property === node) return;
+ 
++	// Check if this is a store subscription (e.g., $store)
++	const binding = state.scope.get(node.name);
++	if (binding?.kind === 'store_sub') {
++		// Don't interfere with store subscriptions
++		return;
++	}
++
+ 	if (state.analysis.uses_props) {
+ 		if (node.name === '$$props' || node.name === '$$restProps') {
+ 			// not 100% correct for $$restProps but it'll do
+@@ -910,7 +917,6 @@
+ 				state.props_name
+ 			);
+ 		} else {
+-			const binding = state.scope.get(node.name);
+ 			if (binding?.kind === 'bindable_prop') {
+ 				state.str.prependLeft(/** @type {number} */ (node.start), `${state.props_name}.`);
+ 			}
+
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -288,12 +288,14 @@
+ 
+ /**
+  * @param {string} template
++ * @param {{ ts?: boolean }} [options]
+  * @returns {Root}
+  */
+-export function parse(template) {
+-	const parser = new Parser(template);
++export function parse(template, options) {
++	const parser = new Parser(template, options);
+ 	return parser.root;
+ }
++=======
+ 
+ /** @typedef {(parser: Parser) => ParserState | void} ParserState */
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -211,13 +211,52 @@
+  * @param {ValidatedModuleCompileOptions} options
+  * @returns {Analysis}
+  */
++/**
++ * @param {Program} ast
++ * @param {ValidatedModuleCompileOptions} options
++ * @returns {Analysis}
++ */
+ export function analyze_module(ast, options) {
+ 	const { scope, scopes } = create_scopes(ast, new ScopeRoot(), false, null);
+ 
++	// create synthetic bindings for store subscriptions
+ 	for (const [name, references] of scope.references) {
+ 		if (name[0] !== '$' || RESERVED.includes(name)) continue;
+-		if (name === '$' || name[1] === '$') {
++		if (name === '$' || name[1] === '$$') {
+ 			e.global_reference_invalid(references[0].node, name);
++		}
++
++		const store_name = name.slice(1);
++		const declaration = scope.get(store_name);
++
++		// If we're not in legacy mode, assume the user is referencing a rune and not a global store.
++		if (
++			!is_rune(name) ||
++			(declaration !== null &&
++				// const state = $state(0) is valid
++				(get_rune(declaration.initial, scope) === null ||
++					// rune-line names received as props are valid too (but we have to protect against $props as store)
++					(store_name !== 'props' && get_rune(declaration.initial, scope) === '$props')) &&
++				// allow `import { derived } from 'svelte/store'` in the same file as `const x = $derived(..)` because one is not a subscription to the other
++				!(
++					name === '$derived' &&
++					declaration.initial?.type === 'ImportDeclaration' &&
++					declaration.initial.source.value === 'svelte/store'
++				))
++		) {
++			if (declaration === null && /[a-z]/.test(store_name[0])) {
++				e.global_reference_invalid(references[0].node, name);
++			} else if (declaration !== null && is_rune(name)) {
++				for (const { node, path } of references) {
++					if (path.at(-1)?.type === 'CallExpression') {
++						w.store_rune_conflict(node, store_name);
++					}
++				}
++			}
++
++			const binding = scope.declare(b.id(name), 'store_sub', 'synthetic');
++			binding.references = references;
++			scope.references.set(name, references);
+ 		}
+ 	}
+ 
+@@ -240,7 +279,6 @@
+ 		immutable: true
+ 	};
+ }
+-
+ /**
+  * @param {Root} root
+  * @param {string} source
+
+--- a/packages/svelte/src/compiler/phases/3-transform/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/index.js
+@@ -90,8 +90,16 @@
+ 		];
+ 	}
+ 
++	const js_source_name = get_source_name(options.filename, options.outputFilename, 'input.svelte.js');
++	const js = print(program, {
++		// include source content; makes it easier/more robust looking up the source map code
++		sourceMapContent: source,
++		sourceMapSource: js_source_name
++	});
++	merge_with_preprocessor_map(js, options, js_source_name);
++
+ 	return {
+-		js: print(program, {}),
++		js,
+ 		css: null,
+ 		metadata: {
+ 			runes: true

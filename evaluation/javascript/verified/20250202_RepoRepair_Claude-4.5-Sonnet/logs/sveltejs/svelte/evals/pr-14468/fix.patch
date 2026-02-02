@@ -1,0 +1,76 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -688,6 +688,8 @@
+ 		}
+ 	}
+ 
++	const is_attribute_value = location === 'in attribute value';
++
+ 	while (parser.index < parser.template.length) {
+ 		const index = parser.index;
+ 
+@@ -695,16 +697,20 @@
+ 			flush(parser.index);
+ 			return chunks;
+ 		} else if (parser.eat('{')) {
+-			if (parser.match('#')) {
+-				const index = parser.index - 1;
+-				parser.eat('#');
+-				const name = parser.read_until(/[^a-z]/);
+-				e.block_invalid_placement(index, name, location);
+-			} else if (parser.match('@')) {
+-				const index = parser.index - 1;
+-				parser.eat('@');
+-				const name = parser.read_until(/[^a-z]/);
+-				e.tag_invalid_placement(index, name, location);
++			// Block and tag syntax is not allowed in element content in certain contexts,
++			// but expression tags are always valid in attribute values
++			if (!is_attribute_value) {
++				if (parser.match('#')) {
++					const index = parser.index - 1;
++					parser.eat('#');
++					const name = parser.read_until(/[^a-z]/);
++					e.block_invalid_placement(index, name, location);
++				} else if (parser.match('@')) {
++					const index = parser.index - 1;
++					parser.eat('@');
++					const name = parser.read_until(/[^a-z]/);
++					e.tag_invalid_placement(index, name, location);
++				}
+ 			}
+ 
+ 			flush(parser.index - 1);
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/element.js
+@@ -40,7 +40,10 @@
+ 			const is_expression = is_expression_attribute(attribute);
+ 
+ 			if (context.state.analysis.runes) {
+-				validate_attribute(attribute, node);
++				// Style directives are always valid attributes regardless of parent element
++				if (attribute.type === 'Attribute') {
++					validate_attribute(attribute, node);
++				}
+ 
+ 				if (is_expression) {
+ 					const expression = get_attribute_expression(attribute);
+
+--- a/packages/svelte/src/html-tree-validation.js
++++ b/packages/svelte/src/html-tree-validation.js
+@@ -101,11 +101,11 @@
+ 	// all except special table nodes which cause bad parsing behavior anyway.
+ 
+ 	// https://html.spec.whatwg.org/multipage/syntax.html#parsing-main-intd
+-	tr: { only: ['th', 'td', 'style', 'script', 'template'] },
++	tr: { only: ['th', 'td', 'style', 'script', 'template', '#text'] },
+ 	// https://html.spec.whatwg.org/multipage/syntax.html#parsing-main-intbody
+-	tbody: { only: ['tr', 'style', 'script', 'template'] },
+-	thead: { only: ['tr', 'style', 'script', 'template'] },
+-	tfoot: { only: ['tr', 'style', 'script', 'template'] },
++	tbody: { only: ['tr', 'style', 'script', 'template', '#text'] },
++	thead: { only: ['tr', 'style', 'script', 'template', '#text'] },
++	tfoot: { only: ['tr', 'style', 'script', 'template', '#text'] },
+ 	// https://html.spec.whatwg.org/multipage/syntax.html#parsing-main-incolgroup
+ 	colgroup: { only: ['col', 'template'] },
+ 	// https://html.spec.whatwg.org/multipage/syntax.html#parsing-main-intable

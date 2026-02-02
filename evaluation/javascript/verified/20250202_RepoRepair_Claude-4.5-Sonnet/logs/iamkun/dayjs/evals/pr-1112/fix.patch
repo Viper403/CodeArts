@@ -1,0 +1,43 @@
+--- a/src/locale/hu.js
++++ b/src/locale/hu.js
+@@ -13,17 +13,17 @@
+   relativeTime: {
+     future: '%s m��lva',
+     past: '%s',
+-    s: 'n��h��ny m��sodperc',
+-    m: 'egy perc',
+-    mm: '%d perc',
+-    h: 'egy ��ra',
+-    hh: '%d ��ra',
+-    d: 'egy nap',
+-    dd: '%d nap',
+-    M: 'egy h��nap',
+-    MM: '%d h��nap',
++    s: 'n��h��ny m��sodperce',
++    m: 'egy perce',
++    mm: '%d perce',
++    h: 'egy ��r��ja',
++    hh: '%d ��r��ja',
++    d: 'egy napja',
++    dd: '%d napja',
++    M: 'egy h��napja',
++    MM: '%d h��napja',
+     y: 'egy ��ve',
+-    yy: '%d ��v'
++    yy: '%d ��ve'
+   },
+   formats: {
+     LT: 'H:mm',
+
+--- a/src/plugin/advancedFormat/index.js
++++ b/src/plugin/advancedFormat/index.js
+@@ -6,7 +6,8 @@
+   d.en.ordinal = (number) => {
+     const s = ['th', 'st', 'nd', 'rd']
+     const v = number % 100
+-    return `[${number}${(s[(v - 20) % 10] || s[v] || s[0])}]`
++    const suffix = (v >= 11 && v <= 13) ? s[0] : (s[(v % 10)] || s[0])
++    return `[${number}${suffix}]`
+   }
+   // extend en locale here
+   proto.format = function (formatStr) {

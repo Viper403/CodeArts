@@ -1,0 +1,65 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -638,7 +638,8 @@
+ 				if (quote_mark) return parser.match(quote_mark);
+ 				return !!parser.match_regex(regex_starts_with_invalid_attr_value);
+ 			},
+-			'in attribute value'
++			'in attribute value',
++			true
+ 		);
+ 	} catch (/** @type {any} e */ e) {
+ 		if (e.code === 'js-parse-error') {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -3069,7 +3069,15 @@
+ 				? b.literal(null)
+ 				: b.arrow(
+ 						[b.id('$$anchor')],
+-						b.block(create_block(node, 'fallback', node.fragment.nodes, context))
++						b.block(
++							create_block(node, 'fallback', node.fragment.nodes, {
++								...context,
++								state: {
++									...context.state,
++									preserve_whitespace: true
++								}
++							})
++						)
+ 					);
+ 
+ 		const expression = is_default
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -760,7 +760,7 @@
+ 		const value = attribute_value[0];
+ 		if (value.type === 'Text') {
+ 			let data = value.data;
+-			if (trim_whitespace) {
++			if (trim_whitespace && !is_component) {
+ 				data = data.replace(regex_whitespaces_strict, ' ').trim();
+ 			}
+ 
+@@ -785,7 +785,7 @@
+ 		i++;
+ 		if (node.type === 'Text') {
+ 			let data = node.data;
+-			if (trim_whitespace) {
++			if (trim_whitespace && !is_component) {
+ 				// don't trim, space could be important to separate from expression tag
+ 				data = data.replace(regex_whitespaces_strict, ' ');
+ 			}
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -480,7 +480,7 @@
+ 		dom.__nodeValue = next_node_value;
+ 	} else if (prev_node_value !== next_node_value) {
+ 		dom.nodeValue = next_node_value;
+-		// @ts-expect-error need to add __className to patched prototype
++		// @ts-expect-error need to add __nodeValue to patched prototype
+ 		dom.__nodeValue = next_node_value;
+ 	}
+ }

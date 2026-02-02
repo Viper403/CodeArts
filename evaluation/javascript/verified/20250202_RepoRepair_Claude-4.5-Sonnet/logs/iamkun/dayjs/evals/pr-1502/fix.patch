@@ -1,0 +1,39 @@
+--- a/src/locale/bg.js
++++ b/src/locale/bg.js
+@@ -9,7 +9,23 @@
+   months: '��ߧ�ѧ��_��֧ӧ��ѧ��_�ާѧ��_�ѧ��ڧ�_�ާѧ�_��ߧ�_��ݧ�_�ѧӧԧ���_��֧��֧ާӧ��_��ܧ��ާӧ��_�ߧ�֧ާӧ��_�է֧ܧ֧ާӧ��'.split('_'),
+   monthsShort: '��ߧ�_��֧�_�ާѧ�_�ѧ��_�ާѧ�_��ߧ�_��ݧ�_�ѧӧ�_��֧�_��ܧ�_�ߧ��_�է֧�'.split('_'),
+   weekStart: 1,
+-  ordinal: n => `${n}.`,
++  ordinal: (n) => {
++    const last2digits = n % 100
++    if (last2digits >= 11 && last2digits <= 19) {
++      return `${n}-���`
++    }
++    const lastDigit = n % 10
++    if (lastDigit === 1) {
++      return `${n}-�ӧ�`
++    }
++    if (lastDigit === 2) {
++      return `${n}-���`
++    }
++    if (lastDigit === 7 || lastDigit === 8) {
++      return `${n}-�ާ�`
++    }
++    return `${n}-���`
++  },
+   formats: {
+     LT: 'H:mm',
+     LTS: 'H:mm:ss',
+--- a/src/plugin/advancedFormat/index.js
++++ b/src/plugin/advancedFormat/index.js
+@@ -24,7 +24,7 @@
+         case 'GGGG':
+           return this.isoWeekYear()
+         case 'wo':
+-          return locale.ordinal(this.week(), 'W') // W for week
++          return (locale.ordinal || defaultOrdinal)(this.week(), 'W') // W for week
+         case 'w':
+         case 'ww':
+           return utils.s(this.week(), match === 'w' ? 1 : 2, '0')
+

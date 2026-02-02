@@ -1,0 +1,36 @@
+--- a/src/index.js
++++ b/src/index.js
+@@ -310,7 +310,7 @@
+ 
+   diff(input, units, float) {
+     const unit = Utils.p(units)
+-    const that = dayjs(input)
++    const that = wrapper(input, this)
+     const zoneDelta = (that.utcOffset() - this.utcOffset()) * C.MILLISECONDS_A_MINUTE
+     const diff = this - that
+     let result = Utils.m(this, that)
+
+--- a/src/plugin/arraySupport/index.js
++++ b/src/plugin/arraySupport/index.js
+@@ -20,6 +20,6 @@
+   const oldParse = proto.parse
+   proto.parse = function (cfg) {
+     cfg.date = parseDate.bind(this)(cfg)
+-    oldParse.bind(this)(cfg)
++    return oldParse.bind(this)(cfg)
+   }
+ }
+
+--- a/src/plugin/badMutable/index.js
++++ b/src/plugin/badMutable/index.js
+@@ -49,5 +49,10 @@
+   proto.isAfter = function (that, units) {
+     return oldIsAfter.bind(this.clone())(that, units)
+   }
++
++  const oldDiff = proto.diff
++  proto.diff = function (that, units, float) {
++    return oldDiff.bind(this.clone())(that, units, float)
++  }
+ }
+ 

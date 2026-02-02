@@ -1,0 +1,83 @@
+--- a/packages/svelte/src/compiler/index.js
++++ b/packages/svelte/src/compiler/index.js
+@@ -189,6 +189,27 @@
+ 	);
+ }
+ 
++/**
++ * `migrate` upgrades Svelte 4 code to Svelte 5
++ * 
++ * https://svelte.dev/docs/svelte-compiler#svelte-migrate
++ * @param {string} source The component source code
++ * @param {import('#compiler').MigrateOptions} [options] The migration options
++ * @returns {import('#compiler').MigrateResult}
++ */
++export function migrate(source, options = {}) {
++	try {
++		const result = _migrate(source, options);
++		return result;
++	} catch (e) {
++		if (e instanceof CompileError) {
++			handle_compile_error(e, options.filename, source);
++		}
++
++		throw e;
++	}
++}
++
+ export { CompileError } from './errors.js';
+ 
+ export { VERSION } from '../version.js';
+
+--- a/packages/svelte/src/compiler/legacy.js
++++ b/packages/svelte/src/compiler/legacy.js
+@@ -161,7 +161,7 @@
+ 					thenblock.start =
+ 						pendingblock.end ?? first?.start ?? source.indexOf('}', node.expression.end) + 1;
+ 					thenblock.end =
+-						last?.end ?? source.lastIndexOf('}', pendingblock.end ?? node.expression.end) + 1;
++						last?.end ?? (pendingblock.end ?? source.indexOf('}', node.expression.end) + 1);
+ 					thenblock.skip = false;
+ 				}
+ 
+@@ -176,7 +176,7 @@
+ 						source.indexOf('}', node.expression.end) + 1;
+ 					catchblock.end =
+ 						last?.end ??
+-						source.lastIndexOf('}', thenblock.end ?? pendingblock.end ?? node.expression.end) + 1;
++						(thenblock.end ?? pendingblock.end ?? source.indexOf('}', node.expression.end) + 1);
+ 					catchblock.skip = false;
+ 				}
+ 
+
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -56,7 +56,7 @@
+ 		let match_lang;
+ 
+ 		do match_lang = regex_lang_attribute.exec(template);
+-		while (match_lang && match_lang[0][1] !== 's'); // ensure it starts with '<s' to match script tags
++		while (match_lang && !match_lang[0].startsWith('<s')); // ensure it starts with '<s' to match script tags
+ 
+ 		regex_lang_attribute.lastIndex = 0; // reset matched index to pass tests - otherwise declare the regex inside the constructor
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/index.js
+@@ -88,8 +88,15 @@
+ 		];
+ 	}
+ 
++	const js_source_name = get_source_name(options.filename, options.outputFilename, 'input.svelte');
++	const js = print(program, {
++		sourceMapContent: source,
++		sourceMapSource: js_source_name
++	});
++	merge_with_preprocessor_map(js, options, js_source_name);
++
+ 	return {
+-		js: print(program, {}),
++		js,
+ 		css: null,
+ 		metadata: {
+ 			runes: true

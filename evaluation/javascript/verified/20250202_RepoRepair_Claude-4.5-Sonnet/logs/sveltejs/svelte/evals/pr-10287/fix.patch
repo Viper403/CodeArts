@@ -1,0 +1,52 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/read/style.js
++++ b/packages/svelte/src/compiler/phases/1-parse/read/style.js
+@@ -255,6 +255,35 @@
+ 				start,
+ 				end: parser.index
+ 			});
++
++			// After :global(...), if there's no whitespace or combinator and we have more content,
++			// we need to check if we should continue or break
++			if (name === 'global' && args !== null) {
++				const index = parser.index;
++				parser.allow_whitespace();
++
++				if (parser.match(',') || (inside_pseudo_class ? parser.match(')') : parser.match('{'))) {
++					parser.index = index;
++
++					return {
++						type: 'Selector',
++						start: list_start,
++						end: index,
++						children
++					};
++				}
++
++				if (parser.index !== index && !parser.match_regex(REGEX_COMBINATOR)) {
++					children.push({
++						type: 'Combinator',
++						name: ' ',
++						start: index,
++						end: parser.index
++					});
++				} else {
++					parser.index = index;
++				}
++			}
+ 		} else if (parser.eat('[')) {
+ 			parser.allow_whitespace();
+ 			const name = read_identifier(parser);
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/Selector.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/Selector.js
+@@ -183,7 +183,9 @@
+ 				const selector = block.selectors[i];
+ 				if (selector.type === 'PseudoClassSelector' && selector.name === 'global') {
+ 					const child = selector.args?.children[0].children[0];
+-					if (child?.type === 'TypeSelector' && !/[.:#]/.test(child.name[0])) {
++					// Only error if there are selectors BEFORE :global() in the compound
++					// e.g., `a:global(b)` is invalid, but `:global(b):c` is valid
++					if (child?.type === 'TypeSelector' && !/[.:#]/.test(child.name[0]) && i > 0) {
+ 						error(selector, 'invalid-css-global-selector-list');
+ 					}
+ 				}

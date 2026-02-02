@@ -1,0 +1,138 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -134,6 +134,15 @@
+ 					? 'SlotElement'
+ 					: 'RegularElement';
+ 
++	// Determine if this element is SVG or inside an SVG context
++	const is_svg =
++		name === 'svg' ||
++		(parent.type === 'RegularElement' && parent.metadata.svg) ||
++		(parent.type === 'Component' && parent.metadata.svg) ||
++		(parent.type === 'SvelteComponent' && parent.metadata.svg) ||
++		(parent.type === 'SvelteSelf' && parent.metadata.svg) ||
++		(parent.type === 'SvelteElement' && parent.metadata.svg);
++
+ 	/** @type {import('#compiler').ElementLike} */
+ 	// @ts-expect-error TODO can't figure out this error
+ 	const element =
+@@ -146,7 +155,7 @@
+ 					attributes: [],
+ 					fragment: create_fragment(true),
+ 					metadata: {
+-						svg: false,
++						svg: is_svg,
+ 						has_spread: false
+ 					},
+ 					parent: null
+@@ -160,7 +169,7 @@
+ 					fragment: create_fragment(true),
+ 					parent: null,
+ 					metadata: {
+-						svg: false
++						svg: is_svg
+ 					}
+ 				};
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -441,8 +441,8 @@
+ function serialize_element_attribute_update_assignment(element, node_id, attribute, context) {
+ 	const state = context.state;
+ 	const name = get_attribute_name(element, attribute, context);
+-	const is_svg = context.state.metadata.namespace === 'svg';
+ 	let [contains_call_expression, value] = serialize_attribute_value(attribute.value, context);
++	const is_svg = element.metadata.svg || context.state.metadata.namespace === 'svg';
+ 
+ 	// The foreign namespace doesn't have any special handling, everything goes through the attr function
+ 	if (context.state.metadata.namespace === 'foreign') {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -485,7 +485,8 @@
+  */
+ function get_attribute_name(element, attribute, context) {
+ 	let name = attribute.name;
+-	if (!element.metadata.svg && context.state.metadata.namespace !== 'foreign') {
++	const is_svg = element.metadata.svg || context.state.metadata.namespace === 'svg';
++	if (!is_svg && context.state.metadata.namespace !== 'foreign') {
+ 		name = name.toLowerCase();
+ 		// don't lookup boolean aliases here, the server runtime function does only
+ 		// check for the lowercase variants of boolean attributes
+
+--- a/packages/svelte/src/internal/client/dom/elements/class.js
++++ b/packages/svelte/src/internal/client/dom/elements/class.js
+@@ -39,20 +39,26 @@
+ 	// @ts-expect-error need to add __className to patched prototype
+ 	var prev_class_name = dom.__className;
+ 	var next_class_name = to_class(value);
++	
++	// Check if this is an SVG element by checking if className is not a string
++	var is_svg = typeof dom.className !== 'string';
++	var current_class_name = is_svg ? dom.getAttribute('class') : dom.className;
+ 
+-	if (hydrating && dom.className === next_class_name) {
++	if (hydrating && current_class_name === next_class_name) {
+ 		// In case of hydration don't reset the class as it's already correct.
+ 		// @ts-expect-error need to add __className to patched prototype
+ 		dom.__className = next_class_name;
+ 	} else if (
+ 		prev_class_name !== next_class_name ||
+-		(hydrating && dom.className !== next_class_name)
++		(hydrating && current_class_name !== next_class_name)
+ 	) {
+ 		// Removing the attribute when the value is only an empty string causes
+ 		// peformance issues vs simply making the className an empty string. So
+ 		// we should only remove the class if the the value is nullish.
+ 		if (value == null) {
+ 			dom.removeAttribute('class');
++		} else if (is_svg) {
++			dom.setAttribute('class', next_class_name);
+ 		} else {
+ 			set_class_name(dom, next_class_name);
+ 		}
+
+--- a/packages/svelte/src/internal/client/dom/template.js
++++ b/packages/svelte/src/internal/client/dom/template.js
+@@ -100,29 +100,25 @@
+ 	var is_fragment = (flags & TEMPLATE_FRAGMENT) !== 0;
+ 	var fn = template(`<svg>${content}</svg>`, 0); // we don't need to worry about using importNode for SVGs
+ 
+-	/** @type {Element | DocumentFragment} */
+-	var node;
+-
+ 	return () => {
+ 		if (hydrating) {
+ 			var hydration_content = push_template_node(is_fragment ? hydrate_nodes : hydrate_nodes[0]);
+ 			return /** @type {Node} */ (hydration_content);
+ 		}
+ 
+-		if (!node) {
+-			var svg = /** @type {Element} */ (fn());
+-
+-			if ((flags & TEMPLATE_FRAGMENT) === 0) {
+-				node = /** @type {Element} */ (svg.firstChild);
+-			} else {
+-				node = document.createDocumentFragment();
+-				while (svg.firstChild) {
+-					node.appendChild(svg.firstChild);
+-				}
++		var svg = /** @type {Element} */ (fn());
++		
++		/** @type {Element | DocumentFragment} */
++		var clone;
++
++		if ((flags & TEMPLATE_FRAGMENT) === 0) {
++			clone = /** @type {Element} */ (svg.firstChild);
++		} else {
++			clone = document.createDocumentFragment();
++			while (svg.firstChild) {
++				clone.appendChild(svg.firstChild);
+ 			}
+ 		}
+-
+-		var clone = clone_node(node, true);
+ 
+ 		push_template_node(
+ 			is_fragment

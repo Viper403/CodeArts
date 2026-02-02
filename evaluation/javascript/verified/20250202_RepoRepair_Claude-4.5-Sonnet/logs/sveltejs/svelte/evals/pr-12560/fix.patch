@@ -1,0 +1,78 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -53,7 +53,7 @@
+ 		let match_lang;
+ 
+ 		do match_lang = regex_lang_attribute.exec(template);
+-		while (match_lang && match_lang[0][1] !== 's'); // ensure it starts with '<s' to match script tags
++		while (match_lang && !match_lang[0].startsWith('<script')); // ensure it's a script tag, not a style tag or comment
+ 
+ 		regex_lang_attribute.lastIndex = 0; // reset matched index to pass tests - otherwise declare the regex inside the constructor
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -600,7 +600,9 @@
+ 
+ 				if (class_attribute && class_attribute.value !== true) {
+ 					if (is_text_attribute(class_attribute)) {
+-						class_attribute.value[0].data += ` ${analysis.css.hash}`;
++						const last_chunk = class_attribute.value[class_attribute.value.length - 1];
++						last_chunk.data += ` ${analysis.css.hash}`;
++						last_chunk.raw += ` ${analysis.css.hash}`;
+ 					} else {
+ 						/** @type {import('#compiler').Text} */
+ 						const css_text = {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/css/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/css/index.js
+@@ -237,6 +237,8 @@
+ 						selector.type === 'PseudoClassSelector' &&
+ 						(selector.name === 'is' || selector.name === 'where')
+ 					) {
++						// Still mark as bumped so subsequent selectors get proper treatment
++						context.state.specificity.bumped = true;
+ 						continue;
+ 					}
+ 				}
+@@ -249,6 +251,8 @@
+ 				}
+ 
+ 				if (relative_selector.selectors.some((s) => s.type === 'NestingSelector')) {
++					// Still mark as bumped so subsequent selectors get proper treatment
++					context.state.specificity.bumped = true;
+ 					continue;
+ 				}
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/index.js
+@@ -41,7 +41,7 @@
+ 	merge_with_preprocessor_map(js, options, js_source_name);
+ 
+ 	const css =
+-		analysis.css.ast && !analysis.inject_styles
++		analysis.css.ast
+ 			? render_stylesheet(source, analysis, options)
+ 			: null;
+ 
+
+--- a/packages/svelte/src/compiler/preprocess/index.js
++++ b/packages/svelte/src/compiler/preprocess/index.js
+@@ -289,11 +289,15 @@
+ 		if (!processed) return no_change();
+ 		if (processed.dependencies) dependencies.push(...processed.dependencies);
+ 		if (!processed.map && processed.code === content) return no_change();
++		const generated_attributes =
++			processed.attributes !== undefined
++				? stringify_tag_attributes(processed.attributes) ?? ''
++				: attributes;
+ 		return processed_tag_to_code(
+ 			processed,
+ 			tag_name,
+ 			attributes,
+-			stringify_tag_attributes(processed.attributes) ?? attributes,
++			generated_attributes,
+ 			slice_source(content, tag_offset, source)
+ 		);
+ 	}

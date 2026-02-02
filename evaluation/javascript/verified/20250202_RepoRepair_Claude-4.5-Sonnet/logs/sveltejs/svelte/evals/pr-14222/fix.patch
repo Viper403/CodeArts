@@ -1,0 +1,101 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -208,7 +208,28 @@
+ 			state.has_svelte_self;
+ 
+ 		if (!parsed.instance && need_script) {
+-			str.appendRight(0, '<script>');
++			str.appendRight(0, state.uses_ts ? '<script lang="ts">' : '<script>');
++		}
++
++		// Add lang="ts" to existing script tag if we're using TypeScript but it's not already there
++		if (parsed.instance && state.uses_ts) {
++			const has_lang_ts = parsed.instance.attributes.some(
++				(attr) => attr.name === 'lang' && /** @type {any} */ (attr).value[0]?.data === 'ts'
++			);
++			if (!has_lang_ts) {
++				// Find the position after <script
++				const script_start = /** @type {number} */ (parsed.instance.start);
++				const script_tag_end = source.indexOf('>', script_start);
++				// Check if there are already attributes
++				const has_attributes = parsed.instance.attributes.length > 0;
++				if (has_attributes) {
++					// Add lang="ts" after existing attributes
++					str.appendLeft(script_tag_end, ' lang="ts"');
++				} else {
++					// Add lang="ts" as the first attribute
++					str.appendLeft(script_tag_end, ' lang="ts"');
++				}
++			}
+ 		}
+ 
+ 		if (state.has_svelte_self && filename) {
+
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -53,8 +53,9 @@
+ 
+ 		let match_lang;
+ 
+-		do match_lang = regex_lang_attribute.exec(template);
+-		while (match_lang && match_lang[0][1] !== 's'); // ensure it starts with '<s' to match script tags
++		do {
++			match_lang = regex_lang_attribute.exec(template);
++		} while (match_lang && match_lang[0].startsWith('<!--')); // skip comments, only consider script tags
+ 
+ 		regex_lang_attribute.lastIndex = 0; // reset matched index to pass tests - otherwise declare the regex inside the constructor
+ 
+
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -301,6 +301,24 @@
+ 				content.content.leadingComments = [{ type: 'Line', value: prev_comment.data }];
+ 			}
+ 
++			// Check if script has TypeScript syntax but no lang="ts" attribute
++			const hasLangTs = element.attributes.some(
++				attr => attr.type === 'Attribute' && attr.name === 'lang' && 
++				Array.isArray(attr.value) && attr.value.some(v => v.type === 'Text' && v.data === 'ts')
++			);
++			
++			if (!hasLangTs && content.content.body) {
++				// Check for TypeScript-specific syntax patterns in the AST
++				const hasTypeScriptSyntax = JSON.stringify(content.content).includes('"TSTypeAnnotation"') ||
++					JSON.stringify(content.content).includes('"TSInterfaceDeclaration"') ||
++					JSON.stringify(content.content).includes('"TSTypeAliasDeclaration"');
++				
++				if (hasTypeScriptSyntax) {
++					w.script_missing_lang_ts?.(start) ?? 
++						console.warn(`Warning: Script tag at position ${start} contains TypeScript syntax but is missing lang="ts" attribute`);
++				}
++			}
++
+ 			if (content.context === 'module') {
+ 				if (current.module) e.script_duplicate(start);
+ 				current.module = content;
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -199,6 +199,22 @@
+ 
+ 	const { scope, scopes } = create_scopes(ast, root, allow_reactive_declarations, parent);
+ 
++	// Check if script uses TypeScript syntax without lang="ts"
++	if (script && !script.attributes.some(attr => attr.name === 'lang' && attr.value?.[0]?.data === 'ts')) {
++		// Walk the AST to check for TypeScript-specific syntax
++		walk(ast, null, {
++			TSTypeAnnotation(node) {
++				e.typescript_invalid_feature(node, 'Type annotations can only be used in TypeScript files. Add lang="ts" to your script tag.');
++			},
++			TSInterfaceDeclaration(node) {
++				e.typescript_invalid_feature(node, 'Interface declarations can only be used in TypeScript files. Add lang="ts" to your script tag.');
++			},
++			TSTypeAliasDeclaration(node) {
++				e.typescript_invalid_feature(node, 'Type aliases can only be used in TypeScript files. Add lang="ts" to your script tag.');
++			}
++		});
++	}
++
+ 	return { ast, scope, scopes };
+ }
+ 

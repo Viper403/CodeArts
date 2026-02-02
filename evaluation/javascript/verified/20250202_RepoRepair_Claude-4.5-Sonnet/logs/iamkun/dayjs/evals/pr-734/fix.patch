@@ -1,0 +1,86 @@
+--- a/src/index.js
++++ b/src/index.js
+@@ -412,4 +412,15 @@
+ dayjs.en = Ls[L]
+ dayjs.Ls = Ls
+ 
++dayjs.localeData = () => {
++  const localeObject = Ls[L]
++  return {
++    ...localeObject,
++    longDateFormat: (formatKey) => {
++      const formats = localeObject.formats || {}
++      return formats[formatKey]
++    }
++  }
++}
++
+ export default dayjs
+
+--- a/src/plugin/advancedFormat/index.js
++++ b/src/plugin/advancedFormat/index.js
+@@ -9,6 +9,14 @@
+     return `[${number}${(s[(v - 20) % 10] || s[v] || s[0])}]`
+   }
+   // extend en locale here
++  proto.localeData = function () {
++    return {
++      longDateFormat: (formatKey) => {
++        const locale = this.$locale()
++        return locale.formats?.[formatKey] || formatKey
++      }
++    }
++  }
+   proto.format = function (formatStr) {
+     const locale = this.$locale()
+     const utils = this.$utils()
+
+--- a/src/plugin/badMutable/index.js
++++ b/src/plugin/badMutable/index.js
+@@ -49,5 +49,16 @@
+   proto.isAfter = function (that, units) {
+     return oldIsAfter.bind(this.clone())(that, units)
+   }
++
++  proto.localeData = function () {
++    const that = this
++    return {
++      longDateFormat: function (key) {
++        const locale = that.$locale()
++        const formats = locale && locale.formats
++        return formats && formats[key]
++      }
++    }
++  }
+ }
+ 
+
+--- a/src/plugin/calendar/index.js
++++ b/src/plugin/calendar/index.js
+@@ -9,7 +9,26 @@
+     lastWeek: `[Last] dddd [at] ${LT}`,
+     sameElse: L
+   }
++  const longDateFormat = {
++    LT,
++    LTS: 'h:mm:ss A',
++    L,
++    LL: 'MMMM D, YYYY',
++    LLL: 'MMMM D, YYYY h:mm A',
++    LLLL: 'dddd, MMMM D, YYYY h:mm A'
++  }
+   const proto = c.prototype
++  const localeProto = d.Ls.en.prototype
++  localeProto.longDateFormat = function (key) {
++    const format = this.formats && this.formats[key]
++    return format || longDateFormat[key]
++  }
++  d.localeData = function () {
++    return d().localeData()
++  }
++  proto.localeData = function () {
++    return this.$locale()
++  }
+   proto.calendar = function (referenceTime, formats) {
+     const format = formats || this.$locale().calendar || calendarFormat
+     const referenceStartOfDay = d(referenceTime || undefined).startOf('d')

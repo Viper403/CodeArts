@@ -1,0 +1,99 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -111,7 +111,7 @@
+ 			? 'Component'
+ 			: name === 'title' && parent_is_head(parser.stack)
+ 				? 'TitleElement'
+-				: name === 'slot'
++				: name === 'slot' && !is_closing_tag
+ 					? 'SlotElement'
+ 					: 'RegularElement';
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -902,6 +902,55 @@
+ 		}
+ 		context.state.analysis.slot_names.add(name);
+ 	},
++	Component(node, context) {
++		// Handle let: directives on components with slot attributes
++		// These create bindings in the current scope for slot props
++		for (const attribute of node.attributes) {
++			if (attribute.type === 'LetDirective') {
++				const bindings = extract_identifiers(attribute.expression || attribute.name);
++				for (const binding of bindings) {
++					context.state.scope.declare(binding, 'normal', 'synthetic');
++				}
++			}
++		}
++		context.next();
++	},
++	SvelteComponent(node, context) {
++		// Handle let: directives on svelte:component with slot attributes
++		for (const attribute of node.attributes) {
++			if (attribute.type === 'LetDirective') {
++				const bindings = extract_identifiers(attribute.expression || attribute.name);
++				for (const binding of bindings) {
++					context.state.scope.declare(binding, 'normal', 'synthetic');
++				}
++			}
++		}
++		context.next();
++	},
++	SvelteSelf(node, context) {
++		// Handle let: directives on svelte:self with slot attributes
++		for (const attribute of node.attributes) {
++			if (attribute.type === 'LetDirective') {
++				const bindings = extract_identifiers(attribute.expression || attribute.name);
++				for (const binding of bindings) {
++					context.state.scope.declare(binding, 'normal', 'synthetic');
++				}
++			}
++		}
++		context.next();
++	},
++=======
++	SlotElement(node, context) {
++		let name = 'default';
++		for (const attr of node.attributes) {
++			if (attr.type === 'Attribute' && attr.name === 'name' && is_text_attribute(attr)) {
++				name = attr.value[0].data;
++				break;
++			}
++		}
++		context.state.analysis.slot_names.add(name);
++		context.next();
++	},
+ 	StyleDirective(node, context) {
+ 		if (node.value === true) {
+ 			const binding = context.state.scope.get(node.name);
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -172,7 +172,11 @@
+ 			owner.type === 'SvelteComponent' ||
+ 			owner.type === 'SvelteSelf'
+ 		) {
+-			if (owner !== context.path.at(-2)) {
++			const parent = context.path.at(-2);
++			// The slotted element should be a direct child of the owner.
++			// However, there may be a Fragment node in between (owner's fragment).
++			// So we check: owner at -2, or owner at -3 with Fragment at -2
++			if (owner !== parent && !(parent?.type === 'Fragment' && owner === context.path.at(-3))) {
+ 				error(attribute, 'invalid-slot-placement');
+ 			}
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -871,6 +871,9 @@
+ 		);
+ 		push_prop(b.init('$$events', events_expression));
+ 	}
++
++	// Let bindings need to be available when processing attributes
++	context.state.init.push(...lets);
+ 
+ 	/** @type {import('estree').Statement[]} */
+ 	const snippet_declarations = [];

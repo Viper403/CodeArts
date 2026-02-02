@@ -1,0 +1,90 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -271,7 +271,14 @@
+ 
+ 	pop() {
+ 		this.fragments.pop();
+-		return this.stack.pop();
++		const popped = this.stack.pop();
++		
++		// Clear ignore state when we exit the scope of an ignored element
++		if (this.ignore_stack_depth !== null && this.stack.length < this.ignore_stack_depth) {
++			this.ignore_stack_depth = null;
++		}
++		
++		return popped;
+ 	}
+ 
+ 	/**
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/a11y.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/a11y.js
+@@ -679,12 +679,36 @@
+ }
+ 
+ /**
++ * Check if this node or any of its parents should be ignored
++ * @param {import('#compiler').SvelteNode} node
++ * @returns {boolean}
++ */
++function should_ignore_node(node) {
++	let current = node;
++	while (current) {
++		// Check if current node has ignores that would suppress a11y warnings
++		if (current.type === 'RegularElement' || current.type === 'SvelteElement') {
++			// @ts-ignore - ignores may not be defined in all cases
++			if (current.ignores && current.ignores.size > 0) {
++				return true;
++			}
++		}
++		// @ts-ignore - parent may not be defined
++		current = current.parent;
++	}
++	return false;
++}
++
++/**
+  * @param {import('#compiler').RegularElement | import('#compiler').SvelteElement} node
+  * @param {import('./types.js').AnalysisState} state
+  */
+ function check_element(node, state) {
+ 	// foreign namespace means elements can have completely different meanings, therefore we don't check them
+ 	if (state.options.namespace === 'foreign') return;
++	
++	// Check if this node or any parent has svelte-ignore comments
++	if (should_ignore_node(node)) return;
+ 
+ 	/** @type {Map<string, import('#compiler').Attribute>} */
+ 	const attribute_map = new Map();
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -1147,8 +1147,6 @@
+ 					// @ts-expect-error
+ 					child.ignores = combined_ignores;
+ 				}
+-
+-				ignores = [];
+ 			}
+ 		}
+ 	},
+
+--- a/packages/svelte/src/compiler/warnings.js
++++ b/packages/svelte/src/compiler/warnings.js
+@@ -28,8 +28,14 @@
+  * @param {string} message
+  */
+ function w(node, code, message) {
+-	// @ts-expect-error
+-	if (node?.ignores?.has(code)) return;
++	// Check if this node or any of its ancestors have an ignore directive for this code
++	let current = node;
++	while (current) {
++		// @ts-expect-error
++		if (current.ignores?.has(code)) return;
++		// @ts-expect-error
++		current = current.parent;
++	}
+ 
+ 	warnings.push({
+ 		code,

@@ -1,0 +1,26 @@
+[2026-02-01 20:19:37,663] [docker_util.py] [INFO]: Start building image `mswebench/sveltejs_m_svelte:pr-14349`, working directory is `data/workdir_js/sveltejs/svelte/images/pr-14349`
+[2026-02-01 20:19:37,840] [docker_util.py] [INFO]: Step 1/9 : FROM mswebench/sveltejs_m_svelte:base9
+[2026-02-01 20:19:37,840] [docker_util.py] [INFO]: 
+[2026-02-01 20:19:37,860] [docker_util.py] [INFO]: ---> 7f9e60276562
+[2026-02-01 20:19:37,860] [docker_util.py] [INFO]: Step 2/9 : COPY fix.patch /home/
+[2026-02-01 20:19:37,860] [docker_util.py] [INFO]: 
+[2026-02-01 20:19:42,129] [docker_util.py] [INFO]: ---> 09af93646e39
+[2026-02-01 20:19:42,129] [docker_util.py] [INFO]: Step 3/9 : COPY test.patch /home/
+[2026-02-01 20:19:42,129] [docker_util.py] [INFO]: 
+[2026-02-01 20:19:46,380] [docker_util.py] [INFO]: ---> 32c3e3fc2569
+[2026-02-01 20:19:46,380] [docker_util.py] [INFO]: Step 4/9 : COPY check_git_changes.sh /home/
+[2026-02-01 20:19:46,380] [docker_util.py] [INFO]: 
+[2026-02-01 20:19:50,420] [docker_util.py] [INFO]: ---> 632a72a4e980
+[2026-02-01 20:19:50,420] [docker_util.py] [INFO]: Step 5/9 : COPY prepare.sh /home/
+[2026-02-01 20:19:50,420] [docker_util.py] [INFO]: 
+[2026-02-01 20:19:53,868] [docker_util.py] [INFO]: ---> 564f2c362e7b
+[2026-02-01 20:19:53,868] [docker_util.py] [INFO]: Step 6/9 : COPY run.sh /home/
+[2026-02-01 20:19:53,869] [docker_util.py] [INFO]: 
+[2026-02-01 20:19:57,018] [docker_util.py] [INFO]: ---> 08f242b9fef0
+[2026-02-01 20:19:57,018] [docker_util.py] [INFO]: Step 7/9 : COPY test-run.sh /home/
+[2026-02-01 20:19:57,018] [docker_util.py] [INFO]: 
+[2026-02-01 20:20:00,430] [docker_util.py] [INFO]: ---> 27db8135216d
+[2026-02-01 20:20:00,430] [docker_util.py] [INFO]: Step 8/9 : COPY fix-run.sh /home/
+[2026-02-01 20:20:00,430] [docker_util.py] [INFO]: 
+[2026-02-01 20:51:25,447] [docker_util.py] [INFO]: Start building image `mswebench/sveltejs_m_svelte:pr-14349`, working directory is `data/workdir_js/sveltejs/svelte/images/pr-14349`
+[2026-02-01 20:51:35,466] [docker_util.py] [ERROR]: Unknown build error occurred: Credentials store docker-credential-desktop.exe exited with "".

@@ -1,0 +1,79 @@
+--- a/src/locale/ar-dz.js
++++ b/src/locale/ar-dz.js
+@@ -17,7 +17,12 @@
+     LLL: 'D MMMM YYYY HH:mm',
+     LLLL: 'dddd D MMMM YYYY HH:mm'
+   },
+-  meridiem: hour => (hour > 12 ? '?' : '?'),
++  meridiem: (hour) => {
++    if (hour > 12) {
++      return '?'
++    }
++    return '?'
++  },
+   relativeTime: {
+     future: '?? %s',
+     past: '??? %s',
+
+--- a/src/locale/ar-kw.js
++++ b/src/locale/ar-kw.js
+@@ -17,7 +17,12 @@
+     LLL: 'D MMMM YYYY HH:mm',
+     LLLL: 'dddd D MMMM YYYY HH:mm'
+   },
+-  meridiem: hour => (hour > 12 ? '?' : '?'),
++  meridiem: (hour) => {
++    if (hour > 12) {
++      return '?'
++    }
++    return '?'
++  },
+   relativeTime: {
+     future: '?? %s',
+     past: '??? %s',
+
+--- a/src/locale/ar-ly.js
++++ b/src/locale/ar-ly.js
+@@ -10,7 +10,7 @@
+   monthsShort: '?????_??????_????_?????_????_?????_?????_?????_??????_??????_??????_??????'.split('_'),
+   weekdaysMin: '?_?_?_?_?_?_?'.split('_'),
+   ordinal: n => n,
+-  meridiem: hour => (hour > 12 ? '?' : '?'),
++  meridiem: hour => (hour > 12 ? '?' : '?'),
+   formats: {
+     LT: 'HH:mm',
+     LTS: 'HH:mm:ss',
+
+--- a/src/locale/ar-ma.js
++++ b/src/locale/ar-ma.js
+@@ -18,7 +18,12 @@
+     LLL: 'D MMMM YYYY HH:mm',
+     LLLL: 'dddd D MMMM YYYY HH:mm'
+   },
+-  meridiem: hour => (hour > 12 ? '?' : '?'),
++  meridiem: (hour) => {
++    if (hour > 12) {
++      return '?'
++    }
++    return '?'
++  },
+   relativeTime: {
+     future: '?? %s',
+     past: '??? %s',
+
+--- a/src/locale/ar-sa.js
++++ b/src/locale/ar-sa.js
+@@ -17,7 +17,12 @@
+     LLL: 'D MMMM YYYY HH:mm',
+     LLLL: 'dddd D MMMM YYYY HH:mm'
+   },
+-  meridiem: hour => (hour > 12 ? '?' : '?'),
++  meridiem: (hour) => {
++    if (hour > 12) {
++      return '?'
++    }
++    return '?'
++  },
+   relativeTime: {
+     future: '?? %s',
+     past: '??? %s',

@@ -1,0 +1,22 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -2275,6 +2275,7 @@
+ 
+ 	const component_block = b.block([
+ 		b.stmt(b.call('$.push', b.literal(analysis.runes))),
++		...snippet_declarations,
+ 		.../** @type {import('estree').Statement[]} */ (instance.body),
+ 		.../** @type {import('estree').Statement[]} */ (template.body),
+ 		b.stmt(b.call('$.pop'))
+
+--- a/packages/svelte/src/compiler/phases/scope.js
++++ b/packages/svelte/src/compiler/phases/scope.js
+@@ -639,7 +639,7 @@
+ 			// Special-case for root-level snippets: they become part of the instance scope
+ 			const is_top_level = !context.path.at(-2);
+ 			let scope = state.scope;
+-			if (is_top_level) {
++			if (is_top_level && parent) {
+ 				scope = /** @type {Scope} */ (parent);
+ 			}
+ 			scope.declare(node.expression, 'normal', 'function', node.expression);

@@ -1,0 +1,81 @@
+--- a/scripts/preview-theme.js
++++ b/scripts/preview-theme.js
+@@ -305,7 +305,8 @@
+  * @returns {string} GRS theme url.
+  */
+ const getGRSLink = (colors) => {
+-  const url = `https://github-readme-stats.vercel.app/api?username=anuraghazra`;
++  const baseUrl = process.env.GRS_BASE_URL || `https://github-readme-stats.vercel.app`;
++  const url = `${baseUrl}/api?username=anuraghazra`;
+   const colorString = Object.keys(colors)
+     .map((colorKey) => `${colorKey}=${colors[colorKey]}`)
+     .join("&");
+
+--- a/src/calculateRank.js
++++ b/src/calculateRank.js
+@@ -78,7 +78,8 @@
+       FOLLOWERS_WEIGHT * log_normal_cdf(followers / FOLLOWERS_MEDIAN)) /
+       TOTAL_WEIGHT;
+ 
+-  const level = LEVELS[THRESHOLDS.findIndex((t) => rank * 100 <= t)];
++  const levelIndex = THRESHOLDS.findIndex((t) => rank * 100 <= t);
++  const level = levelIndex === -1 ? LEVELS[LEVELS.length - 1] : LEVELS[levelIndex];
+ 
+   return { level, percentile: rank * 100 };
+ }
+
+--- a/src/common/Card.js
++++ b/src/common/Card.js
+@@ -228,7 +228,7 @@
+           }
+           ${this.css}
+ 
+-          ${process.env.NODE_ENV === "test" ? "" : this.getAnimations()}
++          ${typeof process !== "undefined" && process.env?.NODE_ENV === "test" ? "" : this.getAnimations()}
+           ${
+             this.animations === false
+               ? `* { animation-duration: 0s !important; animation-delay: 0s !important; }`
+
+--- a/src/common/I18n.js
++++ b/src/common/I18n.js
+@@ -24,16 +24,22 @@
+    */
+   t(str) {
+     if (!this.translations[str]) {
+-      throw new Error(`${str} Translation string not found`);
++      // Return the original string if no translation exists
++      return str;
+     }
+ 
+-    if (!this.translations[str][this.locale]) {
+-      throw new Error(
+-        `'${str}' translation not found for locale '${this.locale}'`,
+-      );
++    // Try current locale first
++    if (this.translations[str][this.locale]) {
++      return this.translations[str][this.locale];
+     }
+ 
+-    return this.translations[str][this.locale];
++    // Fall back to default locale
++    if (this.translations[str][FALLBACK_LOCALE]) {
++      return this.translations[str][FALLBACK_LOCALE];
++    }
++
++    // Return original string as last resort
++    return str;
+   }
+ }
+ 
+
+--- a/src/translations.js
++++ b/src/translations.js
+@@ -499,7 +499,7 @@
+     it: "Nessun dato sulle lingue.",
+     ja: "���Z�ǩ`��������ޤ���",
+     kr: "?? ???? ????.",
+-    nl: "Ingen sprogdata.",
++    nl: "Geen taalgegevens.",
+     "pt-pt": "Sem dados de idiomas.",
+     "pt-br": "Sem dados de idiomas.",
+     np: "???? ???? ???? ????",

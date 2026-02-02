@@ -1,0 +1,33 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
+@@ -32,7 +32,9 @@
+ const css_visitors = {
+ 	Atrule(node, context) {
+ 		if (is_keyframes_node(node)) {
+-			if (!node.prelude.startsWith('-global-')) {
++			// Don't scope keyframes if they're inside a :global {} block or start with -global-
++			const is_in_global_block = context.state.rule?.metadata.is_global_block;
++			if (!node.prelude.startsWith('-global-') && !is_in_global_block) {
+ 				context.state.keyframes.push(node.prelude);
+ 			}
+ 		}
+
+--- a/packages/svelte/src/compiler/phases/3-transform/css/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/css/index.js
+@@ -182,12 +182,14 @@
+ 					state.code.appendLeft(node.block.end, '*/');
+ 				}
+ 
+-				// don't recurse into selector or body
++				// don't recurse into selector, but do visit the body to transform declarations
++				visit(node.block);
+ 				return;
+ 			}
+ 
+-			// don't recurse into body
++			// don't recurse into body for complex selectors, but do visit it to transform declarations
+ 			visit(node.prelude);
++			visit(node.block);
+ 			return;
+ 		}
+ 

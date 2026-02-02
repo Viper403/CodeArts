@@ -1,0 +1,42 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -309,7 +309,9 @@
+  * @param {Expression} arg
+  */
+ export function create_derived(state, arg) {
+-	return b.call(state.analysis.runes ? '$.derived' : '$.derived_safe_equal', arg);
++	// Always use $.derived to ensure proper reactivity for all value changes
++	// including undefined -> null transitions in nested contexts
++	return b.call('$.derived', arg);
+ }
+ 
+ /**
+
+--- a/packages/svelte/src/internal/client/dom/blocks/each.js
++++ b/packages/svelte/src/internal/client/dom/blocks/each.js
+@@ -201,7 +201,9 @@
+ 		if (fallback_fn !== null) {
+ 			if (length === 0) {
+ 				if (fallback) {
+-					resume_effect(fallback);
++					pause_effect(fallback, () => {
++						fallback = branch(() => fallback_fn(anchor));
++					});
+ 				} else {
+ 					fallback = branch(() => fallback_fn(anchor));
+ 				}
+
+--- a/packages/svelte/src/internal/client/reactivity/effects.js
++++ b/packages/svelte/src/internal/client/reactivity/effects.js
+@@ -532,6 +532,11 @@
+ 	if (check_dirtiness(effect)) {
+ 		update_effect(effect);
+ 	}
++	// If this is a branch effect, we need to ensure it gets updated
++	// to re-evaluate its condition, even if check_dirtiness returned false
++	else if ((effect.f & BRANCH_EFFECT) !== 0 && effect.fn !== null) {
++		update_effect(effect);
++	}
+ 
+ 	var child = effect.first;
+ 

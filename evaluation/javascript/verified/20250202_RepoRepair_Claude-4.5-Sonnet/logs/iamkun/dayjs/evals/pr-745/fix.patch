@@ -1,0 +1,57 @@
+--- a/src/index.js
++++ b/src/index.js
+@@ -325,7 +325,12 @@
+       Z: zoneStr // 'ZZ' logic below
+     }
+ 
+-    return str.replace(C.REGEX_FORMAT, (match, $1) => $1 || matches[match] || zoneStr.replace(':', '')) // 'ZZ'
++    return str.replace(C.REGEX_FORMAT, (match, $1) => {
++      if ($1) return $1
++      if (match in matches) return matches[match]
++      if (match === 'ZZ') return zoneStr.replace(':', '')
++      return match
++    })
+   }
+ 
+   utcOffset() {
+
+--- a/src/locale/sv.js
++++ b/src/locale/sv.js
+@@ -8,10 +8,10 @@
+   months: 'januari_februari_mars_april_maj_juni_juli_augusti_september_oktober_november_december'.split('_'),
+   monthsShort: 'jan_feb_mar_apr_maj_jun_jul_aug_sep_okt_nov_dec'.split('_'),
+   weekStart: 1,
+-  ordinal: (n) => {
++  ordinal: n => {
+     const b = n % 10
+-    const o = (b === 1) || (b === 2) ? 'a' : 'e'
+-    return `${n}${o}`
++    const o = (b === 1 || b === 2) ? 'a' : 'e'
++    return `[${n}${o}]`
+   },
+   formats: {
+     LT: 'HH:mm',
+--- a/src/plugin/advancedFormat/index.js
++++ b/src/plugin/advancedFormat/index.js
+@@ -17,12 +17,16 @@
+       switch (match) {
+         case 'Q':
+           return Math.ceil((this.$M + 1) / 3)
+-        case 'Do':
+-          return locale.ordinal(this.$D)
++        case 'Do': {
++          const ordinal = locale.ordinal ? locale.ordinal(this.$D) : this.$D
++          return ordinal.toString().replace(/^\[?([^\]]*)\]?$/, '[$1]')
++        }
+         case 'gggg':
+           return this.weekYear()
+-        case 'wo':
+-          return locale.ordinal(this.week(), 'W') // W for week
++        case 'wo': {
++          const ordinal = locale.ordinal ? locale.ordinal(this.week(), 'W') : this.week()
++          return ordinal.toString().replace(/^\[?([^\]]*)\]?$/, '[$1]')
++        }
+         case 'w':
+         case 'ww':
+           return utils.s(this.week(), match === 'w' ? 1 : 2, '0')
+

@@ -1,0 +1,74 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
+@@ -91,7 +91,11 @@
+ 
+ 		node.metadata.rule = context.state.rule;
+ 
+-		node.metadata.used ||= node.children.every(
++		if (node.metadata.used === undefined) {
++			node.metadata.used = false;
++		}
++		
++		node.metadata.used = node.metadata.used || node.children.every(
+ 			({ metadata }) => metadata.is_global || metadata.is_global_like
+ 		);
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
+@@ -69,12 +69,12 @@
+ /** @type {Visitors<Compiler.Css.Node, State>} */
+ const visitors = {
+ 	Rule(node, context) {
+-		if (node.metadata.is_global_block) {
+-			context.visit(node.prelude);
+-		} else {
+-			context.next();
++		// Visit all complex selectors in the rule's prelude
++		for (const complex_selector of node.prelude.children) {
++			context.visit(complex_selector, context.state);
+ 		}
+ 	},
++=======
+ 	ComplexSelector(node, context) {
+ 		const selectors = get_relative_selectors(node);
+ 		const inner = selectors[selectors.length - 1];
+
+--- a/packages/svelte/src/compiler/phases/3-transform/css/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/css/index.js
+@@ -204,15 +204,15 @@
+ 			for (let i = 0; i < children.length; i += 1) {
+ 				const selector = children[i];
+ 
+-				if (selector.metadata.used === pruning) {
++				if (selector.metadata.used !== pruning) {
+ 					if (pruning) {
+-						let i = selector.start;
+-						while (state.code.original[i] !== ',') i--;
++						let comma_pos = selector.start;
++						while (state.code.original[comma_pos] !== ',') comma_pos--;
+ 
+ 						if (state.minify) {
+-							state.code.remove(prune_start, i + 1);
++							state.code.remove(prune_start, comma_pos + 1);
+ 						} else {
+-							state.code.overwrite(i, i + 1, '*/');
++							state.code.overwrite(comma_pos, comma_pos + 1, '*/');
+ 						}
+ 					} else {
+ 						if (i === 0) {
+@@ -226,10 +226,11 @@
+ 							const separator = i !== children.length - 1 ? ',' : '';
+ 
+ 							if (state.minify) {
+-								prune_start = last;
++								let comma_pos = last;
++								while (state.code.original[comma_pos] !== ',') comma_pos++;
++								prune_start = comma_pos;
+ 								if (separator) {
+-									while (state.code.original[prune_start - 1] !== ',') prune_start++;
+-									state.code.update(last, prune_start, separator);
++									state.code.update(last, comma_pos, separator);
+ 								}
+ 							} else {
+ 								state.code.overwrite(last, selector.start, `${separator} /* (unused) `);

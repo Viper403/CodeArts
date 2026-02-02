@@ -1,0 +1,32 @@
+--- a/packages/svelte/src/internal/client/proxy.js
++++ b/packages/svelte/src/internal/client/proxy.js
+@@ -101,7 +101,7 @@
+ 				update_version(version);
+ 			}
+ 
+-			return exists;
++			return true;
+ 		},
+ 
+ 		get(target, prop, receiver) {
+
+--- a/packages/svelte/src/internal/client/reactivity/props.js
++++ b/packages/svelte/src/internal/client/reactivity/props.js
+@@ -65,6 +65,17 @@
+ 				value: target.props[key]
+ 			};
+ 		}
++	},
++	deleteProperty(target, key) {
++		if (target.exclude.includes(key)) return true;
++		if (key in target.props) {
++			if (DEV) {
++				// TODO should this happen in prod too?
++				e.props_rest_readonly(`${target.name}.${String(key)}`);
++			}
++			return false;
++		}
++		return true;
+ 	},
+ 	has(target, key) {
+ 		if (target.exclude.includes(key)) return false;

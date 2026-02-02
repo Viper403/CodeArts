@@ -1,0 +1,41 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/server/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/visitors/shared/element.js
+@@ -228,6 +228,10 @@
+ 						WhitespaceInsensitiveAttributes.includes(name)
+ 					)
+ 				).value;
++				// Skip boolean attributes with false value
++				if (DOMBooleanAttributes.includes(name) && literal_value === false) {
++					continue;
++				}
+ 				if (name !== 'class' || literal_value) {
+ 					context.state.template.push(
+ 						b.literal(
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/visitors/shared/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/visitors/shared/utils.js
+@@ -162,6 +162,10 @@
+ 		return b.true;
+ 	}
+ 
++	if (value === false) {
++		return b.false;
++	}
++
+ 	if (!Array.isArray(value) || value.length === 1) {
+ 		const chunk = Array.isArray(value) ? value[0] : value;
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/utils.js
+@@ -283,9 +283,7 @@
+ 			((first.type === 'RenderTag' && !first.metadata.dynamic) ||
+ 				(first.type === 'Component' &&
+ 					!state.options.hmr &&
+-					!first.attributes.some(
+-						(attribute) => attribute.type === 'Attribute' && attribute.name.startsWith('--')
+-					))),
++					first.attributes.length === 0)),
+ 		/** if a component or snippet starts with text, we need to add an anchor comment so that its text node doesn't get fused with its surroundings */
+ 		is_text_first:
+ 			(parent.type === 'Fragment' ||

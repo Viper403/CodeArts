@@ -1,0 +1,62 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -564,9 +564,10 @@
+ 		b.assignment('=', b.member(node_id, b.id('__value')), value)
+ 	);
+ 	const is_reactive = attribute.metadata.dynamic;
++	const parent_each_blocks = collect_parent_each_blocks(context);
+ 	const needs_selected_call =
+-		element === 'option' && (is_reactive || collect_parent_each_blocks(context).length > 0);
+-	const needs_option_call = element === 'select' && is_reactive;
++		element === 'option' && (is_reactive || parent_each_blocks.length > 0);
++	const needs_option_call = element === 'select' && (is_reactive || parent_each_blocks.length > 0);
+ 	const assigment = b.stmt(
+ 		needs_selected_call
+ 			? b.sequence([
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -460,7 +460,8 @@
+ 			return;
+ 		}
+ 	}
+-	select.value = '';
++	// No matching option found - deselect all to avoid first option appearing selected
++	select.selectedIndex = -1;
+ }
+ 
+ /**
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -1347,15 +1347,10 @@
+ 	let ignore_next1 = false;
+ 	let ignore_next2 = false;
+ 
+-	let mount = true;
+ 	sync_effect(() => {
+ 		const props = is_signal(props_obj) ? get(props_obj) : props_obj;
+ 		// Before if to ensure signal dependency is registered
+ 		const propagating_value = props[key];
+-		if (mount) {
+-			mount = false;
+-			return;
+-		}
+ 		if (ignore_next1) {
+ 			ignore_next1 = false;
+ 			return;
+@@ -1370,14 +1365,9 @@
+ 	});
+ 
+ 	if (is_signal(possible_signal) && update_bound_prop !== undefined) {
+-		let ignore_first = !should_set_default_value;
+ 		sync_effect(() => {
+ 			// Before if to ensure signal dependency is registered
+ 			const propagating_value = get(source_signal);
+-			if (ignore_first) {
+-				ignore_first = false;
+-				return;
+-			}
+ 			if (ignore_next2) {
+ 				ignore_next2 = false;
+ 				return;

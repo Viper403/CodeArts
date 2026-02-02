@@ -1,0 +1,93 @@
+--- a/packages/svelte/src/internal/client/dom/elements/misc.js
++++ b/packages/svelte/src/internal/client/dom/elements/misc.js
+@@ -42,7 +42,7 @@
+ 			(evt) => {
+ 				// Needs to happen one tick later or else the dom properties of the form
+ 				// elements have not updated to their reset values yet
+-				Promise.resolve().then(() => {
++				queue_micro_task(() => {
+ 					if (!evt.defaultPrevented) {
+ 						for (const e of /**@type {HTMLFormElement} */ (evt.target).elements) {
+ 							// @ts-expect-error
+
+--- a/packages/svelte/src/internal/client/reactivity/effects.js
++++ b/packages/svelte/src/internal/client/reactivity/effects.js
+@@ -171,6 +171,12 @@
+ export function user_effect(fn) {
+ 	validate_effect('$effect');
+ 
++	if (DEV) {
++		define_property(fn, 'name', {
++			value: '$effect'
++		});
++	}
++
+ 	// Non-nested `$effect(...)` in a component should be deferred
+ 	// until the component is mounted
+ 	var defer =
+@@ -180,15 +186,9 @@
+ 		current_component_context !== null &&
+ 		!current_component_context.m;
+ 
+-	if (DEV) {
+-		define_property(fn, 'name', {
+-			value: '$effect'
+-		});
+-	}
+-
+ 	if (defer) {
+ 		var context = /** @type {import('#client').ComponentContext} */ (current_component_context);
+-		(context.e ??= []).push(fn);
++		(context.e ??= []).push(() => effect(fn));
+ 	} else {
+ 		var signal = effect(fn);
+ 		return signal;
+
+--- a/packages/svelte/src/internal/client/reactivity/props.js
++++ b/packages/svelte/src/internal/client/reactivity/props.js
+@@ -321,11 +321,9 @@
+ 	if (!immutable) current_value.equals = safe_equals;
+ 
+ 	return function (/** @type {any} */ value, /** @type {boolean} */ mutation) {
+-		var current = get(current_value);
+-
+ 		// legacy nonsense �� need to ensure the source is invalidated when necessary
+ 		// also needed for when handling inspect logic so we can inspect the correct source signal
+-		if (is_signals_recorded) {
++		if (is_signals_recorded && arguments.length > 0) {
+ 			// set this so that we don't reset to the parent value if `d`
+ 			// is invalidated because of `invalidate_inner_signals` (rather
+ 			// than because the parent or child value changed)
+@@ -347,6 +345,6 @@
+ 			return value;
+ 		}
+ 
+-		return current;
++		return get(current_value);
+ 	};
+ }
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -228,8 +228,8 @@
+ 		}
+ 	};
+ 
++	root_event_handles.add(event_handle);
+ 	event_handle(array_from(all_registered_events));
+-	root_event_handles.add(event_handle);
+ 
+ 	/** @type {Exports} */
+ 	// @ts-expect-error will be defined because the render effect runs synchronously
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -280,7 +280,7 @@
+ 	skipped_deps = 0;
+ 	current_untracked_writes = null;
+ 	current_reaction = (reaction.f & (BRANCH_EFFECT | ROOT_EFFECT)) === 0 ? reaction : null;
+-	current_skip_reaction = !is_flushing_effect && (reaction.f & UNOWNED) !== 0;
++	current_skip_reaction = (reaction.f & UNOWNED) !== 0 && !is_flushing_effect;
+ 
+ 	try {
+ 		var result = /** @type {Function} */ (0, reaction.fn)();

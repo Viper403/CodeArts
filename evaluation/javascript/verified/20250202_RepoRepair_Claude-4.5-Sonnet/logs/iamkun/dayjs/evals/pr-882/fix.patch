@@ -1,0 +1,14 @@
+--- a/src/index.js
++++ b/src/index.js
+@@ -58,6 +58,11 @@
+   if (typeof date === 'string' && !/Z$/i.test(date)) {
+     const d = date.match(C.REGEX_PARSE)
+     if (d) {
++      const month = d[2]
++      const day = d[3] || 1
++      // Check for invalid month (0) or day (0)
++      if (month && +month === 0) return new Date(NaN)
++      if (day && +day === 0) return new Date(NaN)
+       if (utc) {
+         return new Date(Date.UTC(d[1], d[2] - 1, d[3]
+           || 1, d[4] || 0, d[5] || 0, d[6] || 0, d[7] || 0))

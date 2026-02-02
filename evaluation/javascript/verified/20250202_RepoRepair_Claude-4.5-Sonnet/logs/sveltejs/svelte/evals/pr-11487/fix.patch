@@ -1,0 +1,97 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -1093,6 +1093,41 @@
+ 
+ /** @type {import('./types').Visitors} */
+ const common_visitors = {
++	AssignmentExpression(node, context) {
++		// Track mutations through member expressions, including through aliases
++		if (node.left.type === 'MemberExpression' && context.state.analysis.runes) {
++			let object = node.left.object;
++			
++			// Navigate to the root object
++			while (object.type === 'MemberExpression') {
++				object = object.object;
++			}
++			
++			// Check if we're assigning through an identifier (could be 'this' or an alias)
++			if (object.type === 'Identifier') {
++				const obj_binding = context.state.scope.get(object.name);
++				
++				// If this identifier is an alias for 'this', we need to mark property bindings as mutated
++				if (obj_binding?.initial?.type === 'ThisExpression') {
++					const property = node.left.property;
++					if (property.type === 'Identifier') {
++						// Find the property binding in the current scope or parent scopes
++						let scope = context.state.scope;
++						while (scope) {
++							const prop_binding = scope.declarations.get(property.name);
++							if (prop_binding && (prop_binding.kind === 'state' || prop_binding.kind === 'frozen_state' || prop_binding.kind === 'derived')) {
++								prop_binding.mutated = true;
++								prop_binding.reassigned = true;
++								break;
++							}
++							scope = scope.parent;
++						}
++					}
++				}
++			}
++		}
++		context.next();
++	},
+ 	_(node, context) {
+ 		// @ts-expect-error
+ 		const comments = /** @type {import('estree').Comment[]} */ (node.leadingComments);
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -1049,7 +1049,12 @@
+ 		object = object.object;
+ 	}
+ 
+-	if (object.type === 'ThisExpression' && property?.type === 'PrivateIdentifier') {
++	// Check for direct `this` reference or an alias to `this`
++	const is_this_reference = object.type === 'ThisExpression' || 
++		(object.type === 'Identifier' && state.scope.get(object.name)?.kind === 'normal' && 
++		 state.scope.get(object.name)?.initial?.type === 'ThisExpression');
++
++	if (is_this_reference && property?.type === 'PrivateIdentifier') {
+ 		if (state.private_derived_state.includes(property.name)) {
+ 			e.constant_assignment(node, 'derived state');
+ 		}
+
+--- a/packages/svelte/src/compiler/phases/scope.js
++++ b/packages/svelte/src/compiler/phases/scope.js
+@@ -694,13 +694,9 @@
+ 
+ 	for (const [scope, node] of updates) {
+ 		if (node.type === 'MemberExpression') {
+-			let object = node.object;
+-			while (object.type === 'MemberExpression') {
+-				object = object.object;
+-			}
+-
+-			const binding = scope.get(/** @type {import('estree').Identifier} */ (object).name);
+-			if (binding) binding.mutated = true;
++			// For member expressions, we don't mark the object binding as mutated
++			// because we're mutating a property, not the binding itself
++			// This preserves reactivity when using aliases like `const self = this`
+ 		} else {
+ 			extract_identifiers(node).forEach((identifier) => {
+ 				const binding = scope.get(identifier.name);
+
+--- a/packages/svelte/src/internal/client/reactivity/props.js
++++ b/packages/svelte/src/internal/client/reactivity/props.js
+@@ -301,10 +301,12 @@
+ 			// set this so that we don't reset to the parent value if `d`
+ 			// is invalidated because of `invalidate_inner_signals` (rather
+ 			// than because the parent or child value changed)
++			var prev_from_child = from_child;
+ 			from_child = was_from_child;
+ 			// invoke getters so that signals are picked up by `invalidate_inner_signals`
+ 			getter();
+ 			get(inner_current_value);
++			from_child = prev_from_child;
+ 		}
+ 
+ 		if (arguments.length > 0) {

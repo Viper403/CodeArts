@@ -1,0 +1,56 @@
+--- a/src/index.js
++++ b/src/index.js
+@@ -223,6 +223,13 @@
+   }
+ 
+   add(number, units) {
++    // Check if number is a duration object
++    if (typeof number === 'object' && number && typeof number.asMilliseconds === 'function') {
++      const milliseconds = number.asMilliseconds()
++      const nextTimeStamp = this.$d.getTime() + milliseconds
++      return Utils.w(nextTimeStamp, this)
++    }
++    
+     number = Number(number) // eslint-disable-line no-param-reassign
+     const unit = Utils.p(units)
+     const instanceFactorySet = (n) => {
+
+--- a/src/plugin/arraySupport/index.js
++++ b/src/plugin/arraySupport/index.js
+@@ -20,6 +20,6 @@
+   const oldParse = proto.parse
+   proto.parse = function (cfg) {
+     cfg.date = parseDate.bind(this)(cfg)
+-    oldParse.bind(this)(cfg)
++    return oldParse.bind(this)(cfg)
+   }
+ }
+
+--- a/src/plugin/badMutable/index.js
++++ b/src/plugin/badMutable/index.js
+@@ -18,7 +18,12 @@
+ 
+   const oldAdd = proto.add
+   proto.add = function (number, units) {
+-    this.$d = oldAdd.bind(this)(number, units).toDate()
++    if (units === undefined) {
++      // When only one argument is passed (e.g., a duration object)
++      this.$d = oldAdd.bind(this)(number).toDate()
++    } else {
++      this.$d = oldAdd.bind(this)(number, units).toDate()
++    }
+     this.init()
+     return this
+   }
+
+--- a/src/plugin/bigIntSupport/index.js
++++ b/src/plugin/bigIntSupport/index.js
+@@ -13,7 +13,7 @@
+   const oldParse = proto.parse
+   proto.parse = function (cfg) {
+     cfg.date = parseDate.bind(this)(cfg)
+-    oldParse.bind(this)(cfg)
++    return oldParse.bind(this)(cfg)
+   }
+ 
+ 

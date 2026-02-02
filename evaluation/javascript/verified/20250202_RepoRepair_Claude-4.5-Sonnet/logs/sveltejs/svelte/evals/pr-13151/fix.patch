@@ -1,0 +1,61 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -229,6 +229,10 @@
+ 		}
+ 
+ 		element.expression = get_attribute_expression(definition);
++		// Preserve the expression metadata from the attribute's value
++		if (definition.value !== true && !Array.isArray(definition.value)) {
++			element.metadata.expression = definition.value.metadata.expression;
++		}
+ 	}
+ 
+ 	if (element.type === 'SvelteElement') {
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -637,7 +637,15 @@
+ 				binding.node.name !== '$$props'
+ 			) {
+ 				const references = binding.references.filter(
+-					(r) => r.node !== binding.node && r.path.at(-1)?.type !== 'ExportSpecifier'
++					(r) => {
++						if (r.node === binding.node) return false;
++						const parent = r.path.at(-1);
++						// Don't count as unused if it's an export specifier
++						if (parent?.type === 'ExportSpecifier') return false;
++						// Don't count as unused if it's used in <svelte:component this={...} />
++						if (parent?.type === 'SvelteComponent') return true;
++						return true;
++					}
+ 				);
+ 				if (!references.length && !instance.scope.declarations.has(`$${name}`)) {
+ 					w.export_let_unused(binding.node, name);
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/Component.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/Component.js
+@@ -11,6 +11,10 @@
+ 		node.name.includes('.') ? node.name.slice(0, node.name.indexOf('.')) : node.name
+ 	);
+ 
++	if (binding !== null) {
++		binding.references.push(node);
++	}
++
+ 	node.metadata.dynamic =
+ 		context.state.analysis.runes && // Svelte 4 required you to use svelte:component to switch components
+ 		binding !== null &&
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/SvelteComponent.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/SvelteComponent.js
+@@ -12,5 +12,10 @@
+ 		w.svelte_component_deprecated(node);
+ 	}
+ 
++	// Visit the expression in the 'this' attribute to mark variables as used
++	if (node.expression) {
++		context.visit(node.expression);
++	}
++
+ 	visit_component(node, context);
+ }

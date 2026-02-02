@@ -1,0 +1,53 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -2847,6 +2847,12 @@
+ 					} else {
+ 						call_expr = b.call(`$.bind_value`, state.node, getter, setter);
+ 					}
++					// Also set up form reset handling for value bindings
++					state.after_update.push(
++						b.stmt(
++							b.call('$.bind_element_reset', state.node, setter)
++						)
++					);
+ 					break;
+ 				}
+ 
+
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/input.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/input.js
+@@ -82,6 +82,23 @@
+ 
+ 		update(value);
+ 	});
++
++	// Listen for form reset events
++	if (input.form) {
++		input.form.addEventListener('reset', () => {
++			// Use setTimeout to wait for the browser to reset the value
++			setTimeout(() => {
++				// @ts-ignore
++				var value = input.__value;
++
++				if (is_checkbox) {
++					value = get_binding_group_value(binding_group, value, input.checked);
++				}
++
++				update(value);
++			});
++		});
++	}
+ 
+ 	render_effect(() => {
+ 		var value = get_value();
+
+--- a/packages/svelte/src/internal/client/dom/elements/misc.js
++++ b/packages/svelte/src/internal/client/dom/elements/misc.js
+@@ -32,6 +32,7 @@
+  */
+ export function remove_textarea_child(dom) {
+ 	if (hydrating && dom.firstChild !== null) {
++		dom.defaultValue = dom.textContent;
+ 		dom.textContent = '';
+ 	}
+ }

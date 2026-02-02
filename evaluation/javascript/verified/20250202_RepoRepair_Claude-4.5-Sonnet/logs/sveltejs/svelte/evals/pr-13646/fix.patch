@@ -1,0 +1,118 @@
+--- a/packages/svelte/src/compiler/index.js
++++ b/packages/svelte/src/compiler/index.js
+@@ -119,17 +119,24 @@
+ function to_public_ast(source, ast, modern) {
+ 	if (modern) {
+ 		const clean = (/** @type {any} */ node) => {
+-			delete node.metadata;
+-			delete node.parent;
++			if (node && typeof node === 'object') {
++				delete node.metadata;
++				delete node.parent;
++			}
+ 		};
+ 
+-		ast.options?.attributes.forEach((attribute) => {
+-			clean(attribute);
+-			clean(attribute.value);
+-			if (Array.isArray(attribute.value)) {
+-				attribute.value.forEach(clean);
+-			}
+-		});
++		if (ast.options?.attributes) {
++			ast.options.attributes.forEach((attribute) => {
++				clean(attribute);
++				if (attribute.value) {
++					if (Array.isArray(attribute.value)) {
++						attribute.value.forEach(clean);
++					} else {
++						clean(attribute.value);
++					}
++				}
++			});
++		}
+ 
+ 		// remove things that we don't want to treat as public API
+ 		return zimmerframe_walk(ast, null, {
+
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -789,18 +789,22 @@
+ 			next();
+ 			return;
+ 		}
++		
++		// Use a consistent component name for svelte:self replacement
++		const componentName = state.analysis.name;
++		
+ 		// overwrite the open tag
+ 		state.str.overwrite(
+ 			node.start + 1,
+ 			node.start + 1 + 'svelte:self'.length,
+-			`${state.analysis.name}`
++			componentName
+ 		);
+ 		// if it has a fragment we need to overwrite the closing tag too
+ 		if (node.fragment.nodes.length > 0) {
+ 			state.str.overwrite(
+ 				state.str.original.lastIndexOf('<', node.end) + 2,
+ 				node.end - 1,
+-				`${state.analysis.name}`
++				componentName
+ 			);
+ 		} else if (!source.endsWith('/>')) {
+ 			// special case for case `<svelte:self></svelte:self>` it has no fragment but
+@@ -808,7 +812,7 @@
+ 			state.str.overwrite(
+ 				node.start + source.lastIndexOf('</', node.end) + 2,
+ 				node.end - 1,
+-				`${state.analysis.name}`
++				componentName
+ 			);
+ 		}
+ 		state.has_svelte_self = true;
+
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -54,7 +54,7 @@
+ 		let match_lang;
+ 
+ 		do match_lang = regex_lang_attribute.exec(template);
+-		while (match_lang && match_lang[0][1] !== 's'); // ensure it starts with '<s' to match script tags
++		while (match_lang && match_lang[0][1] === '!'); // skip comments (<!--), continue until we find a script tag
+ 
+ 		regex_lang_attribute.lastIndex = 0; // reset matched index to pass tests - otherwise declare the regex inside the constructor
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -206,10 +206,14 @@
+ function get_component_name(filename) {
+ 	const parts = filename.split(/[/\\]/);
+ 	const basename = /** @type {string} */ (parts.pop());
+-	const last_dir = /** @type {string} */ (parts.at(-1));
+ 	let name = basename.replace('.svelte', '');
+-	if (name === 'index' && last_dir && last_dir !== 'src') {
+-		name = last_dir;
++	// Don't use 'index' as component name, use parent directory instead
++	// but only if it's not a common directory name
++	if (name === 'index') {
++		const last_dir = /** @type {string} */ (parts.at(-1));
++		if (last_dir && last_dir !== 'src' && last_dir !== 'lib' && last_dir !== 'components') {
++			name = last_dir;
++		}
+ 	}
+ 	return name[0].toUpperCase() + name.slice(1);
+ }
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/Component.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/Component.js
+@@ -14,7 +14,7 @@
+ 	node.metadata.dynamic =
+ 		context.state.analysis.runes && // Svelte 4 required you to use svelte:component to switch components
+ 		binding !== null &&
+-		(binding.kind !== 'normal' || node.name.includes('.'));
++		(binding.kind !== 'normal' || binding.declaration_kind === 'import' || node.name.includes('.'));
+ 
+ 	visit_component(node, context);
+ }

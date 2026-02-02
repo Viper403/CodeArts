@@ -1,0 +1,122 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/read/style.js
++++ b/packages/svelte/src/compiler/phases/1-parse/read/style.js
+@@ -190,8 +190,12 @@
+ 		};
+ 	}
+ 
++	// Check if we start with a combinator (for relative selectors in :has(), etc.)
++	allow_comment_or_whitespace(parser);
++	const initial_combinator = inside_pseudo_class ? read_combinator(parser) : null;
++
+ 	/** @type {Css.RelativeSelector} */
+-	let relative_selector = create_selector(null, parser.index);
++	let relative_selector = create_selector(initial_combinator, initial_combinator?.start ?? parser.index);
+ 
+ 	while (parser.index < parser.template.length) {
+ 		let start = parser.index;
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
+@@ -115,6 +115,15 @@
+ 			({ metadata }) => metadata.is_global || metadata.is_global_like
+ 		);
+ 
++		// Check if this ComplexSelector is inside a :has() pseudo-class
++		// Selectors inside :has() args should be marked as used since they don't need scoping
++		const parent_pseudo_class = /** @type {Css.PseudoClassSelector | undefined} */ (
++			context.path.find((node) => node.type === 'PseudoClassSelector')
++		);
++		if (parent_pseudo_class?.name === 'has' && parent_pseudo_class.args) {
++			node.metadata.used = true;
++		}
++
+ 		if (
+ 			node.metadata.rule?.metadata.parent_rule &&
+ 			node.children[0]?.selectors[0]?.type === 'NestingSelector'
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
+@@ -447,29 +447,62 @@
+ 			for (const complex_selector of complex_selectors) {
+ 				const selectors = truncate(complex_selector);
+ 				const left_most_combinator = selectors[0]?.combinator ?? descendant_combinator;
+-				// In .x:has(> y), we want to search for y, ignoring the left-most combinator
+-				// (else it would try to walk further up and fail because there are no selectors left)
+-				if (selectors.length > 0) {
+-					selectors[0] = {
+-						...selectors[0],
+-						combinator: null
+-					};
+-				}
+-
+-				const descendants =
+-					left_most_combinator.name === '>' ? child_elements : descendant_elements;
+-
++				
+ 				let selector_matched = false;
+ 
+-				// Iterate over all descendant elements and check if the selector inside :has matches
+-				for (const element of descendants) {
+-					if (
+-						selectors.length === 0 /* is :global(...) */ ||
+-						(element.metadata.scoped && selector_matched) ||
+-						apply_selector(selectors, rule, element, state)
+-					) {
+-						complex_selector.metadata.used = true;
+-						selector_matched = matched = true;
++				// Handle sibling combinators (+ and ~) specially
++				if (left_most_combinator.name === '+' || left_most_combinator.name === '~') {
++					// For sibling combinators, we need to check siblings of the current element
++					// In .x:has(+ y), we want to search for y as a sibling of x
++					if (selectors.length > 0) {
++						selectors[0] = {
++							...selectors[0],
++							combinator: null
++						};
++					}
++
++					const siblings = get_possible_element_siblings(element, left_most_combinator.name === '+');
++
++					for (const possible_sibling of siblings.keys()) {
++						if (possible_sibling.type === 'RenderTag' || possible_sibling.type === 'SlotElement') {
++							// Handle render tags and slot elements
++							if (selectors.length === 0) {
++								complex_selector.metadata.used = true;
++								selector_matched = matched = true;
++							}
++						} else if (
++							selectors.length === 0 /* is :global(...) */ ||
++							(possible_sibling.metadata.scoped && selector_matched) ||
++							apply_selector(selectors, rule, possible_sibling, state)
++						) {
++							complex_selector.metadata.used = true;
++							selector_matched = matched = true;
++						}
++					}
++				} else {
++					// For descendant and child combinators, check descendants
++					// In .x:has(> y), we want to search for y, ignoring the left-most combinator
++					// (else it would try to walk further up and fail because there are no selectors left)
++					if (selectors.length > 0) {
++						selectors[0] = {
++							...selectors[0],
++							combinator: null
++						};
++					}
++
++					const descendants =
++						left_most_combinator.name === '>' ? child_elements : descendant_elements;
++
++					// Iterate over all descendant elements and check if the selector inside :has matches
++					for (const element of descendants) {
++						if (
++							selectors.length === 0 /* is :global(...) */ ||
++							(element.metadata.scoped && selector_matched) ||
++							apply_selector(selectors, rule, element, state)
++						) {
++							complex_selector.metadata.used = true;
++							selector_matched = matched = true;
++						}
+ 					}
+ 				}
+ 			}

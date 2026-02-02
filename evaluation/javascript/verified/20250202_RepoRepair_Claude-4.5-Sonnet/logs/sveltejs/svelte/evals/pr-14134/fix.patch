@@ -1,0 +1,38 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/Fragment.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/Fragment.js
+@@ -241,7 +241,7 @@
+ 	return namespace === 'svg'
+ 		? contains_script_tag
+ 			? '$.svg_template_with_script'
+-			: '$.ns_template'
++			: '$.svg_template'
+ 		: namespace === 'mathml'
+ 			? '$.mathml_template'
+ 			: contains_script_tag
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/SvelteFragment.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/SvelteFragment.js
+@@ -13,5 +13,8 @@
+ 		}
+ 	}
+ 
++	// Preserve the namespace context when visiting the fragment's children
++	const previous_namespace = context.state.namespace;
+ 	context.state.init.push(.../** @type {BlockStatement} */ (context.visit(node.fragment)).body);
++	context.state.namespace = previous_namespace;
+ }
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/visitors/Fragment.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/visitors/Fragment.js
+@@ -10,7 +10,10 @@
+  */
+ export function Fragment(node, context) {
+ 	const parent = context.path.at(-1) ?? node;
+-	const namespace = infer_namespace(context.state.namespace, parent, node.nodes);
++	// When inside an SVG namespace, preserve it for fragments to ensure proper element creation
++	const namespace = context.state.namespace === 'svg' 
++		? 'svg' 
++		: infer_namespace(context.state.namespace, parent, node.nodes);
+ 
+ 	const { hoisted, trimmed, is_standalone, is_text_first } = clean_nodes(
+ 		parent,

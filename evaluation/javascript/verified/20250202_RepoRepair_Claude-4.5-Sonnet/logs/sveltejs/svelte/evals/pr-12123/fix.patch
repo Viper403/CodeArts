@@ -1,0 +1,87 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
+@@ -309,6 +309,26 @@
+ 				)
+ 			);
+ 		}
++		// Bind all variables that might be passed as bindable props to child components
++		for (const [name, binding] of analysis.instance.scope.declarations) {
++			if (
++				binding.kind === 'normal' &&
++				!name.startsWith('$$') &&
++				!analysis.exports.some(({ name: export_name }) => export_name === name) &&
++				binding.references.length > 0
++			) {
++				component_block.body.push(
++					b.stmt(
++						b.call(
++							'$.bind_prop',
++							b.id('$$props'),
++							b.literal(name),
++							serialize_get_binding(b.id(name), instance_state)
++						)
++					)
++				);
++			}
++		}
+ 	}
+ 
+ 	const append_styles =
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -415,6 +415,20 @@
+ 						)
+ 					);
+ 				}
++			} else if (binding.kind === 'bindable_prop') {
++				// In runes mode with bindable props, when mutating a property,
++				// we need to call the setter to ensure reactivity
++				return b.call(
++					left,
++					b.sequence([
++						b.assignment(
++							node.operator,
++							/** @type {import('estree').Pattern} */ (visit(node.left)),
++							value
++						),
++						b.call(left)
++					])
++				);
+ 			} else if (
+ 				node.right.type === 'Literal' &&
+ 				(node.operator === '+=' || node.operator === '-=')
+
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/props.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/props.js
+@@ -15,8 +15,5 @@
+ 
+ 	if (desc && desc.set) {
+ 		props[prop] = value;
+-		teardown(() => {
+-			props[prop] = null;
+-		});
+ 	}
+ }
+
+--- a/packages/svelte/src/internal/client/reactivity/props.js
++++ b/packages/svelte/src/internal/client/reactivity/props.js
+@@ -302,7 +302,7 @@
+ 
+ 	if (!immutable) current_value.equals = safe_equals;
+ 
+-	return function (/** @type {V} */ value) {
++	return function (/** @type {V} */ value, /** @type {boolean} */ mutation) {
+ 		var current = get(current_value);
+ 
+ 		// legacy nonsense �� need to ensure the source is invalidated when necessary
+@@ -318,7 +318,8 @@
+ 		}
+ 
+ 		if (arguments.length > 0) {
+-			if (!current_value.equals(value)) {
++			// If this is a mutation, always update even if the reference is the same
++			if (mutation || !current_value.equals(value)) {
+ 				from_child = true;
+ 				set(inner_current_value, value);
+ 				get(current_value); // force a synchronisation immediately

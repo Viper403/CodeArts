@@ -1,0 +1,56 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/read/style.js
++++ b/packages/svelte/src/compiler/phases/1-parse/read/style.js
+@@ -253,7 +253,14 @@
+ 				args = read_selector_list(parser, true);
+ 				parser.eat(')', true);
+ 			} else if (name === 'global') {
+-				error(parser.index, 'invalid-css-global-selector');
++				// Allow :global without parentheses only if followed by a block (for nesting)
++				const index = parser.index;
++				parser.allow_whitespace();
++				if (!parser.match('{')) {
++					parser.index = index;
++					error(parser.index, 'invalid-css-global-selector');
++				}
++				parser.index = index;
+ 			}
+ 
+ 			relative_selector.selectors.push({
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
+@@ -105,7 +105,12 @@
+ 				const selector = relative_selector.selectors[i];
+ 
+ 				if (selector.type === 'PseudoClassSelector' && selector.name === 'global') {
+-					const child = selector.args?.children[0].children[0];
++					// `:global` without args is valid for nesting
++					if (selector.args === null) {
++						continue;
++					}
++
++					const child = selector.args.children[0].children[0];
+ 					// ensure `:global(element)` to be at the first position in a compound selector
+ 					if (child?.selectors[0].type === 'TypeSelector' && i !== 0) {
+ 						error(selector, 'invalid-css-global-selector-list');
+@@ -119,7 +124,6 @@
+ 					// ensure `:global(...)`contains a single selector
+ 					// (standalone :global() with multiple selectors is OK)
+ 					if (
+-						selector.args !== null &&
+ 						selector.args.children.length > 1 &&
+ 						(node.children.length > 1 || relative_selector.selectors.length > 1)
+ 					) {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/css/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/css/index.js
+@@ -269,6 +269,9 @@
+ 	PseudoClassSelector(node, context) {
+ 		if (node.name === 'is' || node.name === 'where') {
+ 			context.next();
++		} else if (node.name === 'global' && node.args === null) {
++			// :global without arguments is used for nesting - remove it
++			context.state.code.remove(node.start, node.end);
+ 		}
+ 	}
+ };

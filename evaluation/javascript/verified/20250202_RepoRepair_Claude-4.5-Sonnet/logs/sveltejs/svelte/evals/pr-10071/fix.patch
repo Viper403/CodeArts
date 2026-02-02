@@ -1,0 +1,63 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -959,7 +959,22 @@
+ 	},
+ 	MemberExpression(node, context) {
+ 		if (context.state.expression) {
+-			context.state.expression.metadata.dynamic = true;
++			// Only mark as dynamic if we're accessing a property on something that's reactive
++			// Check if the object being accessed is a reactive binding
++			let is_reactive = false;
++			if (node.object.type === 'Identifier') {
++				const binding = context.state.scope.get(node.object.name);
++				if (binding && binding.kind !== 'normal') {
++					is_reactive = true;
++				}
++			} else {
++				// For nested member expressions or other complex cases, mark as dynamic to be safe
++				is_reactive = true;
++			}
++			
++			if (is_reactive) {
++				context.state.expression.metadata.dynamic = true;
++			}
+ 		}
+ 
+ 		context.next();
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -475,6 +475,12 @@
+ 				initial.arguments.length === 0
+ 			) {
+ 				arg = initial.callee;
++			} else if (
++				initial.type === 'ArrowFunctionExpression' ||
++				initial.type === 'FunctionExpression'
++			) {
++				// Already a function, no need to wrap in a thunk
++				arg = initial;
+ 			} else {
+ 				arg = b.thunk(initial);
+ 			}
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -814,12 +814,11 @@
+ 						);
+ 					});
+ 
+-				if (should_wrap_in_derived) {
+-					const id = b.id(context.state.scope.generate(attribute.name));
+-					context.state.init.push(b.var(id, b.call('$.derived', b.thunk(value))));
+-					arg = b.call('$.get', id);
+-				}
+-
++			if (should_wrap_in_derived) {
++				const id = b.id(context.state.scope.generate(attribute.name));
++				context.state.hoisted.push(b.var(id, b.call('$.derived', b.thunk(value))));
++				arg = b.call('$.get', id);
++			}
+ 				if (context.state.options.dev) arg = b.call('$.readonly', arg);
+ 
+ 				push_prop(b.get(attribute.name, [b.return(arg)]));

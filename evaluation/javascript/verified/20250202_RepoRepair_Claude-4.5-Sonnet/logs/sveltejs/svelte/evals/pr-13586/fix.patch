@@ -1,0 +1,101 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -309,7 +309,10 @@
+  * @param {Expression} arg
+  */
+ export function create_derived(state, arg) {
+-	return b.call(state.analysis.runes ? '$.derived' : '$.derived_safe_equal', arg);
++	// Always use $.derived to ensure cleanup functions from effects work properly
++	// (e.g., in await blocks). The safe_equal optimization is not worth breaking
++	// cleanup functionality.
++	return b.call('$.derived', arg);
+ }
+ 
+ /**
+
+--- a/packages/svelte/src/internal/client/dom/blocks/await.js
++++ b/packages/svelte/src/internal/client/dom/blocks/await.js
+@@ -147,7 +147,12 @@
+ 		}
+ 
+ 		// Set the input to null, in order to disable the promise callbacks
+-		return () => (input = null);
++		return () => {
++			input = null;
++			if (pending_effect) pause_effect(pending_effect, () => (pending_effect = null));
++			if (then_effect) pause_effect(then_effect, () => (then_effect = null));
++			if (catch_effect) pause_effect(catch_effect, () => (catch_effect = null));
++		};
+ 	});
+ 
+ 	if (hydrating) {
+
+--- a/packages/svelte/src/internal/client/reactivity/deriveds.js
++++ b/packages/svelte/src/internal/client/reactivity/deriveds.js
+@@ -110,7 +110,7 @@
+ 	var value;
+ 	var prev_active_effect = active_effect;
+ 
+-	set_active_effect(derived.parent);
++	set_active_effect(derived);
+ 
+ 	if (DEV) {
+ 		let prev_inspect_effects = inspect_effects;
+
+--- a/packages/svelte/src/internal/client/reactivity/effects.js
++++ b/packages/svelte/src/internal/client/reactivity/effects.js
+@@ -115,6 +115,19 @@
+ 		effect.component_function = dev_current_component_function;
+ 	}
+ 
++	// if an effect has no dependencies, no DOM and no teardown function,
++	// don't bother adding it to the effect tree
++	// Note: for sync effects, we need to check this before running the effect
++	var inert =
++		sync &&
++		effect.deps === null &&
++		effect.first === null &&
++		effect.nodes_start === null &&
++		effect.teardown === null &&
++		(effect.f & EFFECT_HAS_DERIVED) === 0;
++
++	var should_push = !inert && !is_root && push;
++
+ 	if (sync) {
+ 		var previously_flushing_effect = is_flushing_effect;
+ 
+@@ -128,21 +141,23 @@
+ 		} finally {
+ 			set_is_flushing_effect(previously_flushing_effect);
+ 		}
++
++		// After running a sync effect, check if it's no longer inert
++		// (e.g., it added a teardown function)
++		if (inert) {
++			inert =
++				effect.deps === null &&
++				effect.first === null &&
++				effect.nodes_start === null &&
++				effect.teardown === null &&
++				(effect.f & EFFECT_HAS_DERIVED) === 0;
++			should_push = !inert && !is_root && push;
++		}
+ 	} else if (fn !== null) {
+ 		schedule_effect(effect);
+ 	}
+ 
+-	// if an effect has no dependencies, no DOM and no teardown function,
+-	// don't bother adding it to the effect tree
+-	var inert =
+-		sync &&
+-		effect.deps === null &&
+-		effect.first === null &&
+-		effect.nodes_start === null &&
+-		effect.teardown === null &&
+-		(effect.f & EFFECT_HAS_DERIVED) === 0;
+-
+-	if (!inert && !is_root && push) {
++	if (should_push) {
+ 		if (parent_effect !== null) {
+ 			push_effect(effect, parent_effect);
+ 		}

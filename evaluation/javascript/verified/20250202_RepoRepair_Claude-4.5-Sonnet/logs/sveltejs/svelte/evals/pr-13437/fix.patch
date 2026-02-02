@@ -1,0 +1,86 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -598,7 +598,51 @@
+ 		handle_events(node, state);
+ 		next();
+ 	},
++	SvelteComponent(node, { state, next }) {
++		// Transform <svelte:component this={Component} /> to dynamic component pattern
++		const this_attr = node.attributes.find((attr) => attr.type === 'Attribute' && attr.name === 'this');
++		
++		if (this_attr && this_attr.value !== true && Array.isArray(this_attr.value)) {
++			const component_expr = state.str.original.substring(
++				this_attr.value[0].start,
++				this_attr.value[this_attr.value.length - 1].end
++			);
++			
++			// Collect other attributes and directives
++			const other_attrs = node.attributes
++				.filter((attr) => attr.type !== 'Attribute' || attr.name !== 'this')
++				.map((attr) => state.str.original.substring(attr.start, attr.end))
++				.filter(Boolean)
++				.join(' ');
++			
++			const attrs_str = other_attrs ? ` ${other_attrs}` : '';
++			
++			if (node.fragment.nodes.length > 0) {
++				// Has children - preserve them
++				const children_start = node.fragment.nodes[0].start;
++				const children_end = node.fragment.nodes[node.fragment.nodes.length - 1].end;
++				const children = state.str.original.substring(children_start, children_end);
++				
++				state.str.update(
++					node.start,
++					node.end,
++					`{#if ${component_expr}}<svelte:element this={${component_expr}}${attrs_str}>${children}</svelte:element>{/if}`
++				);
++			} else {
++				// Self-closing
++				state.str.update(
++					node.start,
++					node.end,
++					`{#if ${component_expr}}<svelte:element this={${component_expr}}${attrs_str} />{/if}`
++				);
++			}
++		}
++		
++		handle_events(node, state);
++		next();
++	},
+ 	SlotElement(node, { state, next }) {
++=======
+ 		if (state.analysis.custom_element) return;
+ 		let name = 'children';
+ 		let slot_name = 'default';
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/SvelteComponent.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/SvelteComponent.js
+@@ -1,5 +1,6 @@
+ /** @import { AST } from '#compiler' */
+ /** @import { Context } from '../types' */
++import * as e from '../../../errors.js';
+ import * as w from '../../../warnings.js';
+ import { visit_component } from './shared/component.js';
+ 
+@@ -9,7 +10,7 @@
+  */
+ export function SvelteComponent(node, context) {
+ 	if (context.state.analysis.runes) {
+-		w.svelte_component_deprecated(node);
++		e.svelte_component_invalid_in_runes_mode(node);
+ 	}
+ 
+ 	visit_component(node, context);
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/Component.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/Component.js
+@@ -9,7 +9,8 @@
+  * @param {ComponentContext} context
+  */
+ export function Component(node, context) {
+-	if (node.metadata.dynamic) {
++	// Handle svelte:component (dynamic component) or other dynamic components
++	if (node.metadata.dynamic || node.name === 'svelte:component') {
+ 		// Handle dynamic references to what seems like static inline components
+ 		const component = build_component(node, '$$component', context, b.id('$$anchor'));
+ 		context.state.init.push(

@@ -1,0 +1,38 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -834,6 +834,19 @@
+ 
+ /** @type {import('./types').Visitors} */
+ const common_visitors = {
++	AssignmentExpression(node, context) {
++		// Track mutations to state objects when properties are added/modified
++		if (node.left.type === 'MemberExpression') {
++			const id = object(node.left);
++			if (id !== null) {
++				const binding = context.state.scope.get(id.name);
++				if (binding !== null && (binding.kind === 'state' || binding.kind === 'frozen_state')) {
++					binding.mutated = true;
++				}
++			}
++		}
++		context.next();
++	},
+ 	Attribute(node, context) {
+ 		if (node.value === true) return;
+ 
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -1965,7 +1965,12 @@
+ function deep_read(value, visited = new Set()) {
+ 	if (typeof value === 'object' && value !== null && !visited.has(value)) {
+ 		visited.add(value);
++		// Read each property to register dependencies
+ 		for (let key in value) {
++			try {
++				// Access the property to ensure tracking
++				value[key];
++			} catch {}
+ 			deep_read(value[key], visited);
+ 		}
+ 		const proto = Object.getPrototypeOf(value);

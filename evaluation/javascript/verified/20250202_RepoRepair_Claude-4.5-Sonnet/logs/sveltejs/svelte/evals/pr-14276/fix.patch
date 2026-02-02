@@ -1,0 +1,12 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/utils.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/utils.js
+@@ -12,6 +12,9 @@
+ 	} else if (node.type === 'ConditionalExpression') {
+ 		gather_possible_values(node.consequent, set);
+ 		gather_possible_values(node.alternate, set);
++	} else if (node.type === 'TSAsExpression' || node.type === 'TSSatisfiesExpression') {
++		// @ts-expect-error
++		gather_possible_values(node.expression, set);
+ 	} else {
+ 		set.add(UNKNOWN);
+ 	}

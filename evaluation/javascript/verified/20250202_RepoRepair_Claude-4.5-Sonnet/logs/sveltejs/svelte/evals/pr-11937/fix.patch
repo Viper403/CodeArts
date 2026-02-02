@@ -1,0 +1,66 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -1344,7 +1344,8 @@
+ 			) {
+ 				state.update.push(update);
+ 			} else {
+-				state.init.push(b.stmt(b.assignment('=', b.member(text_id, b.id('nodeValue')), value)));
++				// Always use $.set_text for initialization to ensure proper text node content
++				state.init.push(b.stmt(b.call('$.set_text', text_id, value)));
+ 			}
+ 
+ 			expression = (is_text) =>
+
+--- a/packages/svelte/src/internal/client/dom/operations.js
++++ b/packages/svelte/src/internal/client/dom/operations.js
+@@ -35,7 +35,7 @@
+ 	element_prototype.__e = undefined;
+ 
+ 	// @ts-expect-error
+-	Text.prototype.__nodeValue = ' ';
++	Text.prototype.__nodeValue = '';
+ 
+ 	if (DEV) {
+ 		// @ts-expect-error
+
+--- a/packages/svelte/src/internal/client/dom/template.js
++++ b/packages/svelte/src/internal/client/dom/template.js
+@@ -208,11 +208,11 @@
+  */
+ /*#__NO_SIDE_EFFECTS__*/
+ export function text(anchor) {
+-	if (!hydrating) return push_template_node(empty());
+-
+ 	var node = hydrate_start;
+-
+-	if (!node) {
++	
++	if (!hydrating) {
++		node = empty();
++	} else if (!node) {
+ 		// if an {expression} is empty during SSR, `hydrate_nodes` will be empty.
+ 		// we need to insert an empty text node
+ 		anchor.before((node = empty()));
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -41,8 +41,8 @@
+  * @returns {void}
+  */
+ export function set_text(dom, value) {
+-	// @ts-expect-error need to add __value to patched prototype
+-	const prev_node_value = dom.__nodeValue;
++	// @ts-expect-error need to add __nodeValue to patched prototype
++	const prev_node_value = dom.__nodeValue ?? dom.nodeValue;
+ 	const next_node_value = stringify(value);
+ 	if (hydrating && dom.nodeValue === next_node_value) {
+ 		// In case of hydration don't reset the nodeValue as it's already correct.
+@@ -50,7 +50,7 @@
+ 		dom.__nodeValue = next_node_value;
+ 	} else if (prev_node_value !== next_node_value) {
+ 		dom.nodeValue = next_node_value;
+-		// @ts-expect-error need to add __className to patched prototype
++		// @ts-expect-error need to add __nodeValue to patched prototype
+ 		dom.__nodeValue = next_node_value;
+ 	}
+ }

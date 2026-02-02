@@ -1,0 +1,84 @@
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -1776,39 +1776,51 @@
+ }
+ 
+ /**
+- * @param {() => any} get_value
+- * @param {Function} inspect
+- * @returns {void}
++ * @param {...any} values
++ * @returns {{ with: (fn: Function) => void }}
+  */
+ // eslint-disable-next-line no-console
+-export function inspect(get_value, inspect = console.log) {
+-	let initial = true;
+-
+-	pre_effect(() => {
+-		const fn = () => {
+-			const value = get_value();
+-			inspect(value, initial ? 'init' : 'update');
+-		};
+-
+-		inspect_fn = fn;
+-		const value = get_value();
+-		deep_read(value);
+-		inspect_fn = null;
+-
+-		const signals = inspect_captured_signals.slice();
+-		inspect_captured_signals = [];
+-
+-		if (initial) {
+-			fn();
+-			initial = false;
+-		}
+-
+-		return () => {
+-			for (const s of signals) {
+-				s.inspect.delete(fn);
++export function inspect(...values) {
++	const execute_inspect = (/** @type {Function} */ inspect_fn_arg = console.log) => {
++		let initial = true;
++
++		pre_effect(() => {
++			const fn = () => {
++				const captured_values = values.map((v) => (typeof v === 'function' ? v() : v));
++				inspect_fn_arg(initial ? 'init' : 'update', ...captured_values);
++			};
++
++			inspect_fn = fn;
++			// Read all values to capture signals
++			for (const value of values) {
++				const v = typeof value === 'function' ? value() : value;
++				deep_read(v);
+ 			}
+-		};
+-	});
++			inspect_fn = null;
++
++			const signals = inspect_captured_signals.slice();
++			inspect_captured_signals = [];
++
++			if (initial) {
++				fn();
++				initial = false;
++			}
++
++			return () => {
++				for (const s of signals) {
++					s.inspect.delete(fn);
++				}
++			};
++		});
++	};
++
++	// Execute with default console.log immediately
++	execute_inspect();
++
++	// Return object with .with() method for custom callbacks
++	return {
++		with: execute_inspect
++	};
+ }
+ 
+ /**

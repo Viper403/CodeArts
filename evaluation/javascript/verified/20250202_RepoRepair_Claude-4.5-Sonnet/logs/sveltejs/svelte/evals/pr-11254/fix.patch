@@ -1,0 +1,100 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -1211,6 +1211,8 @@
+ 		const each_blocks = [];
+ 		const [keypath, expression_ids] = extract_all_identifiers_from_expression(node.expression);
+ 		let ids = expression_ids;
++		// Track key expressions from parent each blocks to ensure proper keying
++		const key_expressions = [];
+ 		while (i--) {
+ 			const parent = context.path[i];
+ 			if (parent.type === 'EachBlock') {
+@@ -1223,6 +1225,10 @@
+ 					each_blocks.push(parent);
+ 					ids = ids.filter((id) => !references.includes(id));
+ 					ids.push(...extract_all_identifiers_from_expression(parent.expression)[1]);
++					// Include key expression if the each block is keyed
++					if (parent.key) {
++						key_expressions.push(...extract_all_identifiers_from_expression(parent.key)[1]);
++					}
+ 				}
+ 			}
+ 		}
+@@ -1231,7 +1237,9 @@
+ 		// If the same identifiers in the same order are used in another bind:group, they will be in the same group.
+ 		// (there's an edge case where `bind:group={a[i]}` will be in a different group than `bind:group={a[j]}` even when i == j,
+ 		//  but this is a limitation of the current static analysis we do; it also never worked in Svelte 4)
+-		const bindings = expression_ids.map((id) => context.state.scope.get(id.name));
++		// Include key expressions to ensure keyed each blocks are properly differentiated
++		const all_ids = [...expression_ids, ...key_expressions];
++		const bindings = all_ids.map((id) => context.state.scope.get(id.name));
+ 		let group_name;
+ 		outer: for (const [[key, b], group] of context.state.analysis.binding_groups) {
+ 			if (b.length !== bindings.length || key !== keypath) continue;
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -286,13 +286,18 @@
+ 		binding.kind !== 'frozen_state' &&
+ 		binding.kind !== 'prop' &&
+ 		binding.kind !== 'bindable_prop' &&
+-		binding.kind !== 'each' &&
+ 		binding.kind !== 'legacy_reactive' &&
+ 		!is_store
+ 	) {
+ 		// TODO error if it's a computed (or rest prop)? or does that already happen elsewhere?
+ 		return fallback();
+ 	}
++
++	// Each block bindings should not be mutated through the reactivity system
++	if (binding.kind === 'each') {
++		return fallback();
++	}
++=======
+ 
+ 	const value = get_assignment_value(node, context);
+ 
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -259,10 +259,11 @@
+ 				/** @type {any} */ (props).$$events = events;
+ 			}
+ 
++			const prev_should_intro = should_intro;
+ 			should_intro = intro;
+ 			// @ts-expect-error the public typings are not what the actual function looks like
+ 			component = Component(anchor, props) || {};
+-			should_intro = true;
++			should_intro = prev_should_intro;
+ 
+ 			if (context) {
+ 				pop();
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -192,15 +192,17 @@
+ 					if (version > /** @type {import('#client').Derived} */ (reaction).version) {
+ 						/** @type {import('#client').Derived} */ (reaction).version = version;
+ 						return true;
+-					} else if (!current_skip_reaction && !dependency?.reactions?.includes(reaction)) {
++					} else if (!current_skip_reaction) {
+ 						// If we are working with an unowned signal as part of an effect (due to !current_skip_reaction)
+ 						// and the version hasn't changed, we still need to check that this reaction
+-						// if linked to the dependency source �C otherwise future updates will not be caught.
+-						var reactions = dependency.reactions;
+-						if (reactions === null) {
+-							dependency.reactions = [reaction];
+-						} else {
+-							reactions.push(reaction);
++						// is linked to the dependency source �C otherwise future updates will not be caught.
++						if (!dependency?.reactions?.includes(reaction)) {
++							var reactions = dependency.reactions;
++							if (reactions === null) {
++								dependency.reactions = [reaction];
++							} else {
++								reactions.push(reaction);
++							}
+ 						}
+ 					}
+ 				}

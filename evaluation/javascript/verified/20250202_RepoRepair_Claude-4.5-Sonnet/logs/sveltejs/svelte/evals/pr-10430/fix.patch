@@ -1,0 +1,60 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
+@@ -182,10 +182,11 @@
+ 				);
+ 			}
+ 			// We're creating an arrow function that gets the store value which minifies better for two or more references
+-			const store_reference = serialize_get_binding(b.id(name.slice(1)), instance_state);
++			const store_id = b.id(name.slice(1));
++			const store_reference = serialize_get_binding(store_id, instance_state);
+ 			const store_get = b.call(
+ 				'$.store_get',
+-				store_reference,
++				serialize_get_binding(store_id, instance_state),
+ 				b.literal(name),
+ 				b.id('$$subscriptions')
+ 			);
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -518,17 +518,17 @@
+ 				// We need both the subscription for getting the value and the store for updating
+ 				params.push(b.id(binding.node.name.slice(1)));
+ 				params.push(b.id(binding.node.name));
+-			} else if (
+-				// If it's a destructured derived binding, then we can extract the derived signal reference and use that.
+-				binding.expression !== null &&
+-				binding.expression.type === 'MemberExpression' &&
+-				binding.expression.object.type === 'CallExpression' &&
+-				binding.expression.object.callee.type === 'Identifier' &&
+-				binding.expression.object.callee.name === '$.get' &&
+-				binding.expression.object.arguments[0].type === 'Identifier'
+-			) {
+-				params.push(b.id(binding.expression.object.arguments[0].name));
+-			} else if (
++		} else if (
++			// If it's a destructured derived binding, then we can extract the derived signal reference and use that.
++			binding.expression !== null &&
++			binding.expression.type === 'MemberExpression' &&
++			binding.expression.object.type === 'CallExpression' &&
++			binding.expression.object.callee.type === 'Identifier' &&
++			binding.expression.object.callee.name === '$.get' &&
++			binding.expression.object.arguments[0].type === 'Identifier'
++		) {
++			// create a copy to remove start/end tags which would mess up source maps
++			params.push(b.id(binding.node.name));			} else if (
+ 				// If we are referencing a simple $$props value, then we need to reference the object property instead
+ 				binding.kind === 'prop' &&
+ 				!binding.reassigned &&
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -2903,6 +2903,8 @@
+ 			);
+ 		} else {
+ 			const name = node.expression === null ? node.name : node.expression.name;
++			const binding = /** @type {import('#compiler').Binding} */ (state.scope.get(name));
++			binding.expression = b.call('$.get', b.id(name));
+ 			return b.const(
+ 				name,
+ 				b.call(

@@ -1,0 +1,28 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -723,10 +723,10 @@
+ 					pos = /** @type {number} */ (pos) + (needs_curlies ? 0 : 1);
+ 					if (needs_curlies && state.str.original[pos - 1] === '(') {
+ 						// Prettier does something like on:click={() => (foo = true)}, we need to remove the braces in this case
+-						state.str.update(pos - 1, pos, `{${prepend}${state.indent}`);
++						state.str.update(pos - 1, pos, `{${prepend}`);
+ 						state.str.update(end, end + 1, '\n}');
+ 					} else {
+-						state.str.prependRight(pos, `${needs_curlies ? '{' : ''}${prepend}${state.indent}`);
++						state.str.prependRight(pos, `${needs_curlies ? '{' : ''}${prepend}`);
+ 						state.str.appendRight(end, `\n${needs_curlies ? '}' : ''}`);
+ 					}
+ 				} else {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/index.js
+@@ -34,7 +34,8 @@
+ 	const js = print(program, {
+ 		// include source content; makes it easier/more robust looking up the source map code
+ 		sourceMapContent: source,
+-		sourceMapSource: js_source_name
++		sourceMapSource: js_source_name,
++		indent: '\t'
+ 	});
+ 	merge_with_preprocessor_map(js, options, js_source_name);
+ 

@@ -1,0 +1,76 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -2340,7 +2340,7 @@
+ 		const else_block = node.fallback
+ 			? b.arrow(
+ 					[b.id('$$anchor')],
+-					/** @type {import('estree').BlockStatement} */ (context.visit(node.fallback))
++					b.block(create_block(node, 'each_else', node.fallback.nodes, context))
+ 				)
+ 			: b.literal(null);
+ 		const key_function =
+
+--- a/packages/svelte/src/internal/client/each.js
++++ b/packages/svelte/src/internal/client/each.js
+@@ -290,7 +290,7 @@
+ 				);
+ 				set_current_hydration_fragment(fragment);
+ 				hydrating_node = /** @type {Node} */ (
+-					/** @type {Node} */ (/** @type {Node} */ (fragment.at(-1)).nextSibling).nextSibling
++					/** @type {Node} */ ((fragment.at(-1) || hydrating_node).nextSibling).nextSibling
+ 				);
+ 				block = each_item_block(item, null, index, render_fn, flags);
+ 				b_blocks[index] = block;
+
+--- a/packages/svelte/src/internal/client/hydration.js
++++ b/packages/svelte/src/internal/client/hydration.js
+@@ -65,7 +65,7 @@
+ 		if (is_controlled) {
+ 			target_node = /** @type {Node} */ (target_node.firstChild);
+ 		}
+-		if (target_node.nodeType === 8) {
++		if (target_node && target_node.nodeType === 8) {
+ 			// @ts-ignore
+ 			let fragment = target_node.$$fragment;
+ 			if (fragment === undefined) {
+@@ -77,9 +77,11 @@
+ 				});
+ 			}
+ 			set_current_hydration_fragment(fragment);
+-		} else {
++		} else if (target_node) {
+ 			const first_child = /** @type {Element | null} */ (target_node.firstChild);
+ 			set_current_hydration_fragment(first_child === null ? [] : [first_child]);
++		} else {
++			set_current_hydration_fragment([]);
+ 		}
+ 	}
+ }
+
+--- a/packages/svelte/src/internal/client/operations.js
++++ b/packages/svelte/src/internal/client/operations.js
+@@ -188,10 +188,10 @@
+ export function child_frag(node) {
+ 	if (current_hydration_fragment !== null) {
+ 		const first_node = /** @type {Node[]} */ (node)[0];
+-		if (current_hydration_fragment !== null && first_node !== null) {
++		if (current_hydration_fragment !== null && first_node !== null && first_node !== undefined) {
+ 			return capture_fragment_from_node(first_node);
+ 		}
+-		return first_node;
++		return first_node || null;
+ 	}
+ 	return first_child_get.call(/** @type {Node} */ (node));
+ }
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -131,7 +131,7 @@
+ 		// In ssr+hydration optimization mode, we might remove the template_element,
+ 		// so we need to is_fragment flag to properly handle hydrated content accordingly.
+ 		const fragment = current_hydration_fragment;
+-		if (fragment !== null) {
++		if (fragment !== null && fragment.length > 0) {
+ 			return is_fragment ? fragment : /** @type {Element} */ (fragment[0]);
+ 		}
+ 	}

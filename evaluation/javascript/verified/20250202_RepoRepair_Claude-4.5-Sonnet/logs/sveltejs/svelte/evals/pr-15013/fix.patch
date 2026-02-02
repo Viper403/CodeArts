@@ -1,0 +1,14 @@
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/media.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/media.js
+@@ -52,7 +52,10 @@
+ 		}
+ 	});
+ 
+-	teardown(() => cancelAnimationFrame(raf_id));
++	teardown(() => {
++		cancelAnimationFrame(raf_id);
++		media.removeEventListener('timeupdate', callback);
++	});
+ }
+ 
+ /**

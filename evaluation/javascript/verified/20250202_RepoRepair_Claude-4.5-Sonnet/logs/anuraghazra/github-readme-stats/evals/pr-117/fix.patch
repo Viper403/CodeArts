@@ -1,0 +1,48 @@
+--- a/src/fetchRepo.js
++++ b/src/fetchRepo.js
+@@ -42,10 +42,16 @@
+   );
+ };
+ 
+-async function fetchRepo(username, reponame) {
++async function fetchRepo(username, reponame, cacheControl) {
+   if (!username || !reponame) {
+     throw new Error("Invalid username or reponame");
+   }
++
++  // Validate and set cache control with minimum of 1800 seconds
++  const minCacheControl = 1800;
++  const maxAge = cacheControl && !isNaN(cacheControl) && cacheControl >= minCacheControl 
++    ? parseInt(cacheControl) 
++    : minCacheControl;
+ 
+   let res = await retryer(fetcher, { login: username, repo: reponame });
+ 
+@@ -62,7 +68,7 @@
+     if (!data.user.repository || data.user.repository.isPrivate) {
+       throw new Error("User Repository Not found");
+     }
+-    return data.user.repository;
++    return { repository: data.user.repository, cacheControl: maxAge };
+   }
+ 
+   if (isOrg) {
+@@ -72,7 +78,7 @@
+     ) {
+       throw new Error("Organization Repository Not found");
+     }
+-    return data.organization.repository;
++    return { repository: data.organization.repository, cacheControl: maxAge };
+   }
+ }
+ 
+
+--- a/src/utils.js
++++ b/src/utils.js
+@@ -122,4 +122,6 @@
+   fallbackColor,
+   FlexLayout,
+   getCardColors,
++  clampValue,
++  parseCacheControl,
+ };

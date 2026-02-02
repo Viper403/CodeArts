@@ -1,0 +1,87 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -119,7 +119,8 @@
+ 		ignore_map.set(node, structuredClone(ignore_stack));
+ 
+ 		const scope = state.scopes.get(node);
+-		next(scope !== undefined && scope !== state.scope ? { ...state, scope } : state);
++		// Always update scope if one exists for this node to ensure proper shadowing resolution
++		next(scope !== undefined ? { ...state, scope } : state);
+ 
+ 		if (ignores.length > 0) {
+ 			pop_ignore();
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -38,7 +38,13 @@
+ 
+ 		// don't transform the declaration itself
+ 		if (node !== binding?.node) {
+-			return state.transform[node.name].read(node);
++			const transform = state.transform[node.name];
++			// If the transform has a binding reference, check if it matches the current binding.
++			// This prevents transforming shadowed variables.
++			if (transform.binding && binding !== transform.binding) {
++				return node;
++			}
++			return transform.read(node);
+ 		}
+ 	}
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/declarations.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/declarations.js
+@@ -46,6 +46,10 @@
+ 						node.argument,
+ 						node.operator === '--' && b.literal(-1)
+ 					);
++				},
++				// Check if the identifier refers to this binding, not a shadowed variable
++				filter: (node, scope) => {
++					return scope.get(node.name) === binding;
+ 				}
+ 			};
+ 		}
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/VariableDeclaration.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/VariableDeclaration.js
+@@ -177,7 +177,7 @@
+ 					if (rune === '$derived' && init.arguments[0].type === 'Identifier') {
+ 						id = init.arguments[0];
+ 					} else {
+-						id = b.id(context.state.scope.generate('$$d'));
++						id = b.id(context.state.scope.generate('$$derived_value'));
+ 						rhs = b.call('$.get', id);
+ 
+ 						declarations.push(
+
+--- a/packages/svelte/src/compiler/phases/scope.js
++++ b/packages/svelte/src/compiler/phases/scope.js
+@@ -183,20 +183,21 @@
+ 	 */
+ 	reference(node, path) {
+ 		path = [...path]; // ensure that mutations to path afterwards don't affect this reference
+-		let references = this.references.get(node.name);
+-
+-		if (!references) this.references.set(node.name, (references = []));
+-
+-		references.push({ node, path });
+-
++		
+ 		const binding = this.declarations.get(node.name);
+ 		if (binding) {
++			let references = this.references.get(node.name);
++			if (!references) this.references.set(node.name, (references = []));
++			references.push({ node, path });
+ 			binding.references.push({ node, path });
+ 		} else if (this.parent) {
+ 			this.parent.reference(node, path);
+ 		} else {
+ 			// no binding was found, and this is the top level scope,
+ 			// which means this is a global
++			let references = this.references.get(node.name);
++			if (!references) this.references.set(node.name, (references = []));
++			references.push({ node, path });
+ 			this.root.conflicts.add(node.name);
+ 		}
+ 	}

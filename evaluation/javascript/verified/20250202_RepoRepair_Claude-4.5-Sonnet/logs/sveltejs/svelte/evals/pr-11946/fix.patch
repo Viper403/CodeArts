@@ -1,0 +1,52 @@
+--- a/packages/svelte/src/internal/client/dom/blocks/each.js
++++ b/packages/svelte/src/internal/client/dom/blocks/each.js
+@@ -137,7 +137,7 @@
+ 		// If we are working with an array that isn't proxied or frozen, then remove strict equality and ensure the items
+ 		// are treated as reactive, so they get wrapped in a signal.
+ 		var flags = state.flags;
+-		if ((flags & EACH_IS_STRICT_EQUALS) !== 0 && !is_frozen(array) && !(STATE_SYMBOL in array)) {
++		if ((flags & EACH_IS_STRICT_EQUALS) !== 0 && !is_frozen(collection) && !(STATE_SYMBOL in collection)) {
+ 			flags ^= EACH_IS_STRICT_EQUALS;
+ 
+ 			// Additionally if we're in an keyed each block, we'll need ensure the items are all wrapped in signals.
+
+--- a/packages/svelte/src/internal/client/reactivity/deriveds.js
++++ b/packages/svelte/src/internal/client/reactivity/deriveds.js
+@@ -110,6 +110,14 @@
+ 		if (DEV && force_schedule) {
+ 			for (var fn of /** @type {import('#client').DerivedDebug} */ (derived).inspect) fn();
+ 		}
++	} else if (value instanceof Set || value instanceof Map) {
++		// For Sets and Maps, even if the reference is the same, the contents may have changed
++		// We need to mark reactions as dirty to ensure UI updates
++		mark_reactions(derived, DIRTY, force_schedule);
++
++		if (DEV && force_schedule) {
++			for (var fn of /** @type {import('#client').DerivedDebug} */ (derived).inspect) fn();
++		}
+ 	}
+ 
+ 	return is_equal;
+
+--- a/packages/svelte/src/reactivity/utils.js
++++ b/packages/svelte/src/reactivity/utils.js
+@@ -9,14 +9,15 @@
+  * @returns {IterableIterator<U>}
+  */
+ export function map(iterable, fn, name) {
++	let iterator = iterable[Symbol.iterator]();
+ 	return {
+ 		[Symbol.iterator]: get_this,
+ 		next() {
+-			for (const value of iterable) {
+-				return { done: false, value: fn(value) };
++			const result = iterator.next();
++			if (result.done) {
++				return { done: true, value: undefined };
+ 			}
+-
+-			return { done: true, value: undefined };
++			return { done: false, value: fn(result.value) };
+ 		},
+ 		// @ts-expect-error
+ 		get [Symbol.toStringTag]() {

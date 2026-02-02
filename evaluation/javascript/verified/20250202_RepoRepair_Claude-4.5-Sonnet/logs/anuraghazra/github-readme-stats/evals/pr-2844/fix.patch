@@ -1,0 +1,12 @@
+--- a/src/calculateRank.js
++++ b/src/calculateRank.js
+@@ -59,7 +59,8 @@
+       FOLLOWERS_WEIGHT * log_normal_cdf(followers / FOLLOWERS_MEDIAN)) /
+       TOTAL_WEIGHT;
+ 
+-  const level = LEVELS[THRESHOLDS.findIndex((t) => rank * 100 <= t)];
++  const index = THRESHOLDS.findIndex((t) => rank * 100 <= t);
++  const level = index === -1 ? LEVELS[LEVELS.length - 1] : LEVELS[index];
+ 
+   return { level: level, percentile: rank * 100 };
+ }

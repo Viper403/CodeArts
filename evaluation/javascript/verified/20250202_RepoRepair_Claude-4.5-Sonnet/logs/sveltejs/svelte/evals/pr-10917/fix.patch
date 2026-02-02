@@ -1,0 +1,44 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -719,20 +719,20 @@
+ 					grouped: assignment.grouped
+ 				});
+ 			} else {
+-				state.init.push(b.var(id, init));
++				state.init.push(b.var(id, init ?? b.member(b.id('$'), b.id('UNINITIALIZED'))));
+ 				state.update.push({
+ 					grouped
+ 				});
+ 			}
+ 		} else {
+ 			if (assignment.singular) {
+-				state.init.push(b.var(id, init));
++				state.init.push(b.var(id, init ?? b.member(b.id('$'), b.id('UNINITIALIZED'))));
+ 				state.update.push({
+ 					singular: assignment.singular,
+ 					grouped
+ 				});
+ 			} else {
+-				state.init.push(b.var(id, init));
++				state.init.push(b.var(id, init ?? b.member(b.id('$'), b.id('UNINITIALIZED'))));
+ 				state.update.push({
+ 					grouped
+ 				});
+
+--- a/packages/svelte/src/internal/client/dom/elements/attributes.js
++++ b/packages/svelte/src/internal/client/dom/elements/attributes.js
+@@ -90,8 +90,12 @@
+  * @param {() => any} value
+  */
+ export function set_custom_element_data_effect(node, prop, value) {
+-	render_effect(() => {
+-		set_custom_element_data(node, prop, value());
++	var current = UNINITIALIZED;
++	render_effect(() => {
++		var next = value();
++		if (current === next) return;
++		current = next;
++		set_custom_element_data(node, prop, next);
+ 	});
+ }
+ 

@@ -1,0 +1,49 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -924,6 +924,23 @@
+ 
+ /** @type {import('./types').Visitors} */
+ const common_visitors = {
++	SnippetBlock(node, context) {
++		// Track parameters with default values for proper optional parameter handling
++		if (node.parameters) {
++			for (const param of node.parameters) {
++				if (param.type === 'AssignmentPattern') {
++					// Parameter has a default value, mark it as optional
++					if (param.left.type === 'Identifier') {
++						const binding = context.state.scope.get(param.left.name);
++						if (binding) {
++							binding.optional = true;
++						}
++					}
++				}
++			}
++		}
++		context.next();
++	},
+ 	Attribute(node, context) {
+ 		if (node.value === true) return;
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -521,6 +521,19 @@
+ 			);
+ 		}
+ 	},
++	SnippetBlock(node, context) {
++		// Mark parameters with default values as optional
++		if (node.parameters) {
++			for (const param of node.parameters) {
++				if (param.type === 'AssignmentPattern') {
++					// Parameter has a default value, so it's optional
++					// This information should be used when validating render calls
++				}
++			}
++		}
++		context.next();
++	},
++=======
+ 	SvelteHead(node) {
+ 		const attribute = node.attributes[0];
+ 		if (attribute) {

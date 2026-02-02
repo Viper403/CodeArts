@@ -1,0 +1,47 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/read/style.js
++++ b/packages/svelte/src/compiler/phases/1-parse/read/style.js
+@@ -332,8 +332,10 @@
+ 			// rewind, so we know whether to continue building the selector list
+ 			parser.index = index;
+ 
+-			relative_selector.end = index;
+-			children.push(relative_selector);
++			if (relative_selector.selectors.length > 0) {
++				relative_selector.end = index;
++				children.push(relative_selector);
++			}
+ 
+ 			return {
+ 				type: 'ComplexSelector',
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
+@@ -158,7 +158,7 @@
+ 				if (selector.type === 'PseudoClassSelector' && selector.name === 'global') {
+ 					const child = selector.args?.children[0].children[0];
+ 					// ensure `:global(element)` to be at the first position in a compound selector
+-					if (child?.selectors[0].type === 'TypeSelector' && i !== 0) {
++					if (child?.selectors?.[0]?.type === 'TypeSelector' && i !== 0) {
+ 						e.css_global_invalid_selector_list(selector);
+ 					}
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
+@@ -76,7 +76,7 @@
+ 				selector.selectors.some((s) => s.type === 'NestingSelector')
+ 			);
+ 
+-			if (!has_explicit_nesting_selector) {
++			if (!has_explicit_nesting_selector && selectors.length > 0) {
+ 				selectors[0] = {
+ 					...selectors[0],
+ 					combinator: descendant_combinator
+@@ -87,6 +87,7 @@
+ 		}
+ 
+ 		if (
++			selectors.length > 0 &&
+ 			apply_selector(
+ 				selectors,
+ 				/** @type {Compiler.Css.Rule} */ (node.metadata.rule),

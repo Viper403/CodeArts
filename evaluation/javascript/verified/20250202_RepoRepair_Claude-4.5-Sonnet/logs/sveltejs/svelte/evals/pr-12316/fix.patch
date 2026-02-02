@@ -1,0 +1,80 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -583,15 +583,15 @@
+ 	const state = context.state;
+ 	const [, value] = serialize_attribute_value(attribute.value, context);
+ 
+-	const inner_assignment = b.assignment(
+-		'=',
+-		b.member(node_id, b.id('value')),
++	// Set __value and only update element.value if __value is not nullish
++	const inner_assignment = b.sequence([
++		b.assignment('=', b.member(node_id, b.id('__value')), value),
+ 		b.conditional(
+-			b.binary('==', b.literal(null), b.assignment('=', b.member(node_id, b.id('__value')), value)),
+-			b.literal(''), // render null/undefined values as empty string to support placeholder options
+-			value
++			b.binary('!=', b.member(node_id, b.id('__value')), b.literal(null)),
++			b.assignment('=', b.member(node_id, b.id('value')), b.member(node_id, b.id('__value'))),
++			b.literal(undefined)
+ 		)
+-	);
++	]);
+ 	const is_reactive = attribute.metadata.dynamic;
+ 	const is_select_with_value =
+ 		// attribute.metadata.dynamic would give false negatives because even if the value does not change,
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -694,7 +694,17 @@
+ 			return b.literal(is_component ? data : escape_html(data, true));
+ 		}
+ 
+-		return /** @type {import('estree').Expression} */ (context.visit(chunk.expression));
++		// For expression tags, we need to ensure nullish values are handled consistently
++		// by converting them to empty strings, so that the attribute is always rendered
++		const expression = /** @type {import('estree').Expression} */ (context.visit(chunk.expression));
++		
++		// For components, pass through as-is; for elements, ensure nullish becomes empty string
++		if (is_component) {
++			return expression;
++		}
++		
++		// Wrap in a call that converts null/undefined to empty string
++		return b.call('$.stringify', expression);
+ 	}
+ 
+ 	let quasi = b.quasi('', false);
+
+--- a/packages/svelte/src/internal/client/dom/elements/attributes.js
++++ b/packages/svelte/src/internal/client/dom/elements/attributes.js
+@@ -236,7 +236,13 @@
+ 			}
+ 		} else if (value == null) {
+ 			attributes[key] = null;
+-			element.removeAttribute(key);
++			// For option elements, set value to empty string instead of removing it
++			// to prevent fallback to text content
++			if (key === 'value' && element.nodeName === 'OPTION') {
++				element.setAttribute(key, '');
++			} else {
++				element.removeAttribute(key);
++			}
+ 		} else if (key === 'style') {
+ 			element.style.cssText = value + '';
+ 		} else if (key === 'autofocus') {
+
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/select.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/select.js
+@@ -134,7 +134,10 @@
+ /** @param {HTMLOptionElement} option */
+ function get_option_value(option) {
+ 	// __value only exists if the <option> has a value attribute
+-	if ('__value' in option) {
++	// We need to check hasAttribute because __value might be undefined
++	// but still explicitly set, and we want to distinguish that from
++	// no value attribute at all (where we fall back to option.value)
++	if ('__value' in option || option.hasAttribute('value')) {
+ 		return option.__value;
+ 	} else {
+ 		return option.value;

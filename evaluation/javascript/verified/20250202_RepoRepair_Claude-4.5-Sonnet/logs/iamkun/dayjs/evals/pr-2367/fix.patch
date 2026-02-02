@@ -1,0 +1,12 @@
+--- a/src/plugin/duration/index.js
++++ b/src/plugin/duration/index.js
+@@ -142,6 +142,9 @@ class Duration {
+       seconds += this.$d.milliseconds / 1000
+     }
+ 
++    // Round to 3 decimal places (millisecond precision) to match moment.js and Java Duration behavior
++    seconds = Math.round(seconds * 1000) / 1000
++
+     const S = getNumberUnitFormat(seconds, 'S')
+ 
+     const negativeMode =

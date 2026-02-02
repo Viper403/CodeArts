@@ -1,0 +1,43 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -201,13 +201,19 @@
+ 
+ 		return;
+ 	} else if (parent.type === 'RegularElement' && closing_tag_omitted(parent.name, name)) {
+-		parent.end = start;
+-		parser.pop();
+-		parser.last_auto_closed_tag = {
+-			tag: parent.name,
+-			reason: name,
+-			depth: parser.stack.length
+-		};
++		// Special case: dt/dd should only auto-close their siblings within the same dl parent
++		// If we're opening a dl, it means dt/dd will be nested, so don't auto-close
++		if ((parent.name === 'dd' || parent.name === 'dt') && name === 'dl') {
++			// Don't auto-close - nested dl is valid
++		} else {
++			parent.end = start;
++			parser.pop();
++			parser.last_auto_closed_tag = {
++				tag: parent.name,
++				reason: name,
++				depth: parser.stack.length
++			};
++		}
+ 	}
+ 
+ 	/** @type {string[]} */
+
+--- a/packages/svelte/src/html-tree-validation.js
++++ b/packages/svelte/src/html-tree-validation.js
+@@ -7,8 +7,8 @@
+ const autoclosing_children = {
+ 	// based on http://developers.whatwg.org/syntax.html#syntax-tag-omission
+ 	li: { direct: ['li'] },
+-	dt: { descendant: ['dt', 'dd'] },
+-	dd: { descendant: ['dt', 'dd'] },
++	dt: { direct: ['dt', 'dd'] },
++	dd: { direct: ['dt', 'dd'] },
+ 	p: {
+ 		descendant: [
+ 			'address',

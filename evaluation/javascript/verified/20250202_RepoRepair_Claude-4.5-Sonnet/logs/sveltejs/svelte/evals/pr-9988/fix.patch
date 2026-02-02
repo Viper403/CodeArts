@@ -1,0 +1,31 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -162,7 +162,8 @@
+ 	if (target_function.metadata.hoistable === 'impossible') {
+ 		return non_hoistable;
+ 	}
+-	// If the function has more than one arg, then bail-out
++	// Snippets can now have multiple arguments, so we don't bail out based on param count alone
++	// (keeping this check only for the specific event delegation optimization case)
+ 	if (target_function.params.length > 1) {
+ 		return non_hoistable;
+ 	}
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -1777,7 +1777,14 @@
+ 		/** @type {import('estree').Expression[]} */
+ 		const args = [context.state.node];
+ 		if (node.argument) {
+-			args.push(b.thunk(/** @type {import('estree').Expression} */ (context.visit(node.argument))));
++			// Don't wrap in thunk - pass argument directly to support variadic snippets
++			const arg = /** @type {import('estree').Expression} */ (context.visit(node.argument));
++			// If argument is an array expression, spread it; otherwise pass as single argument
++			if (arg.type === 'ArrayExpression') {
++				args.push(b.spread(arg));
++			} else {
++				args.push(arg);
++			}
+ 		}
+ 
+ 		let snippet_function = /** @type {import('estree').Expression} */ (

@@ -1,0 +1,60 @@
+Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [48.0 kB]
+Get:4 http://deb.debian.org/debian bookworm-updates/main amd64 Packages.diff/Index [21.8 kB]
+Ign:4 http://deb.debian.org/debian bookworm-updates/main amd64 Packages.diff/Index
+Get:5 http://deb.debian.org/debian bookworm/main amd64 Packages [8792 kB]
+Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [293 kB]
+Get:7 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+Fetched 9368 kB in 35s (271 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+patch is already the newest version (2.7.6-7).
+0 upgraded, 0 newly installed, 0 to remove and 146 not upgraded.
+
+> dayjs@0.0.0-development test
+> TZ=Pacific/Auckland npm run test-tz && TZ=Europe/London npm run test-tz && TZ=America/Whitehorse npm run test-tz && npm run test-tz && jest --verbose
+
+
+> dayjs@0.0.0-development test-tz
+> date && jest test/timezone.test --coverage=false
+
+Sun Feb  1 23:52:27 NZDT 2026
+FAIL test/timezone.test.js
+  ✓ Add Time days (DST) (6ms)
+  ✓ Utc Offset (1ms)
+  ✕ Diff (DST) (9ms)
+  ✓ UTC add day in DST (1ms)
+
+  ● Diff (DST)
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      32.87096774193548
+    Received:
+      32
+
+      37 |   units.forEach((unit) => {
+      38 |     expect(dayjsA.diff(dayjsB, unit)).toBe(momentA.diff(momentB, unit))
+    > 39 |     expect(dayjsA.diff(dayjsB, unit, true)).toBe(momentA.diff(momentB, unit, true))
+      40 |   })
+      41 | })
+      42 |
+      
+      at forEach (test/timezone.test.js:39:45)
+          at Array.forEach (<anonymous>)
+      at Object.<anonymous> (test/timezone.test.js:37:9)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 3 passed, 4 total
+Snapshots:   0 total
+Time:        1.555s
+Ran all test suites matching /test\/timezone.test/i.
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.8.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.8.0
+npm notice To update run: npm install -g npm@11.8.0
+npm notice

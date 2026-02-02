@@ -1,0 +1,11 @@
+--- a/packages/svelte/src/internal/client/reactivity/store.js
++++ b/packages/svelte/src/internal/client/reactivity/store.js
+@@ -28,7 +28,7 @@ export function store_get(store, store_name, stores) {
+ 		entry.store = store ?? null;
+ 
+ 		if (store == null) {
+-			set(entry.source, undefined);
++			entry.source.v = undefined; // Reset value directly
+ 			entry.unsubscribe = noop;
+ 		} else {
+ 			var is_synchronous_callback = true;

@@ -1,0 +1,79 @@
+--- a/packages/svelte/src/internal/client/reactivity/store.js
++++ b/packages/svelte/src/internal/client/reactivity/store.js
+@@ -70,9 +70,12 @@
+ 	let entry = stores[store_name];
+ 
+ 	if (entry && entry.store !== store) {
+-		// Don't reset store yet, so that store_get above can resubscribe to new store if necessary
+ 		entry.unsubscribe();
++		entry.store = store ?? null;
+ 		entry.unsubscribe = noop;
++		if (store == null) {
++			entry.source.v = undefined;
++		}
+ 	}
+ 
+ 	return store;
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -383,14 +383,13 @@
+ 		// Destroying a child effect while updating a parent effect can cause a dependency to appear
+ 		// to be unused, when in fact it is used by the currently-updating parent. Checking `new_deps`
+ 		// allows us to skip the expensive work of disconnecting and immediately reconnecting it
+-		(new_deps === null || !new_deps.includes(dependency))
++		(new_deps === null || !new_deps.includes(dependency)) &&
++		// If we are working with a derived that is owned by an effect, then mark it as being
++		// disconnected.
++		(dependency.f & (UNOWNED | DISCONNECTED)) === 0
+ 	) {
+ 		set_signal_status(dependency, MAYBE_DIRTY);
+-		// If we are working with a derived that is owned by an effect, then mark it as being
+-		// disconnected.
+-		if ((dependency.f & (UNOWNED | DISCONNECTED)) === 0) {
+-			dependency.f ^= DISCONNECTED;
+-		}
++		dependency.f ^= DISCONNECTED;
+ 		remove_reactions(/** @type {Derived} **/ (dependency), 0);
+ 	}
+ }
+
+--- a/packages/svelte/src/reactivity/utils.js
++++ b/packages/svelte/src/reactivity/utils.js
+@@ -3,5 +3,7 @@
+ 
+ /** @param {Source<number>} source */
+ export function increment(source) {
+-	set(source, source.v + 1);
++	if (source !== undefined && source !== null) {
++		set(source, source.v + 1);
++	}
+ }
+
+--- a/packages/svelte/src/store/shared/index.js
++++ b/packages/svelte/src/store/shared/index.js
+@@ -80,7 +80,10 @@
+ 		const subscriber = [run, invalidate];
+ 		subscribers.add(subscriber);
+ 		if (subscribers.size === 1) {
+-			stop = start(set, update) || noop;
++			stop = start(set, update);
++			if (!stop) {
++				stop = noop;
++			}
+ 		}
+ 		run(/** @type {T} */ (value));
+ 		return () => {
+
+--- a/packages/svelte/src/store/utils.js
++++ b/packages/svelte/src/store/utils.js
+@@ -11,9 +11,6 @@
+  */
+ export function subscribe_to_store(store, run, invalidate) {
+ 	if (store == null) {
+-		// @ts-expect-error
+-		run(undefined);
+-
+ 		// @ts-expect-error
+ 		if (invalidate) invalidate(undefined);
+ 

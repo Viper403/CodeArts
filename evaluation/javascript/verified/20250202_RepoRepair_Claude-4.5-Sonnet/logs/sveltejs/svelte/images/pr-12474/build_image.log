@@ -1,0 +1,212 @@
+[2026-02-01 20:41:08,026] [docker_util.py] [INFO]: Start building image `mswebench/sveltejs_m_svelte:pr-12474`, working directory is `data/workdir_js/sveltejs/svelte/images/pr-12474`
+[2026-02-01 20:41:08,125] [docker_util.py] [INFO]: Step 1/9 : FROM mswebench/sveltejs_m_svelte:base9
+[2026-02-01 20:41:08,125] [docker_util.py] [INFO]: 
+[2026-02-01 20:41:08,142] [docker_util.py] [INFO]: ---> 7f9e60276562
+[2026-02-01 20:41:08,143] [docker_util.py] [INFO]: Step 2/9 : COPY fix.patch /home/
+[2026-02-01 20:41:08,143] [docker_util.py] [INFO]: 
+[2026-02-01 20:41:25,286] [docker_util.py] [INFO]: ---> 4b103534b06d
+[2026-02-01 20:41:25,286] [docker_util.py] [INFO]: Step 3/9 : COPY test.patch /home/
+[2026-02-01 20:41:25,286] [docker_util.py] [INFO]: 
+[2026-02-01 20:41:28,705] [docker_util.py] [INFO]: ---> 6b710ae781ed
+[2026-02-01 20:41:28,705] [docker_util.py] [INFO]: Step 4/9 : COPY check_git_changes.sh /home/
+[2026-02-01 20:41:28,705] [docker_util.py] [INFO]: 
+[2026-02-01 20:41:32,154] [docker_util.py] [INFO]: ---> f9f653ec5e99
+[2026-02-01 20:41:32,154] [docker_util.py] [INFO]: Step 5/9 : COPY prepare.sh /home/
+[2026-02-01 20:41:32,154] [docker_util.py] [INFO]: 
+[2026-02-01 20:41:35,542] [docker_util.py] [INFO]: ---> 983637bd231b
+[2026-02-01 20:41:35,543] [docker_util.py] [INFO]: Step 6/9 : COPY run.sh /home/
+[2026-02-01 20:41:35,543] [docker_util.py] [INFO]: 
+[2026-02-01 20:41:39,047] [docker_util.py] [INFO]: ---> 83d6256a9178
+[2026-02-01 20:41:39,047] [docker_util.py] [INFO]: Step 7/9 : COPY test-run.sh /home/
+[2026-02-01 20:41:39,047] [docker_util.py] [INFO]: 
+[2026-02-01 20:41:42,551] [docker_util.py] [INFO]: ---> 7538da4f0095
+[2026-02-01 20:41:42,552] [docker_util.py] [INFO]: Step 8/9 : COPY fix-run.sh /home/
+[2026-02-01 20:41:42,552] [docker_util.py] [INFO]: 
+[2026-02-01 20:41:45,930] [docker_util.py] [INFO]: ---> e2748c95af82
+[2026-02-01 20:41:45,931] [docker_util.py] [INFO]: Step 9/9 : RUN bash /home/prepare.sh
+[2026-02-01 20:41:45,931] [docker_util.py] [INFO]: 
+[2026-02-01 20:41:46,134] [docker_util.py] [INFO]: ---> Running in 17c6ebfc0e98
+[2026-02-01 20:41:47,492] [docker_util.py] [INFO]: [91mUpdating files:  29% (2520/8407)[0m
+[2026-02-01 20:41:47,493] [docker_util.py] [INFO]: [91mUpdating files:  30% (2523/8407)[0m
+[2026-02-01 20:41:47,527] [docker_util.py] [INFO]: [91mUpdating files:  31% (2607/8407)[0m
+[2026-02-01 20:41:47,564] [docker_util.py] [INFO]: [91mUpdating files:  32% (2691/8407)[0m
+[2026-02-01 20:41:47,597] [docker_util.py] [INFO]: [91mUpdating files:  33% (2775/8407)[0m
+[2026-02-01 20:41:47,632] [docker_util.py] [INFO]: [91mUpdating files:  34% (2859/8407)[0m
+[2026-02-01 20:41:47,667] [docker_util.py] [INFO]: [91mUpdating files:  35% (2943/8407)[0m
+[2026-02-01 20:41:47,698] [docker_util.py] [INFO]: [91mUpdating files:  36% (3027/8407)[0m
+[2026-02-01 20:41:47,729] [docker_util.py] [INFO]: [91mUpdating files:  37% (3111/8407)[0m
+[2026-02-01 20:41:47,761] [docker_util.py] [INFO]: [91mUpdating files:  38% (3195/8407)[0m
+[2026-02-01 20:41:47,793] [docker_util.py] [INFO]: [91mUpdating files:  39% (3279/8407)[0m
+[2026-02-01 20:41:47,828] [docker_util.py] [INFO]: [91mUpdating files:  40% (3363/8407)[0m
+[2026-02-01 20:41:47,863] [docker_util.py] [INFO]: [91mUpdating files:  41% (3447/8407)[0m
+[2026-02-01 20:41:47,899] [docker_util.py] [INFO]: [91mUpdating files:  42% (3531/8407)[0m
+[2026-02-01 20:41:47,936] [docker_util.py] [INFO]: [91mUpdating files:  43% (3616/8407)[0m
+[2026-02-01 20:41:47,972] [docker_util.py] [INFO]: [91mUpdating files:  44% (3700/8407)[0m
+[2026-02-01 20:41:48,015] [docker_util.py] [INFO]: [91mUpdating files:  45% (3784/8407)[0m
+[2026-02-01 20:41:48,053] [docker_util.py] [INFO]: [91mUpdating files:  46% (3868/8407)[0m
+[2026-02-01 20:41:48,090] [docker_util.py] [INFO]: [91mUpdating files:  47% (3952/8407)[0m
+[2026-02-01 20:41:48,132] [docker_util.py] [INFO]: [91mUpdating files:  48% (4036/8407)[0m
+[2026-02-01 20:41:48,172] [docker_util.py] [INFO]: [91mUpdating files:  49% (4120/8407)[0m
+[2026-02-01 20:41:48,208] [docker_util.py] [INFO]: [91mUpdating files:  50% (4204/8407)[0m
+[2026-02-01 20:41:48,246] [docker_util.py] [INFO]: [91mUpdating files:  51% (4288/8407)[0m
+[2026-02-01 20:41:48,285] [docker_util.py] [INFO]: [91mUpdating files:  52% (4372/8407)[0m
+[2026-02-01 20:41:48,322] [docker_util.py] [INFO]: [91mUpdating files:  53% (4456/8407)[0m
+[2026-02-01 20:41:48,356] [docker_util.py] [INFO]: [91mUpdating files:  54% (4540/8407)[0m
+[2026-02-01 20:41:48,392] [docker_util.py] [INFO]: [91mUpdating files:  55% (4624/8407)[0m
+[2026-02-01 20:41:48,426] [docker_util.py] [INFO]: [91mUpdating files:  56% (4708/8407)[0m
+[2026-02-01 20:41:48,465] [docker_util.py] [INFO]: [91mUpdating files:  57% (4792/8407)[0m
+[2026-02-01 20:41:48,491] [docker_util.py] [INFO]: [91mUpdating files:  57% (4848/8407)[0m
+[2026-02-01 20:41:48,506] [docker_util.py] [INFO]: [91mUpdating files:  58% (4877/8407)[0m
+[2026-02-01 20:41:48,542] [docker_util.py] [INFO]: [91mUpdating files:  59% (4961/8407)[0m
+[2026-02-01 20:41:48,585] [docker_util.py] [INFO]: [91mUpdating files:  60% (5045/8407)[0m
+[2026-02-01 20:41:48,623] [docker_util.py] [INFO]: [91mUpdating files:  61% (5129/8407)[0m
+[2026-02-01 20:41:48,660] [docker_util.py] [INFO]: [91mUpdating files:  62% (5213/8407)[0m
+[2026-02-01 20:41:48,699] [docker_util.py] [INFO]: [91mUpdating files:  63% (5297/8407)[0m
+[2026-02-01 20:41:48,736] [docker_util.py] [INFO]: [91mUpdating files:  64% (5381/8407)[0m
+[2026-02-01 20:41:48,772] [docker_util.py] [INFO]: [91mUpdating files:  65% (5465/8407)[0m
+[2026-02-01 20:41:48,808] [docker_util.py] [INFO]: [91mUpdating files:  66% (5549/8407)[0m
+[2026-02-01 20:41:48,845] [docker_util.py] [INFO]: [91mUpdating files:  67% (5633/8407)[0m
+[2026-02-01 20:41:48,884] [docker_util.py] [INFO]: [91mUpdating files:  68% (5717/8407)[0m
+[2026-02-01 20:41:48,919] [docker_util.py] [INFO]: [91mUpdating files:  69% (5801/8407)[0m
+[2026-02-01 20:41:48,956] [docker_util.py] [INFO]: [91mUpdating files:  70% (5885/8407)[0m
+[2026-02-01 20:41:48,994] [docker_util.py] [INFO]: [91mUpdating files:  71% (5969/8407)[0m
+[2026-02-01 20:41:49,034] [docker_util.py] [INFO]: [91mUpdating files:  72% (6054/8407)[0m
+[2026-02-01 20:41:49,071] [docker_util.py] [INFO]: [91mUpdating files:  73% (6138/8407)[0m
+[2026-02-01 20:41:49,108] [docker_util.py] [INFO]: [91mUpdating files:  74% (6222/8407)[0m
+[2026-02-01 20:41:49,146] [docker_util.py] [INFO]: [91mUpdating files:  75% (6306/8407)[0m
+[2026-02-01 20:41:49,184] [docker_util.py] [INFO]: [91mUpdating files:  76% (6390/8407)[0m
+[2026-02-01 20:41:49,220] [docker_util.py] [INFO]: [91mUpdating files:  77% (6474/8407)[0m
+[2026-02-01 20:41:49,256] [docker_util.py] [INFO]: [91mUpdating files:  78% (6558/8407)[0m
+[2026-02-01 20:41:49,291] [docker_util.py] [INFO]: [91mUpdating files:  79% (6642/8407)[0m
+[2026-02-01 20:41:49,331] [docker_util.py] [INFO]: [91mUpdating files:  80% (6726/8407)[0m
+[2026-02-01 20:41:49,370] [docker_util.py] [INFO]: [91mUpdating files:  81% (6810/8407)[0m
+[2026-02-01 20:41:49,409] [docker_util.py] [INFO]: [91mUpdating files:  82% (6894/8407)[0m
+[2026-02-01 20:41:49,443] [docker_util.py] [INFO]: [91mUpdating files:  83% (6978/8407)[0m
+[2026-02-01 20:41:49,483] [docker_util.py] [INFO]: [91mUpdating files:  84% (7062/8407)[0m
+[2026-02-01 20:41:49,491] [docker_util.py] [INFO]: [91mUpdating files:  84% (7077/8407)[0m
+[2026-02-01 20:41:49,523] [docker_util.py] [INFO]: [91mUpdating files:  85% (7146/8407)[0m
+[2026-02-01 20:41:49,563] [docker_util.py] [INFO]: [91mUpdating files:  86% (7231/8407)[0m
+[2026-02-01 20:41:49,602] [docker_util.py] [INFO]: [91mUpdating files:  87% (7315/8407)[0m
+[2026-02-01 20:41:49,643] [docker_util.py] [INFO]: [91mUpdating files:  88% (7399/8407)[0m
+[2026-02-01 20:41:49,678] [docker_util.py] [INFO]: [91mUpdating files:  89% (7483/8407)[0m
+[2026-02-01 20:41:49,723] [docker_util.py] [INFO]: [91mUpdating files:  90% (7567/8407)[0m
+[2026-02-01 20:41:49,770] [docker_util.py] [INFO]: [91mUpdating files:  91% (7651/8407)[0m
+[2026-02-01 20:41:49,801] [docker_util.py] [INFO]: [91mUpdating files:  92% (7735/8407)[0m
+[2026-02-01 20:41:49,839] [docker_util.py] [INFO]: [91mUpdating files:  93% (7819/8407)[0m
+[2026-02-01 20:41:49,867] [docker_util.py] [INFO]: [91mUpdating files:  94% (7903/8407)[0m
+[2026-02-01 20:41:49,888] [docker_util.py] [INFO]: [91mUpdating files:  95% (7987/8407)[0m
+[2026-02-01 20:41:49,910] [docker_util.py] [INFO]: [91mUpdating files:  96% (8071/8407)[0m
+[2026-02-01 20:41:49,931] [docker_util.py] [INFO]: [91mUpdating files:  97% (8155/8407)[0m
+[2026-02-01 20:41:49,944] [docker_util.py] [INFO]: [91mUpdating files:  98% (8239/8407)[0m
+[2026-02-01 20:41:49,962] [docker_util.py] [INFO]: [91mUpdating files:  99% (8323/8407)[0m
+[2026-02-01 20:41:49,986] [docker_util.py] [INFO]: [91mUpdating files: 100% (8407/8407)Updating files: 100% (8407/8407), done.
+[0m
+[2026-02-01 20:41:50,020] [docker_util.py] [INFO]: HEAD is now at 92e6721c0 Version Packages (#17585)
+[2026-02-01 20:41:50,097] [docker_util.py] [INFO]: check_git_changes: No uncommitted changes
+[2026-02-01 20:41:51,256] [docker_util.py] [INFO]: [91mNote: switching to 'c287bd503d5b73af1b3aff9ef210341bfcddc642'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at c287bd503 Raw snippet alternative (#12425)
+[0m
+[2026-02-01 20:41:51,390] [docker_util.py] [INFO]: check_git_changes: No uncommitted changes
+[2026-02-01 20:41:52,134] [docker_util.py] [INFO]: Scope: all 6 workspace projects
+[2026-02-01 20:41:52,305] [docker_util.py] [INFO]: Lockfile is up to date, resolution step is skipped
+[2026-02-01 20:41:52,405] [docker_util.py] [INFO]: Progress: resolved 1, reused 0, downloaded 0, added 0
+[2026-02-01 20:41:52,733] [docker_util.py] [INFO]: Packages: +787
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[2026-02-01 20:41:53,406] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 0, added 0
+[2026-02-01 20:41:54,407] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 25, added 25
+[2026-02-01 20:41:54,551] [docker_util.py] [INFO]: ╭───────────────────────────────────────────────────────────────────╮
+   │                                                                   │
+   │                Update available! 9.15.9 → 10.28.2.                │
+   │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v10.28.2   │
+   │                 Run "pnpm add -g pnpm" to update.                 │
+   │                                                                   │
+   ╰───────────────────────────────────────────────────────────────────╯
+[2026-02-01 20:41:55,408] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 49, added 50
+[2026-02-01 20:41:56,409] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 69, added 70
+[2026-02-01 20:41:57,409] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 93, added 94
+[2026-02-01 20:41:58,409] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 128, added 130
+[2026-02-01 20:41:59,410] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 146, added 151
+[2026-02-01 20:42:00,411] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 163, added 168
+[2026-02-01 20:42:01,411] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 181, added 187
+[2026-02-01 20:42:02,411] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 215, added 221
+[2026-02-01 20:42:03,412] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 245, added 251
+[2026-02-01 20:42:04,412] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 280, added 287
+[2026-02-01 20:42:05,413] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 298, added 305
+[2026-02-01 20:42:06,413] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 320, added 328
+[2026-02-01 20:42:07,414] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 334, added 342
+[2026-02-01 20:42:08,414] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 353, added 361
+[2026-02-01 20:42:09,415] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 364, added 372
+[2026-02-01 20:42:10,415] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 378, added 386
+[2026-02-01 20:42:11,415] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 394, added 401
+[2026-02-01 20:42:12,416] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 409, added 417
+[2026-02-01 20:42:13,417] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 432, added 441
+[2026-02-01 20:42:14,417] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 469, added 478
+[2026-02-01 20:42:15,417] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 514, added 523
+[2026-02-01 20:42:16,417] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 546, added 556
+[2026-02-01 20:42:17,417] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 584, added 594
+[2026-02-01 20:42:18,418] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 610, added 620
+[2026-02-01 20:42:19,418] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 634, added 644
+[2026-02-01 20:42:20,419] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 686, added 696
+[2026-02-01 20:42:21,419] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 729, added 739
+[2026-02-01 20:42:22,419] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 753, added 763
+[2026-02-01 20:42:23,420] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 774, added 784
+[2026-02-01 20:42:24,420] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 775, added 785
+[2026-02-01 20:42:25,420] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 776, added 786
+[2026-02-01 20:42:25,967] [docker_util.py] [INFO]: Progress: resolved 787, reused 0, downloaded 777, added 787, done
+[2026-02-01 20:42:26,420] [docker_util.py] [INFO]: .../sharp@0.33.2/node_modules/sharp install$ node install/check
+[2026-02-01 20:42:26,421] [docker_util.py] [INFO]: .../node_modules/@sveltejs/kit postinstall$ node postinstall.js
+[2026-02-01 20:42:26,421] [docker_util.py] [INFO]: .../node_modules/svelte-preprocess postinstall$ echo "[svelte-preprocess] Don't forget to install the preprocessors packages that will be used: sass, stylus, less, postcss & postcss-load-config, coffeescript, pug, etc..."
+[2026-02-01 20:42:26,422] [docker_util.py] [INFO]: .../node_modules/svelte-preprocess postinstall$ echo "[svelte-preprocess] Don't forget to install the preprocessors packages that will be used: sass, stylus, less, postcss & postcss-load-config, coffeescript, pug, etc..."
+[2026-02-01 20:42:26,422] [docker_util.py] [INFO]: .../esbuild@0.19.11/node_modules/esbuild postinstall$ node install.js
+[2026-02-01 20:42:26,488] [docker_util.py] [INFO]: .../node_modules/svelte-preprocess postinstall: [svelte-preprocess] Don't forget to install the preprocessors packages that will be used: sass, stylus, less, postcss & postcss-load-config, coffeescript, pug, etc...
+[2026-02-01 20:42:26,489] [docker_util.py] [INFO]: .../node_modules/svelte-preprocess postinstall: [svelte-preprocess] Don't forget to install the preprocessors packages that will be used: sass, stylus, less, postcss & postcss-load-config, coffeescript, pug, etc...
+[2026-02-01 20:42:26,490] [docker_util.py] [INFO]: .../node_modules/svelte-preprocess postinstall: Done
+[2026-02-01 20:42:26,491] [docker_util.py] [INFO]: .../node_modules/svelte-preprocess postinstall: Done
+[2026-02-01 20:42:26,596] [docker_util.py] [INFO]: .../sharp@0.33.2/node_modules/sharp install: Done
+[2026-02-01 20:42:26,628] [docker_util.py] [INFO]: .../esbuild@0.19.11/node_modules/esbuild postinstall: Done
+[2026-02-01 20:42:27,199] [docker_util.py] [INFO]: .../node_modules/@sveltejs/kit postinstall: Done
+[2026-02-01 20:42:27,229] [docker_util.py] [INFO]: .../node_modules/@vercel/speed-insights postinstall$ node scripts/postinstall.mjs
+[2026-02-01 20:42:27,337] [docker_util.py] [INFO]: .../node_modules/@vercel/speed-insights postinstall: Done
+[2026-02-01 20:42:27,372] [docker_util.py] [INFO]: .../node_modules/@sveltejs/kit postinstall$ node postinstall.js
+[2026-02-01 20:42:28,246] [docker_util.py] [INFO]: .../node_modules/@sveltejs/kit postinstall: Done
+[2026-02-01 20:42:28,527] [docker_util.py] [INFO]: devDependencies:
++ @changesets/cli 2.27.6
++ @sveltejs/eslint-config 8.0.1
++ @svitejs/changesets-changelog-github-compact 1.1.0
++ @types/node 20.11.5
++ @vitest/coverage-v8 1.2.1
++ eslint 9.6.0
++ eslint-plugin-lube 0.4.3
++ jsdom 22.0.0
++ playwright 1.41.1
++ prettier 3.2.4
++ prettier-plugin-svelte 3.1.2
++ typescript 5.5.2
++ typescript-eslint 8.0.0-alpha.34
++ v8-natives 1.2.5
++ vitest 1.2.1
+[2026-02-01 20:42:28,684] [docker_util.py] [INFO]: playgrounds/demo prepare$ node scripts/create-app-svelte.js
+[2026-02-01 20:42:28,792] [docker_util.py] [INFO]: playgrounds/demo prepare: Done
+[2026-02-01 20:42:28,826] [docker_util.py] [INFO]: Done in 37.3s using pnpm v9.15.9
+[2026-02-01 20:42:55,337] [docker_util.py] [INFO]: ---> Removed intermediate container 17c6ebfc0e98
+[2026-02-01 20:42:55,337] [docker_util.py] [INFO]: ---> b89818b94bc6
+[2026-02-01 20:42:55,337] [docker_util.py] [INFO]: sha256:b89818b94bc6832f416d62b48dfca24ce54cdca15fa383309a5b0361732828ec
+[2026-02-01 20:42:55,442] [docker_util.py] [INFO]: Successfully built b89818b94bc6
+[2026-02-01 20:42:55,465] [docker_util.py] [INFO]: Successfully tagged mswebench/sveltejs_m_svelte:pr-12474
+[2026-02-01 20:42:55,471] [docker_util.py] [INFO]: image(data/workdir_js/sveltejs/svelte/images/pr-12474) build success: mswebench/sveltejs_m_svelte:pr-12474

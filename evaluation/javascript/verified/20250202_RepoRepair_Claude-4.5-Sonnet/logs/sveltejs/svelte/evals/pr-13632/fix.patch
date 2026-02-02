@@ -1,0 +1,70 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -198,8 +198,20 @@
+ 				const type_name = state.scope.root.unique('Props').name;
+ 				let type = '';
+ 				if (uses_ts) {
+-					if (analysis.uses_props || analysis.uses_rest_props) {
++					if (analysis.uses_props) {
+ 						type = `interface ${type_name} { [key: string]: any }`;
++					} else if (analysis.uses_rest_props) {
++						// Include actual props with index signature for rest props
++						if (state.props.length > 0) {
++							type = `interface ${type_name} {${newline_separator}${state.props
++								.map((prop) => {
++									const comment = prop.comment ? `${prop.comment}${newline_separator}` : '';
++									return `${comment}${prop.exported}${prop.optional ? '?' : ''}: ${prop.type};`;
++								})
++								.join(newline_separator)}${newline_separator}[key: string]: any;\n${indent}}`;
++						} else {
++							type = `interface ${type_name} { [key: string]: any }`;
++						}
+ 					} else {
+ 						type = `interface ${type_name} {${newline_separator}${state.props
+ 							.map((prop) => {
+@@ -209,8 +221,19 @@
+ 							.join(newline_separator)}\n${indent}}`;
+ 					}
+ 				} else {
+-					if (analysis.uses_props || analysis.uses_rest_props) {
++					if (analysis.uses_props) {
+ 						type = `Record<string, any>`;
++					} else if (analysis.uses_rest_props) {
++						// Include actual props with index signature for rest props
++						if (state.props.length > 0) {
++							type = `{${state.props
++								.map((prop) => {
++									return `${prop.exported}${prop.optional ? '?' : ''}: ${prop.type}`;
++								})
++								.join(`, `)}, [key: string]: any}`;
++						} else {
++							type = `Record<string, any>`;
++						}
+ 					} else {
+ 						type = `{${state.props
+ 							.map((prop) => {
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -442,6 +442,10 @@
+ 							for (const id of extract_identifiers(declarator.id)) {
+ 								const binding = /** @type {Binding} */ (instance.scope.get(id.name));
+ 								binding.kind = 'bindable_prop';
++								// Mark that this component has explicit props for migration purposes
++								if (!analysis.uses_props) {
++									analysis.uses_props = true;
++								}
+ 							}
+ 						}
+ 					}
+@@ -455,6 +459,10 @@
+ 						(binding.declaration_kind === 'var' || binding.declaration_kind === 'let')
+ 					) {
+ 						binding.kind = 'bindable_prop';
++						// Mark that this component has explicit props for migration purposes
++						if (!analysis.uses_props) {
++							analysis.uses_props = true;
++						}
+ 
+ 						if (specifier.exported.name !== specifier.local.name) {
+ 							binding.prop_alias = specifier.exported.name;

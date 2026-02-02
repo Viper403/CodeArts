@@ -1,0 +1,56 @@
+--- a/api/wakatime.js
++++ b/api/wakatime.js
+@@ -74,7 +74,7 @@
+         border_color,
+         locale: locale ? locale.toLowerCase() : null,
+         layout,
+-        langs_count,
++        langs_count: langs_count ? parseInt(langs_count, 10) : undefined,
+       }),
+     );
+   } catch (err) {
+
+--- a/src/cards/wakatime-card.js
++++ b/src/cards/wakatime-card.js
+@@ -208,11 +208,16 @@
+       theme,
+     });
+ 
+-  const filteredLanguages = languages
++  let filteredLanguages = languages
+     ? languages
+         .filter((language) => language.hours || language.minutes)
+         .slice(0, langsCount)
+     : [];
++
++  // Recalculate percentages if we've limited the number of languages
++  if (filteredLanguages.length > 0 && filteredLanguages.length < (languages?.length || 0)) {
++    recalculatePercentages(filteredLanguages);
++  }
+ 
+   // Calculate the card height depending on how many items there are
+   // but if rank circle is visible clamp the minimum height to `150`
+
+--- a/src/common/Card.js
++++ b/src/common/Card.js
+@@ -208,7 +208,7 @@
+         <g
+           data-testid="main-card-body"
+           transform="translate(0, ${
+-            this.hideTitle ? this.paddingX : this.paddingY + 20
++            this.hideTitle ? this.paddingY : this.paddingY + 20
+           })"
+         >
+           ${body}
+
+--- a/src/common/utils.js
++++ b/src/common/utils.js
+@@ -384,7 +384,7 @@
+  * @template T Langauge object.
+  * @param {Array<T>} arr Array of languages.
+  * @param {number} perChunk Number of languages per column.
+- * @returns {Array<T>} Array of languages split in two columns.
++ * @returns {Array<Array<T>>} Array of languages split in two columns.
+  */
+ function chunkArray(arr, perChunk) {
+   return arr.reduce((resultArray, item, index) => {

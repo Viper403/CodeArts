@@ -1,0 +1,17 @@
+Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [48.0 kB]
+Get:4 http://deb.debian.org/debian bookworm-updates/main amd64 Packages.diff/Index [21.8 kB]
+Ign:4 http://deb.debian.org/debian bookworm-updates/main amd64 Packages.diff/Index
+Get:5 http://deb.debian.org/debian bookworm/main amd64 Packages [8792 kB]
+Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [293 kB]
+Get:7 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+Fetched 9368 kB in 5s (1851 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+patch is already the newest version (2.7.6-7).
+0 upgraded, 0 newly installed, 0 to remove and 146 not upgraded.
+error: patch failed: packages/svelte/src/internal/client/reactivity/props.js:239
+error: packages/svelte/src/internal/client/reactivity/props.js: patch does not apply

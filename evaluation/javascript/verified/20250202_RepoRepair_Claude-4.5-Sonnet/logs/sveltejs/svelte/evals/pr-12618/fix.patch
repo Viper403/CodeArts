@@ -1,0 +1,64 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -430,11 +430,24 @@
+ 		const parent = context.path.at(-1);
+ 
+ 		if (
+-			parent?.type === 'RegularElement' ||
+-			parent?.type === 'SvelteElement' ||
+-			parent?.type === 'SvelteWindow' ||
+-			parent?.type === 'SvelteDocument' ||
+-			parent?.type === 'SvelteBody'
++			!parent ||
++			(parent.type !== 'RegularElement' &&
++				parent.type !== 'SvelteElement' &&
++				parent.type !== 'SvelteWindow' &&
++				parent.type !== 'SvelteDocument' &&
++				parent.type !== 'SvelteBody')
++		) {
++			// Binding on invalid element or no parent - skip further validation
++			// Other validation will catch structural issues
++			return;
++		}
++
++		if (
++			parent.type === 'RegularElement' ||
++			parent.type === 'SvelteElement' ||
++			parent.type === 'SvelteWindow' ||
++			parent.type === 'SvelteDocument' ||
++			parent.type === 'SvelteBody'
+ 		) {
+ 			if (context.state.options.namespace === 'foreign' && node.name !== 'this') {
+ 				e.bind_invalid_name(node, node.name, 'Foreign elements only support `bind:this`');
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -3098,8 +3098,13 @@
+ 				b.stmt(has_action_directive ? b.call('$.effect', b.thunk(call_expr)) : call_expr)
+ 			);
+ 		} else {
++			// Wrap binding in a conditional to handle cases where DOM structure doesn't match
++			// expectations (e.g., nested forms which are invalid HTML and get restructured by the browser)
++			const wrapped_call = b.stmt(
++				b.if(state.node, b.block([b.stmt(call_expr)]))
++			);
+ 			state.after_update.push(
+-				b.stmt(has_action_directive ? b.call('$.effect', b.thunk(call_expr)) : call_expr)
++				has_action_directive ? b.stmt(b.call('$.effect', b.thunk(wrapped_call))) : wrapped_call
+ 			);
+ 		}
+ 	},
+
+--- a/packages/svelte/src/internal/client/dom/elements/events.js
++++ b/packages/svelte/src/internal/client/dom/elements/events.js
+@@ -128,7 +128,9 @@
+ 	// @ts-ignore
+ 	if (dom === document.body || dom === window || dom === document) {
+ 		teardown(() => {
+-			dom.removeEventListener(event_name, target_handler, options);
++			if (dom) {
++				dom.removeEventListener(event_name, target_handler, options);
++			}
+ 		});
+ 	}
+ }

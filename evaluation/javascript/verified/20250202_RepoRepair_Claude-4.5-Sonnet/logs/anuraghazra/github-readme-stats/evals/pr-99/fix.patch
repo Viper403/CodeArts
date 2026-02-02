@@ -1,0 +1,10 @@
+--- a/src/fetchRepo.js
++++ b/src/fetchRepo.js
+@@ -9,6 +9,7 @@
+         name
+         nameWithOwner
+         isPrivate
++        isArchived
+         stargazers {
+           totalCount
+         }

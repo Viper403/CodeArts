@@ -1,0 +1,53 @@
+--- a/src/index.js
++++ b/src/index.js
+@@ -323,10 +323,17 @@
+     return str.replace(C.REGEX_FORMAT, (match, $1) => $1 || matches[match] || zoneStr.replace(':', '')) // 'ZZ'
+   }
+ 
+-  utcOffset() {
++  utcOffset(input) {
+     // Because a bug at FF24, we're rounding the timezone offset around 15 minutes
+     // https://github.com/moment/moment/pull/1871
+-    return -Math.round(this.$d.getTimezoneOffset() / 15) * 15
++    const offset = -Math.round(this.$d.getTimezoneOffset() / 15) * 15
++    
++    if (Utils.u(input)) return offset
++    
++    const offsetInMinutes = typeof input === 'number' ? input : 0
++    const diff = (offsetInMinutes - offset) * C.MILLISECONDS_A_MINUTE
++    
++    return Utils.w(this.valueOf() + diff, this)
+   }
+ 
+   diff(input, units, float) {
+
+--- a/src/plugin/badMutable/index.js
++++ b/src/plugin/badMutable/index.js
+@@ -49,5 +49,13 @@
+   proto.isAfter = function (that, units) {
+     return oldIsAfter.bind(this.clone())(that, units)
+   }
++
++  const oldUtcOffset = proto.utcOffset
++  proto.utcOffset = function (input, keepLocalTime) {
++    if (this.$utils().u(input)) return oldUtcOffset.bind(this.clone())()
++    this.$d = oldUtcOffset.bind(this)(input, keepLocalTime).toDate()
++    this.init()
++    return this
++  }
+ }
+ 
+
+--- a/src/plugin/calendar/index.js
++++ b/src/plugin/calendar/index.js
+@@ -12,7 +12,9 @@
+   const proto = c.prototype
+   proto.calendar = function (referenceTime, formats) {
+     const format = formats || this.$locale().calendar || calendarFormat
+-    const referenceStartOfDay = d(referenceTime || undefined).startOf('d')
++    const referenceStartOfDay = d(referenceTime || undefined)
++      .utcOffset(this.utcOffset())
++      .startOf('d')
+     const diff = this.diff(referenceStartOfDay, 'd', true)
+     const sameElse = 'sameElse'
+     /* eslint-disable no-nested-ternary */

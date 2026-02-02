@@ -1,0 +1,52 @@
+--- a/lib/application.js
++++ b/lib/application.js
+@@ -558,9 +558,12 @@
+     renderOptions.cache = this.enabled('view cache');
+   }
+ 
++  // determine cache key
++  var cacheKey = renderOptions.cacheKey || name;
++
+   // primed cache
+   if (renderOptions.cache) {
+-    view = cache[name];
++    view = cache[cacheKey];
+   }
+ 
+   // view
+@@ -584,7 +587,7 @@
+ 
+     // prime the cache
+     if (renderOptions.cache) {
+-      cache[name] = view;
++      cache[cacheKey] = view;
+     }
+   }
+ 
+
+--- a/lib/response.js
++++ b/lib/response.js
+@@ -978,6 +978,7 @@
+  *
+  *  - `cache`     boolean hinting to the engine it should cache
+  *  - `filename`  filename of the view being rendered
++ *  - `cacheKey`  custom cache key for the view (overrides filename-based caching)
+  *
+  * @public
+  */
+
+--- a/lib/view.js
++++ b/lib/view.js
+@@ -132,7 +132,11 @@
+ 
+ View.prototype.render = function render(options, callback) {
+   debug('render "%s"', this.path);
+-  this.engine(this.path, options, callback);
++  
++  // Use custom cache key if provided, otherwise use path
++  var enginePath = options && options.cacheKey ? options.cacheKey : this.path;
++  
++  this.engine(enginePath, options, callback);
+ };
+ 
+ /**

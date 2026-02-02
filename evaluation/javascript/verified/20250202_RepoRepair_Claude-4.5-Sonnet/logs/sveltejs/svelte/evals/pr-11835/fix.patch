@@ -1,0 +1,43 @@
+--- a/packages/svelte/src/internal/client/proxy.js
++++ b/packages/svelte/src/internal/client/proxy.js
+@@ -354,7 +354,7 @@
+ export function get_proxied_value(value) {
+ 	if (value !== null && typeof value === 'object' && STATE_SYMBOL in value) {
+ 		var metadata = value[STATE_SYMBOL];
+-		if (metadata) {
++		if (metadata && metadata.p !== undefined) {
+ 			return metadata.p;
+ 		}
+ 	}
+
+--- a/packages/svelte/src/internal/client/reactivity/equality.js
++++ b/packages/svelte/src/internal/client/reactivity/equality.js
+@@ -11,7 +11,7 @@
+ export function safe_not_equal(a, b) {
+ 	return a != a
+ 		? b == b
+-		: a !== b || (a !== null && typeof a === 'object') || typeof a === 'function';
++		: a !== b && ((a !== null && typeof a === 'object') || typeof a === 'function');
+ }
+ 
+ /** @type {import('#client').Equals} */
+
+--- a/packages/svelte/src/internal/server/index.js
++++ b/packages/svelte/src/internal/server/index.js
+@@ -526,6 +526,16 @@
+ 	};
+ }
+ 
++/**
++ * On the server, $state doesn't wrap values in proxies, so we use simple equality.
++ * @param {any} a
++ * @param {any} b
++ * @returns {boolean}
++ */
++export function state_is(a, b) {
++	return a === b;
++}
++
+ export { push, pop } from './context.js';
+ 
+ export { push_element, pop_element } from './dev.js';

@@ -1,0 +1,73 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/RegularElement.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/RegularElement.js
+@@ -266,14 +266,47 @@
+ 	}
+ 
+ 	// class/style directives must be applied last since they could override class/style attributes
+-	build_class_directives(class_directives, node_id, context, is_attributes_reactive);
+-	build_style_directives(
+-		style_directives,
+-		node_id,
+-		context,
+-		is_attributes_reactive,
+-		has_style_attribute || node.metadata.has_spread
++	// They should be in separate effects to avoid unnecessary re-execution
++	const has_reactive_class_directives = class_directives.some(
++		(directive) => directive.metadata.expression.has_state || directive.metadata.expression.has_call
+ 	);
++	const has_reactive_style_directives = style_directives.some(
++		(directive) => directive.metadata.expression.has_state || directive.metadata.expression.has_call
++	);
++
++	// If we have reactive attributes and reactive class/style directives, we need to isolate them
++	// to prevent unnecessary re-execution when unrelated state changes
++	if (is_attributes_reactive && has_reactive_class_directives) {
++		const isolated_state = { ...context.state, update: [] };
++		build_class_directives(class_directives, node_id, { ...context, state: isolated_state }, false);
++		if (isolated_state.update.length > 0) {
++			context.state.init.push(build_update(b.block(isolated_state.update)));
++		}
++	} else {
++		build_class_directives(class_directives, node_id, context, is_attributes_reactive);
++	}
++
++	if (is_attributes_reactive && has_reactive_style_directives) {
++		const isolated_state = { ...context.state, update: [] };
++		build_style_directives(
++			style_directives,
++			node_id,
++			{ ...context, state: isolated_state },
++			false,
++			has_style_attribute || node.metadata.has_spread
++		);
++		if (isolated_state.update.length > 0) {
++			context.state.init.push(build_update(b.block(isolated_state.update)));
++		}
++	} else {
++		build_style_directives(
++			style_directives,
++			node_id,
++			context,
++			is_attributes_reactive,
++			has_style_attribute || node.metadata.has_spread
++		);
++	}
+ 
+ 	if (might_need_event_replaying) {
+ 		context.state.after_update.push(b.stmt(b.call('$.replay_events', node_id)));
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/element.js
+@@ -74,9 +74,10 @@
+ 
+ 		const { has_state, has_call } = directive.metadata.expression;
+ 
+-		if (!is_attributes_reactive && has_call) {
++		if (has_call && !has_state) {
++			// If there's a function call but no state dependency, wrap in its own effect
+ 			state.init.push(build_update(update));
+-		} else if (is_attributes_reactive || has_state || has_call) {
++		} else if (has_state) {
+ 			state.update.push(update);
+ 		} else {
+ 			state.init.push(update);

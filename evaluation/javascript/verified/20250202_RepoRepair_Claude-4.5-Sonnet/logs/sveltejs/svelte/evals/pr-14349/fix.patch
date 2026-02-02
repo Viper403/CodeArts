@@ -1,0 +1,70 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/RegularElement.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/RegularElement.js
+@@ -192,7 +192,17 @@
+ 		const needs_content_reset = attribute && !is_text_attribute(attribute);
+ 
+ 		if (has_spread || bindings.has('value') || needs_content_reset) {
+-			context.state.init.push(b.stmt(b.call('$.remove_textarea_child', context.state.node)));
++			// Preserve user input during hydration for value bindings
++			const should_preserve_on_hydrate = bindings.has('value');
++			context.state.init.push(
++				b.stmt(
++					b.call(
++						'$.remove_textarea_child',
++						context.state.node,
++						should_preserve_on_hydrate && b.true
++					)
++				)
++			);
+ 		}
+ 	}
+ 
+
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/shared.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/shared.js
+@@ -17,7 +17,15 @@
+  */
+ export function listen(target, events, handler, call_handler_immediately = true) {
+ 	if (call_handler_immediately) {
+-		handler();
++		// Don't clobber user input during hydration - check if the element has been modified
++		// @ts-expect-error
++		const is_input = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement;
++		// @ts-expect-error
++		const has_user_value = is_input && target.value !== '' && target.value !== target.defaultValue;
++		
++		if (!has_user_value) {
++			handler();
++		}
+ 	}
+ 
+ 	for (var name of events) {
+
+--- a/packages/svelte/src/internal/client/dom/elements/misc.js
++++ b/packages/svelte/src/internal/client/dom/elements/misc.js
+@@ -32,6 +32,25 @@
+ 	}
+ }
+ 
++/**
++ * Checks if an input element's value has been modified by the user during hydration.
++ * If so, returns the current value to preserve user input. Otherwise returns null.
++ * @param {HTMLInputElement | HTMLTextAreaElement} dom
++ * @param {string} initial_value
++ * @returns {string | null}
++ */
++export function get_hydration_value(dom, initial_value) {
++	if (hydrating) {
++		const current_value = dom.value;
++		// If the current value differs from the initial/default value,
++		// the user has likely typed something, so preserve it
++		if (current_value !== initial_value && current_value !== '') {
++			return current_value;
++		}
++	}
++	return null;
++}
++
+ let listening_to_form_reset = false;
+ 
+ export function add_form_reset_listener() {

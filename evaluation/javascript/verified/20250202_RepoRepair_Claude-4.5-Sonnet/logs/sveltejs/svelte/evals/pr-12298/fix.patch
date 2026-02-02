@@ -1,0 +1,78 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -211,6 +211,8 @@
+ 			binding !== null &&
+ 			// Bail-out if the the binding is a rest param
+ 			(binding.declaration_kind === 'rest_param' ||
++				// Bail-out if the binding is a rest prop from $props()
++				binding.kind === 'rest_prop' ||
+ 				// Bail-out if we reference anything from the EachBlock (for now) that mutates in non-runes mode,
+ 				(((!context.state.analysis.runes && binding.kind === 'each') ||
+ 					// or any normal not reactive bindings that are mutated.
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
+@@ -341,7 +341,7 @@
+ 		);
+ 	}
+ 
+-	if (analysis.uses_rest_props) {
++	if (analysis.uses_rest_props && !analysis.runes) {
+ 		const named_props = analysis.exports.map(({ name, alias }) => alias ?? name);
+ 		for (const [name, binding] of analysis.instance.scope.declarations) {
+ 			if (binding.kind === 'bindable_prop') named_props.push(binding.prop_alias ?? name);
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -98,6 +98,11 @@
+ 			return b.member(b.id('$$props'), key, key.type === 'Literal');
+ 		}
+ 		return b.member(b.id('$$props'), node);
++	}
++
++	if (binding.kind === 'rest_prop') {
++		// Rest props are local variables and don't need transformation
++		return node;
+ 	}
+ 
+ 	if (binding.kind === 'legacy_reactive_import') {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -1157,11 +1157,21 @@
+ 	} else {
+ 		state.analysis.needs_props = true;
+ 
++		// Check if there's a rest binding from props destructuring
++		let props_id = b.id('$$props');
++		for (const [name, binding] of state.scope.references) {
++			if (binding.kind === 'rest_prop' && binding.prop_alias === null) {
++				// Use the rest binding instead of $$props
++				props_id = b.id(name);
++				break;
++			}
++		}
++
+ 		// Function + .call to preserve "this" context as much as possible
+ 		handler = b.function(
+ 			null,
+ 			[b.id('$$arg')],
+-			b.block([b.stmt(b.call('$.bubble_event.call', b.this, b.id('$$props'), b.id('$$arg')))])
++			b.block([b.stmt(b.call('$.bubble_event.call', b.this, props_id, b.id('$$arg')))])
+ 		);
+ 	}
+ 
+
+--- a/packages/svelte/src/internal/client/reactivity/props.js
++++ b/packages/svelte/src/internal/client/reactivity/props.js
+@@ -44,7 +44,9 @@
+ const rest_props_handler = {
+ 	get(target, key) {
+ 		if (target.exclude.includes(key)) return;
+-		return target.props[key];
++		// Access the props object directly to ensure reactivity tracking
++		var props = target.props;
++		return props[key];
+ 	},
+ 	set(target, key) {
+ 		if (DEV) {

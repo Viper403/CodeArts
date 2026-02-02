@@ -1,0 +1,52 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
+@@ -1038,7 +1038,7 @@
+  * @param {boolean} adjacent_only
+  */
+ function loop_child(children, adjacent_only) {
+-	/** @type {Map<Compiler.AST.RegularElement, NodeExistsValue>} */
++	/** @type {Map<Compiler.AST.RegularElement | Compiler.AST.SvelteElement | Compiler.AST.SlotElement | Compiler.AST.RenderTag, NodeExistsValue>} */
+ 	const result = new Map();
+ 
+ 	let i = children.length;
+@@ -1051,6 +1051,10 @@
+ 			if (adjacent_only) {
+ 				break;
+ 			}
++		} else if (child.type === 'SvelteElement' || child.type === 'RenderTag') {
++			result.set(child, NODE_PROBABLY_EXISTS);
++			// Special case: render tags and svelte:element tags could resolve to no siblings,
++			// so we want to continue until we find a definite sibling even with the adjacent-only combinator
+ 		} else if (is_block(child)) {
+ 			const child_result = get_possible_last_child(child, adjacent_only);
+ 			add_to_map(child_result, result);
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -627,16 +627,16 @@
+ 							) {
+ 								for (let j = i - 1; j >= 0; j -= 1) {
+ 									const type = path[j].type;
+-									if (
+-										type === 'IfBlock' ||
+-										type === 'EachBlock' ||
+-										type === 'AwaitBlock' ||
+-										type === 'KeyBlock'
+-									) {
+-										w.non_reactive_update(binding.node, name);
+-										continue outer;
+-									}
+-								}
++							if (
++								type === 'IfBlock' ||
++								type === 'EachBlock' ||
++								type === 'AwaitBlock' ||
++								type === 'KeyBlock' ||
++								type === 'RenderTag'
++							) {
++								w.non_reactive_update(binding.node, name);
++								continue outer;
++							}								}
+ 								continue inner;
+ 							}
+ 						}

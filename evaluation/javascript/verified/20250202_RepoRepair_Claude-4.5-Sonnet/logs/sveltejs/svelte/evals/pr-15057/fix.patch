@@ -1,0 +1,30 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/Attribute.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/Attribute.js
+@@ -19,8 +19,8 @@
+ 	const parent = /** @type {AST.SvelteNode} */ (context.path.at(-1));
+ 
+ 	if (parent.type === 'RegularElement') {
+-		// special case <option value="" />
+-		if (node.name === 'value' && parent.name === 'option') {
++		// special case <option value="" /> and <input value="" />
++		if (node.name === 'value' && (parent.name === 'option' || parent.name === 'input' || parent.name === 'textarea' || parent.name === 'select')) {
+ 			mark_subtree_dynamic(context.path);
+ 		}
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/Attribute.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/Attribute.js
+@@ -10,5 +10,13 @@
+ export function Attribute(node, context) {
+ 	if (is_event_attribute(node)) {
+ 		visit_event_attribute(node, context);
++		return;
++	}
++
++	// Handle value attribute specially to avoid setting it to 'undefined'
++	if (node.name === 'value' && node.value !== true) {
++		// Mark that value attribute should not be set if undefined
++		// This ensures consistent behavior with bind:value
++		context.state.analysis.uses_value_attribute = true;
+ 	}
+ }

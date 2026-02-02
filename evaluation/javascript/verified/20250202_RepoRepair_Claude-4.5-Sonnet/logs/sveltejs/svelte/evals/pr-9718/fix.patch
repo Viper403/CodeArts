@@ -1,0 +1,57 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -388,6 +388,7 @@
+ 	} else {
+ 		instance.scope.declare(b.id('$$props'), 'prop', 'synthetic');
+ 		instance.scope.declare(b.id('$$restProps'), 'rest_prop', 'synthetic');
++		instance.scope.declare(b.id('$$slots'), 'prop', 'synthetic');
+ 
+ 		for (const { ast, scope, scopes } of [module, instance, template]) {
+ 			/** @type {import('./types').LegacyAnalysisState} */
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
+@@ -336,7 +336,7 @@
+ 		);
+ 	}
+ 
+-	if (analysis.uses_slots) {
++	if (analysis.uses_slots || analysis.runes) {
+ 		component_block.body.unshift(b.const('$$slots', b.call('$.sanitize_slots', b.id('$$props'))));
+ 	}
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -65,23 +65,14 @@
+ 		return b.call('$.unwrap', node);
+ 	}
+ 
+-	if (
+-		binding.kind === 'prop' &&
+-		!binding.mutated &&
+-		!binding.initial &&
+-		!state.analysis.accessors
+-	) {
+-		return b.call(node);
+-	}
+-
+-	if (binding.kind === 'state' && binding.declaration_kind === 'import') {
+-		return b.call('$$_import_' + node.name);
+-	}
+-
+-	if (
+-		binding.kind === 'state' ||
+-		binding.kind === 'derived' ||
+-		binding.kind === 'prop' ||
++	if (binding.kind === 'prop' && binding.node.name === '$$slots') {
++		// Special case for $$slots - derive from $$props
++		return b.call('$.sanitize_slots', b.call('$.unwrap', b.id('$$props')));
++	}
++
++	if (binding.expression) {
++		return binding.expression;
++	}		binding.kind === 'prop' ||
+ 		binding.kind === 'rest_prop' ||
+ 		binding.kind === 'legacy_reactive'
+ 	) {

@@ -1,0 +1,77 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -467,10 +467,23 @@
+ 	}
+ 
+ 	if (type) {
+-		const [directive_name, ...modifiers] = name.slice(colon_index + 1).split('|');
++		let [directive_name, ...modifiers] = name.slice(colon_index + 1).split('|');
+ 
+ 		if (directive_name === '') {
+ 			error(start + colon_index + 1, 'empty-directive-name', type);
++		}
++
++		// For UseDirective with property access containing invalid identifiers,
++		// convert to bracket notation (e.g., a.set-color -> a['set-color'])
++		if (type === 'UseDirective' && directive_name.includes('.')) {
++			const dot_index = directive_name.lastIndexOf('.');
++			const object_part = directive_name.slice(0, dot_index);
++			const property_part = directive_name.slice(dot_index + 1);
++			
++			// Check if property is a valid JavaScript identifier
++			if (!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(property_part)) {
++				directive_name = `${object_part}['${property_part}']`;
++			}
+ 		}
+ 
+ 		if (type === 'BindDirective' && directive_name !== 'this') {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -2414,10 +2414,32 @@
+ 			params.push(b.id('$$props'));
+ 		}
+ 
++		// Parse the action name which may be a member expression like "object.property"
++		const action_name_parts = node.name.split('.');
++		let action_expression;
++		
++		if (action_name_parts.length === 1) {
++			// Simple identifier
++			action_expression = b.id(node.name);
++		} else {
++			// Member expression - build it from left to right
++			action_expression = b.id(action_name_parts[0]);
++			for (let i = 1; i < action_name_parts.length; i++) {
++				const part = action_name_parts[i];
++				// Check if the property name is a valid identifier
++				const is_valid_identifier = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(part);
++				action_expression = b.member(
++					action_expression,
++					is_valid_identifier ? b.id(part) : b.literal(part),
++					!is_valid_identifier // computed if not a valid identifier
++				);
++			}
++		}
++
+ 		/** @type {import('estree').Expression[]} */
+ 		const args = [
+ 			state.node,
+-			b.arrow(params, b.call(serialize_get_binding(b.id(node.name), state), ...params))
++			b.arrow(params, b.call(serialize_get_binding(action_expression, state), ...params))
+ 		];
+ 
+ 		if (node.expression) {
+
+--- a/packages/svelte/src/compiler/utils/builders.js
++++ b/packages/svelte/src/compiler/utils/builders.js
+@@ -265,7 +265,8 @@
+ 	let expression = id(parts[0]);
+ 
+ 	for (let i = 1; i < parts.length; i += 1) {
+-		expression = member(expression, id(parts[i]));
++		const is_valid = regex_is_valid_identifier.test(parts[i]);
++		expression = member(expression, is_valid ? id(parts[i]) : literal(parts[i]), !is_valid);
+ 	}
+ 	return expression;
+ }

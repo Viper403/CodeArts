@@ -1,0 +1,23 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -609,7 +609,7 @@
+ 						error(attribute, 'invalid-slot-name', true);
+ 					}
+ 				}
+-			} else if (attribute.type !== 'SpreadAttribute') {
++			} else if (attribute.type !== 'SpreadAttribute' && attribute.type !== 'LetDirective') {
+ 				error(attribute, 'invalid-slot-element-attribute');
+ 			}
+ 		}
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -2950,7 +2950,7 @@
+ 				? b.literal(null)
+ 				: b.arrow(
+ 						[b.id('$$anchor')],
+-						b.block(create_block(node, 'fallback', node.fragment.nodes, context))
++						b.block([...lets, ...create_block(node, 'fallback', node.fragment.nodes, context)])
+ 					);
+ 
+ 		const expression = is_default

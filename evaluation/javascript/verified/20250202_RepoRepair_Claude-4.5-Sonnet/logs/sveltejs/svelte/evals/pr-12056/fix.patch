@@ -1,0 +1,53 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -1303,6 +1303,20 @@
+ 			context.state.init.push(b.stmt(b.call('$.validate_dynamic_element_tag', b.thunk(tag))));
+ 		}
+ 
++		// Extract the `is` attribute if present
++		const is_attribute = node.attributes.find(
++			(attr) => attr.type === 'Attribute' && attr.name === 'is'
++		);
++		let is_value = null;
++		if (is_attribute && is_attribute.type === 'Attribute') {
++			is_value = serialize_attribute_value(is_attribute.value, context);
++			if (is_value.type !== 'Identifier' && is_value.type !== 'Literal') {
++				const is_id = context.state.scope.generate('$$is');
++				context.state.init.push(b.const(is_id, is_value));
++				is_value = b.id(is_id);
++			}
++		}
++
+ 		const state = {
+ 			...context.state,
+ 			namespace: determine_namespace_for_children(node, context.state.namespace),
+@@ -1321,9 +1335,12 @@
+ 			context.visit(node.fragment, state)
+ 		);
+ 
+-		const body = b.stmt(
+-			b.call('$.element', b.id('$$payload'), tag, b.thunk(attributes), b.thunk(children))
+-		);
++		const call_args = [b.id('$$payload'), tag, b.thunk(attributes), b.thunk(children)];
++		if (is_value) {
++			call_args.push(is_value);
++		}
++
++		const body = b.stmt(b.call('$.element', ...call_args));
+ 
+ 		context.state.template.push(b.if(tag, body), block_anchor);
+ 
+
+--- a/packages/svelte/src/internal/client/dom/blocks/svelte-element.js
++++ b/packages/svelte/src/internal/client/dom/blocks/svelte-element.js
+@@ -110,8 +110,8 @@
+ 				element = hydrating
+ 					? /** @type {Element} */ (element)
+ 					: ns
+-						? document.createElementNS(ns, next_tag)
+-						: document.createElement(next_tag);
++						? document.createElementNS(ns, next_tag, next_is ? { is: next_is } : undefined)
++						: document.createElement(next_tag, next_is ? { is: next_is } : undefined);
+ 
+ 				if (DEV && location) {
+ 					// @ts-expect-error

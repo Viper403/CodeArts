@@ -1,0 +1,61 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
+@@ -436,17 +436,14 @@
+ 					};
+ 				}
+ 
+-				if (
+-					selectors.length === 0 /* is :global(...) */ ||
+-					apply_selector(selectors, rule, element, stylesheet, check_has)
+-				) {
+-					// Treat e.g. `.x:has(.y)` as `.x .y` with the .y part already being matched,
+-					// and now looking upwards for the .x part.
++				// For :has() selectors, we need to check descendants/children of the current element
++				// Apply the combinator to find the appropriate starting elements
++				if (selectors.length > 0) {
+ 					if (
+ 						apply_combinator(
+ 							left_most_combinator,
+-							selectors[0] ?? [],
+-							[relative_selector],
++							selectors[0],
++							selectors.slice(1).concat([relative_selector]),
+ 							rule,
+ 							element,
+ 							stylesheet,
+@@ -456,6 +453,10 @@
+ 						complex_selector.metadata.used = true;
+ 						matched = true;
+ 					}
++				} else if (selectors.length === 0 /* is :global(...) */) {
++					// Global selector inside :has() - treat as matched
++					complex_selector.metadata.used = true;
++					matched = true;
+ 				}
+ 			}
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -692,6 +692,9 @@
+ 
+ 		outer: for (const element of analysis.elements) {
+ 			if (element.type === 'RenderTag') continue;
++			
++			// Ensure element has metadata before accessing it
++			if (!element.metadata) continue;
+ 
+ 			if (element.metadata.scoped) {
+ 				// Dynamic elements in dom mode always use spread for attributes and therefore shouldn't have a class attribute added to them
+
+--- a/packages/svelte/src/compiler/phases/3-transform/css/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/css/index.js
+@@ -253,7 +253,7 @@
+ 				continue;
+ 			}
+ 
+-			if (relative_selector.metadata.scoped) {
++			if (relative_selector.metadata.scoped && !inside_has) {
+ 				if (relative_selector.selectors.length === 1) {
+ 					// skip standalone :is/:where/& selectors
+ 					const selector = relative_selector.selectors[0];

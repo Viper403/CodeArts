@@ -1,0 +1,83 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/read/options.js
++++ b/packages/svelte/src/compiler/phases/1-parse/read/options.js
+@@ -187,6 +187,14 @@
+ 				component_options.accessors = get_boolean_value(attribute);
+ 				break;
+ 			}
++			case 'css': {
++				const value = get_static_value(attribute);
++				if (value !== 'injected' && value !== 'none') {
++					e.svelte_options_invalid_attribute_value(attribute, '"injected" or "none"');
++				}
++				component_options.css = value;
++				break;
++			}
+ 			default:
+ 				e.svelte_options_unknown_attribute(attribute, name);
+ 		}
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
+@@ -248,5 +248,9 @@
+  * @param {ComponentAnalysis} analysis
+  */
+ export function analyze_css(stylesheet, analysis) {
++	// Only analyze CSS if component has styles and CSS injection is enabled (defaults to true for backward compatibility)
++	if (!stylesheet || (analysis.css_inject !== undefined && !analysis.css_inject)) {
++		return;
++	}
+ 	walk(stylesheet, { keyframes: analysis.css.keyframes, rule: null }, css_visitors);
+ }
+
+--- a/packages/svelte/src/compiler/phases/3-transform/css/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/css/index.js
+@@ -60,7 +60,10 @@
+ 
+ 	merge_with_preprocessor_map(css, options, css.map.sources[0]);
+ 
+-	if (options.dev && options.css === 'injected' && css.code) {
++	// Use component-level css option if available, otherwise fall back to global option
++	const effective_css_mode = analysis.css.mode ?? options.css;
++
++	if (options.dev && effective_css_mode === 'injected' && css.code) {
+ 		css.code += `\n/*# sourceMappingURL=${css.map.toUrl()} */`;
+ 	}
+ 
+
+--- a/packages/svelte/src/compiler/phases/css.js
++++ b/packages/svelte/src/compiler/phases/css.js
+@@ -1,5 +1,6 @@
+ /** @import { Css } from '#compiler' */
+ const regex_css_browser_prefix = /^-((webkit)|(moz)|(o)|(ms))-/;
++/** Regex to match CSS name boundaries (whitespace, comma, semicolon, closing brace) */
+ export const regex_css_name_boundary = /^[\s,;}]$/;
+ 
+ /**
+
+--- a/packages/svelte/src/compiler/validate-options.js
++++ b/packages/svelte/src/compiler/validate-options.js
+@@ -46,20 +46,20 @@
+ 
+ 			accessors: deprecate(w.options_deprecated_accessors, boolean(false)),
+ 
+-			css: validator('external', (input) => {
++			css: validator('external', (input, keypath) => {
+ 				if (input === true || input === false) {
+ 					throw_error(
+-						'The boolean options have been removed from the css option. Use "external" instead of false and "injected" instead of true'
++						`${keypath}: The boolean options have been removed from the css option. Use "external" instead of false and "injected" instead of true`
+ 					);
+ 				}
+ 				if (input === 'none') {
+ 					throw_error(
+-						'css: "none" is no longer a valid option. If this was crucial for you, please open an issue on GitHub with your use case.'
++						`${keypath}: "none" is no longer a valid option. If this was crucial for you, please open an issue on GitHub with your use case.`
+ 					);
+ 				}
+ 
+ 				if (input !== 'external' && input !== 'injected') {
+-					throw_error(`css should be either "external" (default, recommended) or "injected"`);
++					throw_error(`${keypath} should be either "external" (default, recommended) or "injected"`);
+ 				}
+ 
+ 				return input;

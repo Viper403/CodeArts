@@ -1,0 +1,50 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-analyze.js
+@@ -140,6 +140,7 @@
+ 		}
+ 
+ 		node.metadata.is_global_like ||=
++			node.selectors.length === 1 &&
+ 			node.selectors.some(
+ 				(child) => child.type === 'PseudoClassSelector' && child.name === 'root'
+ 			) &&
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
+@@ -142,7 +142,7 @@
+ 		// In case of `:root.y:has(...)`, `y` is unscoped, but everything in `:has(...)` should be scoped (if not global).
+ 		// To properly accomplish that, we gotta filter out all selector types except `:has`.
+ 		const root = child.selectors.find((s) => s.type === 'PseudoClassSelector' && s.name === 'root');
+-		if (!root || child.metadata.is_global_like) return child;
++		if (!root || child.metadata.is_global_like || child.metadata.is_global) return child;
+ 
+ 		return {
+ 			...child,
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/utils.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/utils.js
+@@ -81,6 +81,7 @@
+ 		((selector.name !== 'has' &&
+ 			selector.name !== 'is' &&
+ 			selector.name !== 'where' &&
++			selector.name !== 'root' &&
+ 			// Not is special because we want to scope as specific as possible, but because :not
+ 			// inverses the result, we want to leave the unscoped, too. The exception is more than
+ 			// one selector in the :not (.e.g :not(.x .y)), then .x and .y should be scoped
+
+--- a/packages/svelte/src/compiler/phases/3-transform/css/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/css/index.js
+@@ -333,6 +333,13 @@
+ 					) {
+ 						if (selector.name !== 'root' && selector.name !== 'host') {
+ 							if (i === 0) context.state.code.prependRight(selector.start, modifier);
++						} else {
++							// For :root and :host, we should still add the modifier after any following selectors
++							// (e.g., :root[data-theme="dark"] should get the modifier after the attribute selector)
++							if (i < relative_selector.selectors.length - 1) {
++								// There are selectors after :root/:host, continue to process them
++								continue;
++							}
+ 						}
+ 						continue;
+ 					}

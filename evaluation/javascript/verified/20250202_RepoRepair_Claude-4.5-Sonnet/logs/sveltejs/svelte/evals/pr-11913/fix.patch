@@ -1,0 +1,59 @@
+--- a/packages/svelte/src/internal/client/reactivity/effects.js
++++ b/packages/svelte/src/internal/client/reactivity/effects.js
+@@ -97,6 +97,9 @@
+ 
+ 	if (current_reaction !== null && !is_root) {
+ 		var flags = current_reaction.f;
++		
++		push_effect(effect, current_reaction);
++		
+ 		if ((flags & DERIVED) !== 0) {
+ 			if ((flags & UNOWNED) !== 0) {
+ 				e.effect_in_unowned_derived();
+@@ -107,8 +110,6 @@
+ 				push_effect(effect, current_effect);
+ 			}
+ 		}
+-
+-		push_effect(effect, current_reaction);
+ 	}
+ 
+ 	if (sync) {
+
+--- a/packages/svelte/src/internal/client/reactivity/sources.js
++++ b/packages/svelte/src/internal/client/reactivity/sources.js
+@@ -120,7 +120,7 @@
+ 			if (current_dependencies !== null && current_dependencies.includes(signal)) {
+ 				set_signal_status(current_effect, DIRTY);
+ 				schedule_effect(current_effect);
+-			} else {
++			} else if (current_untracking) {
+ 				if (current_untracked_writes === null) {
+ 					set_current_untracked_writes([signal]);
+ 				} else {
+
+--- a/packages/svelte/src/internal/client/reactivity/store.js
++++ b/packages/svelte/src/internal/client/reactivity/store.js
+@@ -96,7 +96,7 @@
+ export function invalidate_store(stores, store_name) {
+ 	const store = stores[store_name];
+ 	if (store.store) {
+-		store_set(store.store, store.value.v);
++		store_set(store.store, get(store.value));
+ 	}
+ }
+ 
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -394,8 +394,8 @@
+ 					dependencies[current_dependencies_index + i] = current_dependencies[i];
+ 				}
+ 			} else {
+-				signal.deps = /** @type {import('#client').Value<V>[]} **/ (
+-					dependencies = current_dependencies
++				signal.deps = dependencies = /** @type {import('#client').Value<V>[]} **/ (
++					current_dependencies
+ 				);
+ 			}
+ 

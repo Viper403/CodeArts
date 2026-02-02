@@ -1,0 +1,29 @@
+--- a/packages/svelte/src/internal/client/proxy.js
++++ b/packages/svelte/src/internal/client/proxy.js
+@@ -350,11 +350,6 @@
+ 
+ 	get(target, prop, receiver) {
+ 		const value = Reflect.get(target, prop, receiver);
+-
+-		if (!(prop in target)) {
+-			return readonly(value);
+-		}
+-
+-		return value;
++		return readonly(value);
+ 	}
+ };
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -1655,7 +1655,10 @@
+ 		if (arguments.length > 0) {
+ 			if (mutation || (immutable ? value !== current : safe_not_equal(value, current))) {
+ 				from_child = true;
++				var prev = current_untracking;
++				current_untracking = true;
+ 				set(inner_current_value, mutation ? current : value);
++				current_untracking = prev;
+ 				get(current_value); // force a synchronisation immediately
+ 			}
+ 

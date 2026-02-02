@@ -1,0 +1,72 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -1027,10 +1027,22 @@
+ 			return next();
+ 		}
+ 
+-		if (node.declaration.type === 'VariableDeclaration' && node.declaration.kind === 'const') {
+-			for (const declarator of node.declaration.declarations) {
+-				for (const node of extract_identifiers(declarator.id)) {
+-					state.analysis.exports.push({ name: node.name, alias: null });
++		if (node.declaration.type === 'VariableDeclaration') {
++			if (node.declaration.kind === 'const') {
++				for (const declarator of node.declaration.declarations) {
++					for (const node of extract_identifiers(declarator.id)) {
++						state.analysis.exports.push({ name: node.name, alias: null });
++					}
++				}
++			} else if (node.declaration.kind === 'let') {
++				// exported let variables should create bindable props (accessors with setters)
++				for (const declarator of node.declaration.declarations) {
++					for (const id of extract_identifiers(declarator.id)) {
++						const binding = /** @type {import('#compiler').Binding} */ (state.scope.get(id.name));
++						if (binding && binding.kind === 'state') {
++							binding.kind = 'bindable_prop';
++						}
++					}
+ 				}
+ 			}
+ 		}
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -1192,9 +1192,22 @@
+ 			}
+ 		} else {
+ 			if (node.declaration?.type !== 'VariableDeclaration') return;
+-			if (node.declaration.kind !== 'let') return;
+ 			if (state.analysis.instance.scope !== state.scope) return;
+-			e.legacy_export_invalid(node);
++			
++			// In Svelte 5, allow exporting let variables to create writable accessors
++			// but still validate const/derived exports
++			if (node.declaration.kind === 'let') {
++				// visit children, so bindings are correctly initialised
++				next();
++			} else {
++				// For const exports, validate they are not derived or reassigned state
++				next();
++				for (const declarator of node.declaration.declarations) {
++					for (const id of extract_identifiers(declarator.id)) {
++						validate_export(node, state.scope, id.name);
++					}
++				}
++			}
+ 		}
+ 	},
+ 	ExportSpecifier(node, { state }) {
+
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/props.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/props.js
+@@ -14,9 +14,10 @@
+ 	var desc = get_descriptor(props, prop);
+ 
+ 	if (desc && desc.set) {
++		var initial = props[prop];
+ 		props[prop] = value;
+ 		teardown(() => {
+-			props[prop] = null;
++			props[prop] = initial;
+ 		});
+ 	}
+ }

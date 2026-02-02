@@ -1,0 +1,69 @@
+--- a/src/common/Card.js
++++ b/src/common/Card.js
+@@ -64,6 +64,8 @@
+         y="0"
+         class="header"
+         data-testid="header"
++        textLength="${Math.min(this.title.length * 10, this.width - this.paddingX * 2 - (this.titlePrefixIcon ? 41 : 0))}"
++        lengthAdjust="spacingAndGlyphs"
+       >${this.title}</text>
+     `;
+ 
+
+--- a/src/translations.js
++++ b/src/translations.js
+@@ -4,30 +4,30 @@
+   const encodedName = encodeHTML(name);
+   return {
+     "statcard.title": {
+-      ar: `${encodedName} ???????? ??? ???`,
+-      cn: `${encodedName} �� GitHub ͳ������`,
+-      cs: `GitHub statistiky u?ivatele ${encodedName}`,
+-      de: `${encodedName + apostrophe} GitHub-Statistiken`,
+-      en: `${encodedName}'${apostrophe} GitHub Stats`,
+-      bn: `${encodedName} ?? GitHub ??????????`,
+-      es: `Estad��sticas de GitHub de ${encodedName}`,
+-      fr: `Statistiques GitHub de ${encodedName}`,
+-      hu: `${encodedName} GitHub statisztika`,
+-      it: `Statistiche GitHub di ${encodedName}`,
+-      ja: `${encodedName}�� GitHub �yӋ`,
+-      kr: `${encodedName}? GitHub ??`,
+-      nl: `${encodedName}'${apostrophe} GitHub Statistieken`,
+-      "pt-pt": `Estat��sticas do GitHub de ${encodedName}`,
+-      "pt-br": `Estat��sticas do GitHub de ${encodedName}`,
+-      np: `${encodedName}'${apostrophe} ????? ????????`,
+-      el: `���Ӧ��ӦɦҦӦɦ�? GitHub �ӦϦ� ${encodedName}`,
+-      ru: `����ѧ�ڧ��ڧܧ� GitHub ���ݧ�٧�ӧѧ�֧ݧ� ${encodedName}`,
+-      "uk-ua": `����ѧ�ڧ��ڧܧ� GitHub �ܧ��ڧ���ӧѧ�� ${encodedName}`,
+-      id: `Statistik GitHub ${encodedName}`,
+-      my: `Statistik GitHub ${encodedName}`,
+-      sk: `GitHub ?tatistiky pou?��vate?a ${encodedName}`,
+-      tr: `${encodedName} Hesab?n?n GitHub Y?ld?zlar?`,
+-      pl: `Statystyki GitHub u?ytkownika ${encodedName}`,
++      ar: `${name} ???????? ??? ???`,
++      cn: `${name} �� GitHub ͳ������`,
++      cs: `GitHub statistiky u?ivatele ${name}`,
++      de: `${name + apostrophe} GitHub-Statistiken`,
++      en: `${name}'${apostrophe} GitHub Stats`,
++      bn: `${name} ?? GitHub ??????????`,
++      es: `Estad��sticas de GitHub de ${name}`,
++      fr: `Statistiques GitHub de ${name}`,
++      hu: `${name} GitHub statisztika`,
++      it: `Statistiche GitHub di ${name}`,
++      ja: `${name}�� GitHub �yӋ`,
++      kr: `${name}? GitHub ??`,
++      nl: `${name}'${apostrophe} GitHub Statistieken`,
++      "pt-pt": `Estat��sticas do GitHub de ${name}`,
++      "pt-br": `Estat��sticas do GitHub de ${name}`,
++      np: `${name}'${apostrophe} ????? ????????`,
++      el: `���Ӧ��ӦɦҦӦɦ�? GitHub �ӦϦ� ${name}`,
++      ru: `����ѧ�ڧ��ڧܧ� GitHub ���ݧ�٧�ӧѧ�֧ݧ� ${name}`,
++      "uk-ua": `����ѧ�ڧ��ڧܧ� GitHub �ܧ��ڧ���ӧѧ�� ${name}`,
++      id: `Statistik GitHub ${name}`,
++      my: `Statistik GitHub ${name}`,
++      sk: `GitHub ?tatistiky pou?��vate?a ${name}`,
++      tr: `${name} Hesab?n?n GitHub Y?ld?zlar?`,
++      pl: `Statystyki GitHub u?ytkownika ${name}`,
+     },
+     "statcard.totalstars": {
+       ar: "????? ??????",

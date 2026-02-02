@@ -1,0 +1,29 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/a11y.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/a11y.js
+@@ -87,8 +87,9 @@
+ 	const aria_hidden = attribute_map.get('aria-hidden');
+ 	if (!aria_hidden) return false;
+ 	const aria_hidden_value = get_static_value(aria_hidden);
+-	if (aria_hidden_value === null) return true;
+-	return aria_hidden_value === true || aria_hidden_value === 'true';
++	// Only treat as hidden if explicitly set to true or "true"
++	// null (dynamic value) or true (no value) should not be treated as hidden
++	return aria_hidden_value === 'true';
+ }
+ 
+ /**
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -151,6 +151,11 @@
+ 				w.attribute_invalid_property_name(attribute, attribute.name, correct_name);
+ 			}
+ 
++			// Warn about empty aria-* attributes (e.g., <div aria-hidden> instead of aria-hidden="true")
++			if (attribute.name.startsWith('aria-') && attribute.value === true) {
++				w.attribute_empty_shorthand(attribute, attribute.name);
++			}
++
+ 			validate_attribute_name(attribute);
+ 		} else if (attribute.type === 'AnimateDirective') {
+ 			const parent = context.path.at(-2);

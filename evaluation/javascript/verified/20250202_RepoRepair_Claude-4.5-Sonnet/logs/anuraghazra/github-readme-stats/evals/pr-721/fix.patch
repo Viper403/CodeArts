@@ -1,0 +1,30 @@
+--- a/src/calculateRank.js
++++ b/src/calculateRank.js
+@@ -86,6 +86,9 @@
+   if (normalizedScore >= RANK_A3_VALUE && normalizedScore < RANK_B_VALUE) {
+     level = "B+";
+   }
++  if (normalizedScore >= RANK_B_VALUE) {
++    level = "C";
++  }
+ 
+   return { level, score: normalizedScore };
+ }
+
+--- a/src/common/Card.js
++++ b/src/common/Card.js
+@@ -52,6 +52,14 @@
+ 
+   setTitle(text) {
+     this.title = text;
++  }
++
++  setWidth(width) {
++    this.width = width;
++  }
++
++  setHeight(height) {
++    this.height = height;
+   }
+ 
+   renderTitle() {

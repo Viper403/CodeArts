@@ -1,0 +1,60 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -732,6 +732,13 @@
+ 				const index = parser.index - 1;
+ 				parser.eat('#');
+ 				const name = parser.read_until(/[^a-z]/);
++				// Snippet blocks should be handled by the main parser, not here
++				// Reset position and return to let the main parser handle it
++				if (name === 'snippet') {
++					parser.index = index;
++					flush(index);
++					return chunks;
++				}
+ 				e.block_invalid_placement(index, name, location);
+ 			} else if (parser.match('@')) {
+ 				const index = parser.index - 1;
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -622,11 +622,25 @@
+ 	SnippetBlock(node, context) {
+ 		validate_block_not_empty(node.body, context);
+ 
+-		if (node.expression.name !== 'children') return;
++		if (node.expression.name !== 'children') {
++			// Snippet content is not directly inserted into the parent element hierarchy,
++			// so we need to clear parent_element to avoid false positive validation errors
++			context.next({
++				...context.state,
++				parent_element: null
++			});
++			return;
++		}
+ 
+ 		const { path } = context;
+ 		const parent = path.at(-2);
+-		if (!parent) return;
++		if (!parent) {
++			context.next({
++				...context.state,
++				parent_element: null
++			});
++			return;
++		}
+ 		if (
+ 			parent.type === 'Component' ||
+ 			parent.type === 'SvelteComponent' ||
+@@ -640,6 +654,12 @@
+ 				e.snippet_conflict(node);
+ 			}
+ 		}
++		
++		// Clear parent_element for snippet content
++		context.next({
++			...context.state,
++			parent_element: null
++		});
+ 	},
+ 	StyleDirective(node) {
+ 		if (node.modifiers.length > 1 || (node.modifiers.length && node.modifiers[0] !== 'important')) {

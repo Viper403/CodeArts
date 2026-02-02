@@ -1,0 +1,47 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -68,7 +68,7 @@
+ 	if (
+ 		binding.kind === 'prop' &&
+ 		!binding.mutated &&
+-		!binding.initial &&
++		binding.initial === undefined &&
+ 		!state.analysis.accessors
+ 	) {
+ 		return b.call(node);
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -572,7 +572,7 @@
+ 	const is_reactive = attribute.metadata.dynamic;
+ 	const needs_selected_call =
+ 		element === 'option' && (is_reactive || collect_parent_each_blocks(context).length > 0);
+-	const needs_option_call = element === 'select' && is_reactive;
++	const needs_option_call = element === 'select';
+ 	const assigment = b.stmt(
+ 		needs_selected_call
+ 			? b.sequence([
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -904,7 +904,7 @@
+ 			const option_value = dom.__value;
+ 			const selected = select_value === option_value;
+ 			dom.selected = selected;
+-			dom.value = option_value;
++			dom.value = option_value == null ? '' : option_value;
+ 			// Handle the edge case of new options being added to a select when its state is "nothing selected"
+ 			// and keeping the selection state in sync (the DOM auto-selects the first option on insert)
+ 			// @ts-ignore
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -1468,7 +1468,7 @@
+ 	return a != a
+ 		? // eslint-disable-next-line eqeqeq
+ 		  b == b
+-		: a !== b || (a !== null && typeof a === 'object') || typeof a === 'function';
++		: a !== b || (a !== null && (typeof a === 'object' || typeof a === 'function'));
+ }
+ 
+ /**

@@ -1,0 +1,35 @@
+--- a/src/plugin/advancedFormat/index.js
++++ b/src/plugin/advancedFormat/index.js
+@@ -20,7 +20,7 @@
+         case 'Do':
+           return locale.ordinal(this.$D)
+         case 'gggg':
+-          return this.weekYear()
++          return this.weekYear ? this.weekYear() : this.year()
+         case 'wo':
+           return locale.ordinal(this.week(), 'W') // W for week
+         case 'w':
+
+--- a/src/plugin/badMutable/index.js
++++ b/src/plugin/badMutable/index.js
+@@ -49,5 +49,20 @@
+   proto.isAfter = function (that, units) {
+     return oldIsAfter.bind(this.clone())(that, units)
+   }
++
++  const oldYear = proto.year
++  proto.year = function (input) {
++    if (this.$utils().u(input)) return oldYear.bind(this.clone())()
++    this.$d = oldYear.bind(this)(input).toDate()
++    this.init()
++    return this
++  }
++
++  const oldWeekYear = proto.weekYear
++  if (oldWeekYear) {
++    proto.weekYear = function () {
++      return oldWeekYear.bind(this.clone())()
++    }
++  }
+ }
+ 

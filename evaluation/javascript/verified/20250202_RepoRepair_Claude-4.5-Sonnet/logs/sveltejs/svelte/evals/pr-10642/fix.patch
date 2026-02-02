@@ -1,0 +1,78 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
+@@ -314,13 +314,18 @@
+ 	}
+ 
+ 	if (analysis.uses_props || analysis.uses_rest_props) {
++		const excluded_props = [b.literal('children'), b.literal('$$slots')];
++		// In legacy mode, keep $$events in sanitized props for $on to work
++		if (!options.legacy.componentApi) {
++			excluded_props.push(b.literal('$$events'));
++		}
+ 		component_block.body.unshift(
+ 			b.const(
+ 				'$$sanitized_props',
+ 				b.call(
+ 					'$.rest_props',
+ 					b.id('$$props'),
+-					b.array([b.literal('children'), b.literal('$$slots'), b.literal('$$events')])
++					b.array(excluded_props)
+ 				)
+ 			)
+ 		);
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -1396,11 +1396,10 @@
+ 
+ 		return handler;
+ 	} else {
+-		// Function + .call to preserve "this" context as much as possible
+-		return b.function(
+-			null,
++		// Event bubbling handler - this is used both for DOM elements and components
++		return b.arrow(
+ 			[b.id('$$arg')],
+-			b.block([b.stmt(b.call('$.bubble_event.call', b.this, b.id('$$props'), b.id('$$arg')))])
++			b.call('$.bubble_event', b.this, b.id('$$props'), b.literal(node.name), b.id('$$arg'))
+ 		);
+ 	}
+ }
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -2916,12 +2916,13 @@
+ /**
+  * @this {any}
+  * @param {Record<string, unknown>} $$props
+- * @param {Event} event
++ * @param {Event | string} event
+  * @returns {void}
+  */
+ export function bubble_event($$props, event) {
++	var event_name = typeof event === 'string' ? event : event.type;
+ 	var events = /** @type {Record<string, Function[] | Function>} */ ($$props.$$events)?.[
+-		event.type
++		event_name
+ 	];
+ 	var callbacks = is_array(events) ? events.slice() : events == null ? [] : [events];
+ 	for (var fn of callbacks) {
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -121,14 +121,11 @@
+  */
+ export function batch_inspect(target, prop, receiver) {
+ 	const value = Reflect.get(target, prop, receiver);
+-	/**
+-	 * @this {any}
+-	 */
+ 	return function () {
+ 		const previously_batching_effect = is_batching_effect;
+ 		is_batching_effect = true;
+ 		try {
+-			return Reflect.apply(value, this, arguments);
++			return Reflect.apply(value, receiver, arguments);
+ 		} finally {
+ 			is_batching_effect = previously_batching_effect;
+ 			if (last_inspected_signal !== null && !is_inspecting_signal) {

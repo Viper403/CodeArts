@@ -1,0 +1,245 @@
+[2026-02-01 20:52:40,453] [docker_util.py] [INFO]: Start building image `mswebench/iamkun_m_dayjs:pr-1611`, working directory is `data/workdir_js/iamkun/dayjs/images/pr-1611`
+[2026-02-01 20:52:50,468] [docker_util.py] [ERROR]: Unknown build error occurred: Credentials store docker-credential-desktop.exe exited with "".
+[2026-02-02 09:47:14,220] [docker_util.py] [INFO]: Start building image `mswebench/iamkun_m_dayjs:pr-1611`, working directory is `data/workdir_js/iamkun/dayjs/images/pr-1611`
+[2026-02-02 09:47:14,317] [docker_util.py] [INFO]: Step 1/9 : FROM mswebench/iamkun_m_dayjs:base
+[2026-02-02 09:47:14,317] [docker_util.py] [INFO]: 
+[2026-02-02 09:47:14,335] [docker_util.py] [INFO]: ---> eeacd95e897f
+[2026-02-02 09:47:14,335] [docker_util.py] [INFO]: Step 2/9 : COPY fix.patch /home/
+[2026-02-02 09:47:14,335] [docker_util.py] [INFO]: 
+[2026-02-02 09:47:26,827] [docker_util.py] [INFO]: ---> 768e9d731336
+[2026-02-02 09:47:26,827] [docker_util.py] [INFO]: Step 3/9 : COPY test.patch /home/
+[2026-02-02 09:47:26,828] [docker_util.py] [INFO]: 
+[2026-02-02 09:47:30,045] [docker_util.py] [INFO]: ---> 611a18980457
+[2026-02-02 09:47:30,045] [docker_util.py] [INFO]: Step 4/9 : COPY check_git_changes.sh /home/
+[2026-02-02 09:47:30,045] [docker_util.py] [INFO]: 
+[2026-02-02 09:47:33,141] [docker_util.py] [INFO]: ---> 5aee63b56970
+[2026-02-02 09:47:33,141] [docker_util.py] [INFO]: Step 5/9 : COPY prepare.sh /home/
+[2026-02-02 09:47:33,141] [docker_util.py] [INFO]: 
+[2026-02-02 09:47:36,203] [docker_util.py] [INFO]: ---> a9385338541a
+[2026-02-02 09:47:36,203] [docker_util.py] [INFO]: Step 6/9 : COPY run.sh /home/
+[2026-02-02 09:47:36,203] [docker_util.py] [INFO]: 
+[2026-02-02 09:47:39,418] [docker_util.py] [INFO]: ---> 87b3e50c66dc
+[2026-02-02 09:47:39,418] [docker_util.py] [INFO]: Step 7/9 : COPY test-run.sh /home/
+[2026-02-02 09:47:39,418] [docker_util.py] [INFO]: 
+[2026-02-02 09:47:42,784] [docker_util.py] [INFO]: ---> 8e490a8113e2
+[2026-02-02 09:47:42,784] [docker_util.py] [INFO]: Step 8/9 : COPY fix-run.sh /home/
+[2026-02-02 09:47:42,784] [docker_util.py] [INFO]: 
+[2026-02-02 09:47:46,340] [docker_util.py] [INFO]: ---> 3d975800a804
+[2026-02-02 09:47:46,340] [docker_util.py] [INFO]: Step 9/9 : RUN bash /home/prepare.sh
+[2026-02-02 09:47:46,340] [docker_util.py] [INFO]: 
+[2026-02-02 09:47:46,672] [docker_util.py] [INFO]: ---> Running in a43722a649f0
+[2026-02-02 09:47:47,065] [docker_util.py] [INFO]: HEAD is now at 807face chore: update doc
+[2026-02-02 09:47:47,082] [docker_util.py] [INFO]: check_git_changes: No uncommitted changes
+[2026-02-02 09:47:47,118] [docker_util.py] [INFO]: [91mNote: switching to 'f68e4b1a29fc33542f74cde10ec6d9fb045ca37e'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at f68e4b1 fix: update utcOffset plugin type file (#1604)
+[0m
+[2026-02-02 09:47:47,135] [docker_util.py] [INFO]: check_git_changes: No uncommitted changes
+[2026-02-02 09:48:47,963] [docker_util.py] [INFO]: [91mnpm WARN deprecated figgy-pudding@3.5.2: This module is no longer supported.
+[0m
+[2026-02-02 09:48:48,031] [docker_util.py] [INFO]: [91mnpm WARN deprecated cryptiles@2.0.5: This version has been deprecated in accordance with the hapi support policy (hapi.im/support). Please upgrade to the latest version to get the best features, bug fixes, and security patches. If you are unable to upgrade at this time, paid support is available for older versions (hapi.im/commercial).
+[0m
+[2026-02-02 09:48:48,182] [docker_util.py] [INFO]: [91mnpm WARN deprecated sntp@1.0.9: This module moved to @hapi/sntp. Please make sure to switch over as this distribution is no longer supported and may contain bugs and critical security issues.
+[0m
+[2026-02-02 09:48:48,194] [docker_util.py] [INFO]: [91mnpm WARN deprecated boom@2.10.1: This version has been deprecated in accordance with the hapi support policy (hapi.im/support). Please upgrade to the latest version to get the best features, bug fixes, and security patches. If you are unable to upgrade at this time, paid support is available for older versions (hapi.im/commercial).
+[0m
+[2026-02-02 09:48:48,199] [docker_util.py] [INFO]: [91mnpm WARN deprecated source-map-url@0.4.1: See https://github.com/lydell/source-map-url#deprecated
+[0m
+[2026-02-02 09:48:48,207] [docker_util.py] [INFO]: [91mnpm WARN deprecated urix@0.1.0: Please see https://github.com/lydell/urix#deprecated
+[0m
+[2026-02-02 09:48:48,215] [docker_util.py] [INFO]: [91mnpm WARN deprecated resolve-url@0.2.1: https://github.com/lydell/resolve-url#deprecated
+[0m
+[2026-02-02 09:48:48,216] [docker_util.py] [INFO]: [91mnpm WARN deprecated node-uuid@1.4.8: Use uuid module instead
+[0m
+[2026-02-02 09:48:48,228] [docker_util.py] [INFO]: [91mnpm WARN deprecated hoek@2.16.3: This version has been deprecated in accordance with the hapi support policy (hapi.im/support). Please upgrade to the latest version to get the best features, bug fixes, and security patches. If you are unable to upgrade at this time, paid support is available for older versions (hapi.im/commercial).
+[0m
+[2026-02-02 09:48:48,308] [docker_util.py] [INFO]: [91mnpm WARN deprecated hawk@3.1.3: This module moved to @hapi/hawk. Please make sure to switch over as this distribution is no longer supported and may contain bugs and critical security issues.
+[0m
+[2026-02-02 09:48:48,313] [docker_util.py] [INFO]: [91mnpm WARN deprecated source-map-resolve@0.5.3: See https://github.com/lydell/source-map-resolve#deprecated
+[0m
+[2026-02-02 09:48:49,786] [docker_util.py] [INFO]: [91mnpm WARN deprecated bfj-node4@5.3.1: Switch to the `bfj` package for fixes and new features!
+[0m
+[2026-02-02 09:48:50,877] [docker_util.py] [INFO]: [91mnpm WARN deprecated copy-concurrently@1.0.5: This package is no longer supported.
+[0m
+[2026-02-02 09:48:50,892] [docker_util.py] [INFO]: [91mnpm WARN deprecated fs-write-stream-atomic@1.0.10: This package is no longer supported.
+[0m
+[2026-02-02 09:48:51,709] [docker_util.py] [INFO]: [91mnpm WARN deprecated move-concurrently@1.0.1: This package is no longer supported.
+[0m
+[2026-02-02 09:48:52,353] [docker_util.py] [INFO]: [91mnpm WARN deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+[0m
+[2026-02-02 09:48:52,381] [docker_util.py] [INFO]: [91mnpm WARN deprecated har-validator@5.1.5: this library is no longer supported
+[0m
+[2026-02-02 09:48:53,371] [docker_util.py] [INFO]: [91mnpm WARN deprecated mailcomposer@4.0.1: This project is unmaintained
+[0m
+[2026-02-02 09:48:53,458] [docker_util.py] [INFO]: [91mnpm WARN deprecated socks@1.1.9: If using 2.x branch, please upgrade to at least 2.1.6 to avoid a serious bug with socket data flow and an import issue introduced in 2.1.0
+[0m
+[2026-02-02 09:48:53,527] [docker_util.py] [INFO]: [91mnpm WARN deprecated buildmail@4.0.1: This project is unmaintained
+[0m
+[2026-02-02 09:48:53,791] [docker_util.py] [INFO]: [91mnpm WARN deprecated date-format@1.2.0: 1.x is no longer supported. Please upgrade to 4.x or higher.
+[0m
+[2026-02-02 09:48:53,793] [docker_util.py] [INFO]: [91mnpm WARN deprecated nodemailer@2.7.2: All versions below 4.0.1 of Nodemailer are deprecated. See https://nodemailer.com/status/
+[0m
+[2026-02-02 09:48:53,798] [docker_util.py] [INFO]: [91mnpm WARN deprecated streamroller@0.7.0: 0.x is no longer supported. Please upgrade to 3.x or higher.
+[0m
+[2026-02-02 09:48:53,825] [docker_util.py] [INFO]: [91mnpm WARN deprecated mailgun-js@0.18.1: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+[0m
+[2026-02-02 09:48:53,857] [docker_util.py] [INFO]: [91mnpm WARN deprecated q@1.5.1: You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+npm WARN deprecated 
+npm WARN deprecated (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
+[0m
+[2026-02-02 09:48:54,453] [docker_util.py] [INFO]: [91mnpm WARN deprecated axios@0.15.3: Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410
+[0m
+[2026-02-02 09:48:54,462] [docker_util.py] [INFO]: [91mnpm WARN deprecated whatwg-encoding@1.0.5: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+[0m
+[2026-02-02 09:48:54,476] [docker_util.py] [INFO]: [91mnpm WARN deprecated request-promise-native@1.0.9: request-promise-native has been deprecated because it extends the now deprecated request package, see https://github.com/request/request/issues/3142
+[0m
+[2026-02-02 09:48:54,583] [docker_util.py] [INFO]: [91mnpm WARN deprecated w3c-hr-time@1.0.2: Use your platform's native performance.now() and performance.timeOrigin.
+[0m
+[2026-02-02 09:48:54,631] [docker_util.py] [INFO]: [91mnpm[0m
+[2026-02-02 09:48:54,631] [docker_util.py] [INFO]: [91m WARN deprecated[0m
+[2026-02-02 09:48:54,631] [docker_util.py] [INFO]: [91m left-pad@1.3.0: use String.prototype.padStart()
+[0m
+[2026-02-02 09:48:54,652] [docker_util.py] [INFO]: [91mnpm WARN deprecated domexception@1.0.1: Use your platform's native DOMException instead
+[0m
+[2026-02-02 09:48:54,659] [docker_util.py] [INFO]: [91mnpm WARN deprecated abab@2.0.6: Use your platform's native atob() and btoa() methods instead
+[0m
+[2026-02-02 09:48:54,998] [docker_util.py] [INFO]: [91mnpm WARN deprecated sane@2.5.2: some dependency vulnerabilities fixed, support for node < 10 dropped, and newer ECMAScript syntax/features added
+[0m
+[2026-02-02 09:48:54,999] [docker_util.py] [INFO]: [91mnpm WARN deprecated request@2.88.2: request has been deprecated, see https://github.com/request/request/issues/3142
+[0m
+[2026-02-02 09:48:55,015] [docker_util.py] [INFO]: [91mnpm WARN deprecated log4js@2.11.0: 2.x is no longer supported. Please upgrade to 6.x or higher.
+[0m
+[2026-02-02 09:48:55,726] [docker_util.py] [INFO]: [91mnpm WARN deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+[0m
+[2026-02-02 09:48:55,793] [docker_util.py] [INFO]: [91mnpm WARN deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+[0m
+[2026-02-02 09:48:55,972] [docker_util.py] [INFO]: [91mnpm WARN deprecated circular-json@0.3.3: CircularJSON is in maintenance only, flatted is its successor.
+[0m
+[2026-02-02 09:48:59,009] [docker_util.py] [INFO]: [91mnpm WARN deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+[0m
+[2026-02-02 09:48:59,019] [docker_util.py] [INFO]: [91mnpm WARN deprecated rollup-plugin-terser@7.0.2: This package has been deprecated and is no longer maintained. Please use @rollup/plugin-terser
+[0m
+[2026-02-02 09:48:59,220] [docker_util.py] [INFO]: [91mnpm WARN deprecated rollup-plugin-babel@4.4.0: This package has been deprecated and is no longer maintained. Please use @rollup/plugin-babel.
+[0m
+[2026-02-02 09:49:03,229] [docker_util.py] [INFO]: [91mnpm WARN deprecated circular-json@0.5.9: CircularJSON is in maintenance only, flatted is its successor.
+[0m
+[2026-02-02 09:49:03,249] [docker_util.py] [INFO]: [91mnpm WARN deprecated har-validator@2.0.6: this library is no longer supported
+[0m
+[2026-02-02 09:49:03,602] [docker_util.py] [INFO]: [91mnpm WARN deprecated request@2.75.0: request has been deprecated, see https://github.com/request/request/issues/3142
+[0m
+[2026-02-02 09:49:03,658] [docker_util.py] [INFO]: [91mnpm WARN deprecated request@2.88.0: request has been deprecated, see https://github.com/request/request/issues/3142
+[0m
+[2026-02-02 09:49:05,847] [docker_util.py] [INFO]: [91mnpm WARN deprecated uws@9.14.0: New code is available at github.com/uNetworking/uWebSockets.js
+[0m
+[2026-02-02 09:49:06,384] [docker_util.py] [INFO]: [91mnpm WARN deprecated eslint@4.19.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+[0m
+[2026-02-02 09:49:08,620] [docker_util.py] [INFO]: [91mnpm WARN deprecated core-js@2.6.12: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
+[0m
+[2026-02-02 09:49:08,904] [docker_util.py] [INFO]: [91mnpm WARN deprecated core-js@2.6.12: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
+[0m
+[2026-02-02 09:49:08,936] [docker_util.py] [INFO]: [91mnpm WARN deprecated core-js@2.6.12: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
+[0m
+[2026-02-02 09:49:12,448] [docker_util.py] [INFO]: added 1543 packages, and audited 1544 packages in 1m
+[2026-02-02 09:49:12,448] [docker_util.py] [INFO]: 112 packages are looking for funding
+  run `npm fund` for details
+[2026-02-02 09:49:12,652] [docker_util.py] [INFO]: 136 vulnerabilities (9 low, 47 moderate, 49 high, 31 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+[2026-02-02 09:49:15,989] [docker_util.py] [INFO]: [91mnpm WARN ERESOLVE overriding peer dependency
+[0m
+[2026-02-02 09:49:15,989] [docker_util.py] [INFO]: [91mnpm WARN[0m
+[2026-02-02 09:49:15,989] [docker_util.py] [INFO]: [91m While resolving: dayjs@0.0.0-development
+npm[0m
+[2026-02-02 09:49:15,990] [docker_util.py] [INFO]: [91m WARN[0m
+[2026-02-02 09:49:15,990] [docker_util.py] [INFO]: [91m Found: rollup@2.79.2
+npm WARN[0m
+[2026-02-02 09:49:15,990] [docker_util.py] [INFO]: [91m node_modules/rollup
+npm[0m
+[2026-02-02 09:49:15,990] [docker_util.py] [INFO]: [91m WARN   peer rollup@">=0.60.0 <3" from rollup-plugin-babel@4.4.0
+npm WARN[0m
+[2026-02-02 09:49:15,990] [docker_util.py] [INFO]: [91m   node_modules/rollup-plugin-babel
+npm WARN     dev rollup-plugin-babel@"^4.4.0" from the root project
+[0m
+[2026-02-02 09:49:15,990] [docker_util.py] [INFO]: [91mnpm WARN   2 more (rollup-plugin-terser, the root project)
+npm WARN 
+[0m
+[2026-02-02 09:49:15,990] [docker_util.py] [INFO]: [91mnpm WARN Could not resolve dependency:
+npm WARN peer rollup@">=0.60.0 <3" from rollup-plugin-babel@4.4.0
+npm WARN node_modules/rollup-plugin-babel
+npm WARN   dev rollup-plugin-babel@"^4.4.0" from the root project
+[0m
+[2026-02-02 09:49:15,992] [docker_util.py] [INFO]: [91mnpm WARN ERESOLVE overriding peer dependency
+[0m
+[2026-02-02 09:49:15,992] [docker_util.py] [INFO]: [91mnpm WARN While resolving: dayjs@0.0.0-development
+npm WARN Found: rollup@2.79.2
+npm WARN node_modules/rollup
+npm WARN   peer rollup@">=0.60.0 <3" from rollup-plugin-babel@4.4.0
+npm WARN[0m
+[2026-02-02 09:49:15,993] [docker_util.py] [INFO]: [91m   node_modules/rollup-plugin-babel
+npm WARN     dev rollup-plugin-babel@"^4.4.0" from the root project
+npm WARN   2 more (rollup-plugin-terser, the root project)
+npm WARN 
+npm WARN Could not resolve dependency:
+npm WARN peer rollup@"^2.0.0" from rollup-plugin-terser@7.0.2
+npm WARN node_modules/rollup-plugin-terser
+npm WARN   dev rollup-plugin-terser@"^7.0.2" from the root project
+[0m
+[2026-02-02 09:49:19,691] [docker_util.py] [INFO]: added 3 packages, changed 1 package, and audited 1547 packages in 6s
+
+112 packages are looking for funding
+  run `npm fund` for details
+[2026-02-02 09:49:19,871] [docker_util.py] [INFO]: 134 vulnerabilities (9 low, 46 moderate, 49 high, 30 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+[2026-02-02 09:49:25,208] [docker_util.py] [INFO]: up to date, audited 1547 packages in 5s
+[2026-02-02 09:49:25,208] [docker_util.py] [INFO]: 
+[2026-02-02 09:49:25,209] [docker_util.py] [INFO]: 112 packages are looking for funding
+[2026-02-02 09:49:25,209] [docker_util.py] [INFO]: run `npm fund` for details
+[2026-02-02 09:49:25,379] [docker_util.py] [INFO]: 130 vulnerabilities (9 low, 42 moderate, 49 high, 30 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[2026-02-02 09:49:59,191] [docker_util.py] [INFO]: ---> Removed intermediate container a43722a649f0
+[2026-02-02 09:49:59,194] [docker_util.py] [INFO]: ---> 041b6d01d04a
+[2026-02-02 09:49:59,195] [docker_util.py] [INFO]: sha256:041b6d01d04ae3427dd2e69e1ca5334bfaee59ba0e44ed1da5192665c6778738
+[2026-02-02 09:49:59,228] [docker_util.py] [INFO]: Successfully built 041b6d01d04a
+[2026-02-02 09:49:59,249] [docker_util.py] [INFO]: Successfully tagged mswebench/iamkun_m_dayjs:pr-1611
+[2026-02-02 09:49:59,257] [docker_util.py] [INFO]: image(data/workdir_js/iamkun/dayjs/images/pr-1611) build success: mswebench/iamkun_m_dayjs:pr-1611

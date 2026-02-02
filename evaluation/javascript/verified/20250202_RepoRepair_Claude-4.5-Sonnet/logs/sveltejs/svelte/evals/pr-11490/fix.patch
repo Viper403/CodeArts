@@ -1,0 +1,45 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -1333,6 +1333,16 @@
+ 				break;
+ 			} else if (is_element_node(parent)) {
+ 				break;
++			} else if (
++				parent.type !== 'IfBlock' &&
++				parent.type !== 'EachBlock' &&
++				parent.type !== 'AwaitBlock' &&
++				parent.type !== 'KeyBlock' &&
++				parent.type !== 'SnippetBlock' &&
++				parent.type !== 'Fragment'
++			) {
++				// Stop if we hit something that's not a block structure
++				break;
+ 			}
+ 		}
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -606,18 +606,22 @@
+ 	IfBlock(node, context) {
+ 		validate_block_not_empty(node.consequent, context);
+ 		validate_block_not_empty(node.alternate, context);
++		context.next();
+ 	},
+ 	EachBlock(node, context) {
+ 		validate_block_not_empty(node.body, context);
+ 		validate_block_not_empty(node.fallback, context);
++		context.next();
+ 	},
+ 	AwaitBlock(node, context) {
+ 		validate_block_not_empty(node.pending, context);
+ 		validate_block_not_empty(node.then, context);
+ 		validate_block_not_empty(node.catch, context);
++		context.next();
+ 	},
+ 	KeyBlock(node, context) {
+ 		validate_block_not_empty(node.fragment, context);
++		context.next();
+ 	},
+ 	SnippetBlock(node, context) {
+ 		validate_block_not_empty(node.body, context);

@@ -1,0 +1,55 @@
+--- a/packages/svelte/src/compiler/errors.js
++++ b/packages/svelte/src/compiler/errors.js
+@@ -600,10 +600,11 @@
+ /**
+  * Attributes need to be unique
+  * @param {null | number | NodeLike} node
+- * @returns {never}
+- */
+-export function attribute_duplicate(node) {
+-	e(node, "attribute_duplicate", "Attributes need to be unique");
++ * @param {string | undefined | null} [name]
++ * @returns {never}
++ */
++export function attribute_duplicate(node, name) {
++	e(node, "attribute_duplicate", name ? `Duplicate attribute '${name}'` : "Attributes need to be unique");
+ }
+ 
+ /**
+
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -189,7 +189,12 @@
+ 
+ 	let attribute;
+ 	while ((attribute = read(parser))) {
+-		if (attribute.type === 'Attribute' || attribute.type === 'BindDirective') {
++		if (
++			attribute.type === 'Attribute' ||
++			attribute.type === 'BindDirective' ||
++			attribute.type === 'StyleDirective' ||
++			attribute.type === 'ClassDirective'
++		) {
+ 			if (unique_names.includes(attribute.name)) {
+ 				e.attribute_duplicate(attribute);
+ 				// <svelte:element bind:this this=..> is allowed
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/element.js
+@@ -150,6 +150,16 @@
+ 					);
+ 				}
+ 			}
++		} else if (attribute.type === 'StyleDirective') {
++			if (style_directives.has(attribute.name)) {
++				e.attribute_duplicate(attribute, attribute.name);
++			}
++			style_directives.add(attribute.name);
++		} else if (attribute.type === 'ClassDirective') {
++			if (class_directives.has(attribute.name)) {
++				e.attribute_duplicate(attribute, attribute.name);
++			}
++			class_directives.add(attribute.name);
+ 		}
+ 	}
+ }

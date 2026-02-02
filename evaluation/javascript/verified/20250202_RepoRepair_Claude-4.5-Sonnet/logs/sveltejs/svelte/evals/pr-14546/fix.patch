@@ -1,0 +1,11 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/events.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/events.js
+@@ -52,7 +52,7 @@
+ 			delegated_assignment = handler;
+ 		}
+ 
+-		context.state.init.push(
++		context.state.after_update.push(
+ 			b.stmt(
+ 				b.assignment('=', b.member(context.state.node, '__' + event_name), delegated_assignment)
+ 			)

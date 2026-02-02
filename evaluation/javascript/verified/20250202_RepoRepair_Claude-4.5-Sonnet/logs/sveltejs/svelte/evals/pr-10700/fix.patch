@@ -1,0 +1,37 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -493,8 +493,21 @@
+ 	let grouped_value = value;
+ 
+ 	if (name === 'autofocus') {
+-		state.init.push(b.stmt(b.call('$.autofocus', node_id, value)));
+-		return false;
++		if (attribute.metadata.dynamic) {
++			const id = state.scope.generate(`${node_id.name}_${name}`);
++			serialize_update_assignment(
++				state,
++				id,
++				undefined,
++				value,
++				{ grouped: b.stmt(b.call('$.autofocus', node_id, b.id(id))) },
++				contains_call_expression
++			);
++			return true;
++		} else {
++			state.init.push(b.stmt(b.call('$.autofocus', node_id, value)));
++			return false;
++		}
+ 	}
+ 
+ 	if (name === 'class') {
+
+--- a/packages/svelte/src/internal/client/operations.js
++++ b/packages/svelte/src/internal/client/operations.js
+@@ -228,6 +228,7 @@
+ 				/** @type {DocumentFragment} */ (next_sibling.parentNode).insertBefore(text, next_sibling);
+ 			} else {
+ 				current_hydration_fragment.push(text);
++				/** @type {Node} */ (node.parentNode).appendChild(text);
+ 			}
+ 
+ 			return text;

@@ -1,0 +1,72 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/RegularElement.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/RegularElement.js
+@@ -186,11 +186,11 @@
+ 		);
+ 		if (
+ 			!has_default_value_attribute &&
+-			(has_spread ||
+-				bindings.has('value') ||
++			(bindings.has('value') ||
+ 				bindings.has('checked') ||
+ 				bindings.has('group') ||
+-				(!bindings.has('group') && has_value_attribute))
++				(!bindings.has('group') && has_value_attribute) ||
++				has_spread)
+ 		) {
+ 			context.state.init.push(b.stmt(b.call('$.remove_input_defaults', context.state.node)));
+ 		}
+
+--- a/packages/svelte/src/internal/client/dom/elements/attributes.js
++++ b/packages/svelte/src/internal/client/dom/elements/attributes.js
+@@ -358,6 +358,13 @@
+ 		} else if (key === '__value' || (key === 'value' && value != null)) {
+ 			// @ts-ignore
+ 			element.value = element[key] = element.__value = value;
++			// Set defaultValue to ensure form reset works correctly with spread props
++			if (
++				(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) &&
++				prev_value === undefined
++			) {
++				element.defaultValue = value == null ? '' : String(value);
++			}
+ 		} else {
+ 			var name = key;
+ 			if (!preserve_attribute_case) {
+
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/props.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/props.js
+@@ -16,7 +16,9 @@
+ 	if (desc && desc.set) {
+ 		props[prop] = value;
+ 		teardown(() => {
+-			props[prop] = null;
++			if (prop in props) {
++				props[prop] = null;
++			}
+ 		});
+ 	}
+ }
+
+--- a/packages/svelte/src/internal/client/dom/elements/misc.js
++++ b/packages/svelte/src/internal/client/dom/elements/misc.js
+@@ -42,14 +42,15 @@
+ 			(evt) => {
+ 				// Needs to happen one tick later or else the dom properties of the form
+ 				// elements have not updated to their reset values yet
+-				Promise.resolve().then(() => {
+-					if (!evt.defaultPrevented) {
+-						for (const e of /**@type {HTMLFormElement} */ (evt.target).elements) {
++				if (!evt.defaultPrevented) {
++					const form = /**@type {HTMLFormElement} */ (evt.target);
++					queue_micro_task(() => {
++						for (const e of form.elements) {
+ 							// @ts-expect-error
+ 							e.__on_r?.();
+ 						}
+-					}
+-				});
++					});
++				}
+ 			},
+ 			// In the capture phase to guarantee we get noticed of it (no possiblity of stopPropagation)
+ 			{ capture: true }

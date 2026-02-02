@@ -1,0 +1,74 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/element.js
+@@ -88,7 +88,11 @@
+ 				w.attribute_invalid_property_name(attribute, attribute.name, correct_name);
+ 			}
+ 
+-			validate_attribute_name(attribute);
++			if (attribute.name === 'loading' && node.name === 'img') {
++				validate_attribute_name(attribute);
++			} else {
++				validate_attribute_name(attribute);
++			}
+ 		} else if (attribute.type === 'AnimateDirective') {
+ 			const parent = context.path.at(-2);
+ 			if (parent?.type !== 'EachBlock') {
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/fragment.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/fragment.js
+@@ -8,7 +8,7 @@
+ 	while (i--) {
+ 		const node = path[i];
+ 		if (node.type === 'Fragment') {
+-			if (node.metadata.dynamic) return;
++			if (node.metadata.dynamic) continue;
+ 			node.metadata.dynamic = true;
+ 		}
+ 	}
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/element.js
+@@ -49,7 +49,7 @@
+ 				values.push(b.init(attribute.name, value));
+ 			}
+ 
+-			has_state ||= attribute.metadata.expression.has_state;
++			has_state ||= attribute.metadata.expression.has_state || attribute.metadata.expression.has_call;
+ 		} else {
+ 			// objects could contain reactive getters -> play it safe and always assume spread attributes are reactive
+ 			has_state = true;
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/fragment.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/fragment.js
+@@ -164,6 +164,31 @@
+ }
+ 
+ /**
++ * Check if a node has any non-static children that need node references
++ * @param {SvelteNode} node
++ */
++function has_non_static_children(node) {
++	if (node.type !== 'RegularElement') return false;
++	
++	for (const child of node.fragment.nodes) {
++		if (child.type === 'Text') {
++			continue;
++		}
++		if (child.type === 'ExpressionTag') {
++			continue;
++		}
++		if (!is_static_element(child)) {
++			return true;
++		}
++		if (has_non_static_children(child)) {
++			return true;
++		}
++	}
++	
++	return false;
++}
++
++/**
+  * @param {Expression} node
+  * @param {Scope} scope
+  * @returns {Expression}

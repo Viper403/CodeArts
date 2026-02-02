@@ -1,0 +1,1838 @@
+Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [48.0 kB]
+Get:4 http://deb.debian.org/debian bookworm-updates/main amd64 Packages.diff/Index [21.8 kB]
+Ign:4 http://deb.debian.org/debian bookworm-updates/main amd64 Packages.diff/Index
+Get:5 http://deb.debian.org/debian bookworm/main amd64 Packages [8792 kB]
+Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [293 kB]
+Get:7 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+Fetched 9368 kB in 5s (2030 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+patch is already the newest version (2.7.6-7).
+0 upgraded, 0 newly installed, 0 to remove and 146 not upgraded.
+
+> svelte-monorepo@0.0.1 test /home/svelte
+> vitest run --coverage "--reporter" "verbose"
+
+
+ RUN  v0.34.6 /home/svelte
+      Coverage enabled with v8
+
+ ✓ packages/svelte/tests/store/test.ts > writable > creates a writable store
+ ✓ packages/svelte/tests/store/test.ts > writable > creates an undefined writable store
+ ✓ packages/svelte/tests/store/test.ts > writable > calls provided subscribe handler
+ ✓ packages/svelte/tests/store/test.ts > writable > does not assume immutable data
+ ✓ packages/svelte/tests/store/test.ts > writable > only calls subscriber once initially, including on resubscriptions
+ ✓ packages/svelte/tests/store/test.ts > writable > no error even if unsubscribe calls twice
+ ✓ packages/svelte/tests/store/test.ts > readable > creates a readable store
+ ✓ packages/svelte/tests/store/test.ts > readable > passes an optional update function
+ ✓ packages/svelte/tests/store/test.ts > readable > creates an undefined readable store
+ ✓ packages/svelte/tests/store/test.ts > readable > creates a readable store without updater
+ ✓ packages/svelte/tests/store/test.ts > derived > maps a single store
+ ✓ packages/svelte/tests/store/test.ts > derived > maps multiple stores
+ ✓ packages/svelte/tests/store/test.ts > derived > passes optional set function
+ ✓ packages/svelte/tests/store/test.ts > derived > passes optional set and update functions
+ ✓ packages/svelte/tests/store/test.ts > derived > prevents glitches
+ ✓ packages/svelte/tests/store/test.ts > derived > prevents diamond dependency problem
+ ✓ packages/svelte/tests/store/test.ts > derived > derived dependency does not update and shared ancestor updates
+ ✓ packages/svelte/tests/store/test.ts > derived > is updated with safe_not_equal logic
+ ✓ packages/svelte/tests/store/test.ts > derived > calls a cleanup function
+ ✓ packages/svelte/tests/store/test.ts > derived > discards non-function return values
+ ✓ packages/svelte/tests/store/test.ts > derived > allows derived with different types
+ ✓ packages/svelte/tests/store/test.ts > derived > works with RxJS-style observables
+ ✓ packages/svelte/tests/store/test.ts > derived > doesn't restart when unsubscribed from another store with a shared ancestor
+ ✓ packages/svelte/tests/store/test.ts > derived > errors on undefined stores #1
+ ✓ packages/svelte/tests/store/test.ts > derived > errors on undefined stores #2
+ ✓ packages/svelte/tests/store/test.ts > get > gets the current value of a store
+ ✓ packages/svelte/tests/store/test.ts > get > works with RxJS-style observables
+ ✓ packages/svelte/tests/store/test.ts > readonly > makes a store readonly
+ ✓ packages/svelte/tests/signals/test.ts > signals > effect with state and derived in it (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > effect with state and derived in it (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > multiple effects with state and derived in it#1 (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > multiple effects with state and derived in it#1 (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > multiple effects with state and derived in it#2 (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > multiple effects with state and derived in it#2 (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > derived from state (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > derived from state (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > derived from derived (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > derived from derived (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > https://perf.js.hyoo.ru/#!bench=9h2as6_u0mfnn (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > https://perf.js.hyoo.ru/#!bench=9h2as6_u0mfnn (runes mode)
+ ✓ packages/svelte/tests/parser-modern/test.ts > css-nth-syntax
+ ✓ packages/svelte/tests/parser-modern/test.ts > each-block-object-pattern
+ ✓ packages/svelte/tests/parser-modern/test.ts > snippets
+ ✓ packages/svelte/tests/parser-modern/test.ts > typescript-in-event-handler
+ ✓ packages/svelte/tests/snapshot/test.ts > class-state-field-constructor-assignment
+ ✓ packages/svelte/tests/snapshot/test.ts > dynamic-attributes-casing
+ ✓ packages/svelte/tests/snapshot/test.ts > export-state
+ ✓ packages/svelte/tests/snapshot/test.ts > function-prop-no-getter
+ ✓ packages/svelte/tests/snapshot/test.ts > hello-world
+ ✓ packages/svelte/tests/snapshot/test.ts > svelte-element
+ ✓ packages/svelte/tests/parser-legacy/test.ts > action
+ ✓ packages/svelte/tests/parser-legacy/test.ts > action-duplicate
+ ✓ packages/svelte/tests/parser-legacy/test.ts > action-with-call
+ ✓ packages/svelte/tests/parser-legacy/test.ts > action-with-identifier
+ ✓ packages/svelte/tests/parser-legacy/test.ts > action-with-literal
+ ✓ packages/svelte/tests/parser-legacy/test.ts > animation
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-class-directive
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-containing-solidus
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-curly-bracket
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-dynamic
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-dynamic-boolean
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-empty
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-escaped
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-multiple
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-shorthand
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-static
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-static-boolean
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-style
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-style-directive
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-style-directive-modifiers
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-style-directive-shorthand
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-style-directive-string
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-unquoted
+ ✓ packages/svelte/tests/parser-legacy/test.ts > attribute-with-whitespace
+ ✓ packages/svelte/tests/parser-legacy/test.ts > await-catch
+ ✓ packages/svelte/tests/parser-legacy/test.ts > await-then-catch
+ ✓ packages/svelte/tests/parser-legacy/test.ts > binding
+ ✓ packages/svelte/tests/parser-legacy/test.ts > binding-shorthand
+ ✓ packages/svelte/tests/parser-legacy/test.ts > comment
+ ✓ packages/svelte/tests/parser-legacy/test.ts > comment-with-ignores
+ ✓ packages/svelte/tests/parser-legacy/test.ts > component-dynamic
+ ✓ packages/svelte/tests/parser-legacy/test.ts > convert-entities
+ ✓ packages/svelte/tests/parser-legacy/test.ts > convert-entities-in-element
+ ✓ packages/svelte/tests/parser-legacy/test.ts > css
+ ✓ packages/svelte/tests/parser-legacy/test.ts > dynamic-element-string
+ ✓ packages/svelte/tests/parser-legacy/test.ts > dynamic-element-variable
+ ✓ packages/svelte/tests/parser-legacy/test.ts > dynamic-import
+ ✓ packages/svelte/tests/parser-legacy/test.ts > each-block
+ ✓ packages/svelte/tests/parser-legacy/test.ts > each-block-destructured
+ ✓ packages/svelte/tests/parser-legacy/test.ts > each-block-else
+ ✓ packages/svelte/tests/parser-legacy/test.ts > each-block-indexed
+ ✓ packages/svelte/tests/parser-legacy/test.ts > each-block-keyed
+ ✓ packages/svelte/tests/parser-legacy/test.ts > element-with-attribute
+ ✓ packages/svelte/tests/parser-legacy/test.ts > element-with-attribute-empty-string
+ ✓ packages/svelte/tests/parser-legacy/test.ts > element-with-mustache
+ ✓ packages/svelte/tests/parser-legacy/test.ts > element-with-text
+ ✓ packages/svelte/tests/parser-legacy/test.ts > elements
+ ✓ packages/svelte/tests/parser-legacy/test.ts > event-handler
+ ✓ packages/svelte/tests/parser-legacy/test.ts > if-block
+ ✓ packages/svelte/tests/parser-legacy/test.ts > if-block-else
+ ✓ packages/svelte/tests/parser-legacy/test.ts > if-block-elseif
+ ✓ packages/svelte/tests/parser-legacy/test.ts > implicitly-closed-li
+ ✓ packages/svelte/tests/parser-legacy/test.ts > javascript-comments
+ ✓ packages/svelte/tests/parser-legacy/test.ts > nbsp
+ ✓ packages/svelte/tests/parser-legacy/test.ts > no-error-if-before-closing
+ ✓ packages/svelte/tests/parser-legacy/test.ts > raw-mustaches
+ ✓ packages/svelte/tests/parser-legacy/test.ts > refs
+ ✓ packages/svelte/tests/parser-legacy/test.ts > script
+ ✓ packages/svelte/tests/parser-legacy/test.ts > script-attribute-with-curly-braces
+ ✓ packages/svelte/tests/parser-legacy/test.ts > script-comment-only
+ ✓ packages/svelte/tests/parser-legacy/test.ts > script-context-module-unquoted
+ ✓ packages/svelte/tests/parser-legacy/test.ts > self-closing-element
+ ✓ packages/svelte/tests/parser-legacy/test.ts > self-reference
+ ✓ packages/svelte/tests/parser-legacy/test.ts > slotted-element
+ ✓ packages/svelte/tests/parser-legacy/test.ts > space-between-mustaches
+ ✓ packages/svelte/tests/parser-legacy/test.ts > spread
+ ✓ packages/svelte/tests/parser-legacy/test.ts > style-inside-head
+ ✓ packages/svelte/tests/parser-legacy/test.ts > textarea-children
+ ✓ packages/svelte/tests/parser-legacy/test.ts > textarea-end-tag
+ ✓ packages/svelte/tests/parser-legacy/test.ts > transition-intro
+ ✓ packages/svelte/tests/parser-legacy/test.ts > transition-intro-no-params
+ ✓ packages/svelte/tests/parser-legacy/test.ts > unusual-identifier
+ ✓ packages/svelte/tests/parser-legacy/test.ts > whitespace-after-script-tag
+ ✓ packages/svelte/tests/parser-legacy/test.ts > whitespace-after-style-tag
+ ✓ packages/svelte/tests/parser-legacy/test.ts > whitespace-leading-trailing
+ ✓ packages/svelte/tests/parser-legacy/test.ts > whitespace-normal
+ ✓ packages/svelte/tests/preprocess/test.ts > attributes-with-closing-tag
+ ✓ packages/svelte/tests/preprocess/test.ts > attributes-with-equals
+ ✓ packages/svelte/tests/preprocess/test.ts > comments
+ ✓ packages/svelte/tests/preprocess/test.ts > dependencies
+ ✓ packages/svelte/tests/preprocess/test.ts > empty-sourcemap
+ ✓ packages/svelte/tests/preprocess/test.ts > filename
+ ✓ packages/svelte/tests/preprocess/test.ts > ignores-null
+ ✓ packages/svelte/tests/preprocess/test.ts > markup
+ ✓ packages/svelte/tests/preprocess/test.ts > multiple-preprocessors
+ ✓ packages/svelte/tests/preprocess/test.ts > partial-names
+ ✓ packages/svelte/tests/preprocess/test.ts > script
+ ✓ packages/svelte/tests/preprocess/test.ts > script-multiple
+ ✓ packages/svelte/tests/preprocess/test.ts > script-self-closing
+ ✓ packages/svelte/tests/preprocess/test.ts > style
+ ✓ packages/svelte/tests/preprocess/test.ts > style-async
+ ✓ packages/svelte/tests/preprocess/test.ts > style-attributes
+ ✓ packages/svelte/tests/preprocess/test.ts > style-attributes-modified
+ ✓ packages/svelte/tests/preprocess/test.ts > style-attributes-modified-longer
+ ✓ packages/svelte/tests/preprocess/test.ts > style-self-closing
+ ✓ packages/svelte/tests/validator/test.ts > a11y-alt-text
+ ✓ packages/svelte/tests/validator/test.ts > a11y-anchor-aria-label-has-no-content
+ ✓ packages/svelte/tests/validator/test.ts > a11y-anchor-has-content
+ ✓ packages/svelte/tests/validator/test.ts > a11y-anchor-in-svg-is-valid
+ ✓ packages/svelte/tests/validator/test.ts > a11y-anchor-is-valid
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-activedescendant
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-props
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-proptypes-boolean
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-proptypes-integer
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-proptypes-number
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-proptypes-string
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-proptypes-token
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-proptypes-tokenlist
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-proptypes-tristate
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-role
+ ✓ packages/svelte/tests/validator/test.ts > a11y-aria-unsupported-element
+ ✓ packages/svelte/tests/validator/test.ts > a11y-autocomplete-valid
+ ✓ packages/svelte/tests/validator/test.ts > a11y-click-events-have-key-events
+ ✓ packages/svelte/tests/validator/test.ts > a11y-contenteditable-element-without-child
+ ✓ packages/svelte/tests/validator/test.ts > a11y-figcaption-in-non-element-block
+ ✓ packages/svelte/tests/validator/test.ts > a11y-figcaption-right-place
+ ✓ packages/svelte/tests/validator/test.ts > a11y-figcaption-wrong-place
+ ✓ packages/svelte/tests/validator/test.ts > a11y-heading-has-content
+ ✓ packages/svelte/tests/validator/test.ts > a11y-html-has-lang
+ ✓ packages/svelte/tests/validator/test.ts > a11y-iframe-has-title
+ ✓ packages/svelte/tests/validator/test.ts > a11y-img-redundant-alt
+ ✓ packages/svelte/tests/validator/test.ts > a11y-in-foreign-namespace
+ ✓ packages/svelte/tests/validator/test.ts > a11y-interactive-supports-focus
+ ✓ packages/svelte/tests/validator/test.ts > a11y-label-has-associated-control
+ ✓ packages/svelte/tests/validator/test.ts > a11y-label-has-associated-control-2
+ ✓ packages/svelte/tests/validator/test.ts > a11y-media-has-caption
+ ✓ packages/svelte/tests/validator/test.ts > a11y-mouse-events-have-key-events
+ ✓ packages/svelte/tests/validator/test.ts > a11y-no-abstract-roles
+ ✓ packages/svelte/tests/validator/test.ts > a11y-no-access-key
+ ✓ packages/svelte/tests/validator/test.ts > a11y-no-autofocus
+ ✓ packages/svelte/tests/validator/test.ts > a11y-no-distracting-elements
+ ✓ packages/svelte/tests/validator/test.ts > a11y-no-interactive-element-to-noninteractive-role
+ ✓ packages/svelte/tests/validator/test.ts > a11y-no-noninteractive-element-interactions
+ ✓ packages/svelte/tests/validator/test.ts > a11y-no-noninteractive-element-to-interactive-role
+ ✓ packages/svelte/tests/validator/test.ts > a11y-no-noninteractive-tabindex
+ ✓ packages/svelte/tests/validator/test.ts > a11y-no-redundant-roles
+ ✓ packages/svelte/tests/validator/test.ts > a11y-no-static-element-interactions
+ ✓ packages/svelte/tests/validator/test.ts > a11y-not-on-components
+ ✓ packages/svelte/tests/validator/test.ts > a11y-role-has-required-aria-props
+ ✓ packages/svelte/tests/validator/test.ts > a11y-role-supports-aria-props
+ ✓ packages/svelte/tests/validator/test.ts > a11y-scope
+ ✓ packages/svelte/tests/validator/test.ts > a11y-tabindex-no-positive
+ ✓ packages/svelte/tests/validator/test.ts > action-on-component
+ ✓ packages/svelte/tests/validator/test.ts > animation-comment-siblings
+ ✓ packages/svelte/tests/validator/test.ts > animation-duplicate
+ ✓ packages/svelte/tests/validator/test.ts > animation-each-with-const
+ ✓ packages/svelte/tests/validator/test.ts > animation-each-with-whitespace
+ ✓ packages/svelte/tests/validator/test.ts > animation-not-in-each
+ ✓ packages/svelte/tests/validator/test.ts > animation-not-in-keyed-each
+ ✓ packages/svelte/tests/validator/test.ts > animation-on-component
+ ✓ packages/svelte/tests/validator/test.ts > animation-siblings
+ ✓ packages/svelte/tests/validator/test.ts > assignment-to-const
+ ✓ packages/svelte/tests/validator/test.ts > assignment-to-const-2
+ ✓ packages/svelte/tests/validator/test.ts > assignment-to-const-3
+ ✓ packages/svelte/tests/validator/test.ts > assignment-to-const-4
+ ✓ packages/svelte/tests/validator/test.ts > assignment-to-const-5
+ ✓ packages/svelte/tests/validator/test.ts > assignment-to-const-6
+ ✓ packages/svelte/tests/validator/test.ts > assignment-to-const-7
+ ✓ packages/svelte/tests/validator/test.ts > assignment-to-const-8
+ ✓ packages/svelte/tests/validator/test.ts > attribute-expected-equals
+ ✓ packages/svelte/tests/validator/test.ts > attribute-invalid-name
+ ✓ packages/svelte/tests/validator/test.ts > attribute-invalid-name-2
+ ✓ packages/svelte/tests/validator/test.ts > attribute-invalid-name-3
+ ✓ packages/svelte/tests/validator/test.ts > attribute-invalid-name-4
+ ✓ packages/svelte/tests/validator/test.ts > attribute-invalid-name-5
+ ✓ packages/svelte/tests/validator/test.ts > await-component-is-used
+ ✓ packages/svelte/tests/validator/test.ts > await-no-catch
+ ✓ packages/svelte/tests/validator/test.ts > await-shorthand-no-catch
+ ✓ packages/svelte/tests/validator/test.ts > await-shorthand-no-then
+ ✓ packages/svelte/tests/validator/test.ts > binding-await-catch
+ ✓ packages/svelte/tests/validator/test.ts > binding-await-then
+ ✓ packages/svelte/tests/validator/test.ts > binding-await-then-2
+ ✓ packages/svelte/tests/validator/test.ts > binding-const
+ ✓ packages/svelte/tests/validator/test.ts > binding-const-field
+ ✓ packages/svelte/tests/validator/test.ts > binding-dimensions-svg
+ ✓ packages/svelte/tests/validator/test.ts > binding-input-checked
+ ✓ packages/svelte/tests/validator/test.ts > binding-input-type-boolean
+ ✓ packages/svelte/tests/validator/test.ts > binding-input-type-dynamic
+ ✓ packages/svelte/tests/validator/test.ts > binding-invalid
+ ✓ packages/svelte/tests/validator/test.ts > binding-invalid-foreign-namespace
+ ✓ packages/svelte/tests/validator/test.ts > binding-invalid-on-element
+ ✓ packages/svelte/tests/validator/test.ts > binding-invalid-on-element-2
+ ✓ packages/svelte/tests/validator/test.ts > binding-invalid-value
+ ✓ packages/svelte/tests/validator/test.ts > binding-invalid-value-global
+ ✓ packages/svelte/tests/validator/test.ts > binding-let
+ ✓ packages/svelte/tests/validator/test.ts > binding-select-multiple-dynamic
+ ✓ packages/svelte/tests/validator/test.ts > binding-this-input-type-dynamic
+ ✓ packages/svelte/tests/validator/test.ts > catch-declares-error-variable
+ ✓ packages/svelte/tests/validator/test.ts > component-event-modifiers-invalid
+ ✓ packages/svelte/tests/validator/test.ts > component-invalid-style-directive
+ ✓ packages/svelte/tests/validator/test.ts > component-name-lowercase
+ ✓ packages/svelte/tests/validator/test.ts > component-namespaced
+ ✓ packages/svelte/tests/validator/test.ts > component-slot-default-reserved
+ ✓ packages/svelte/tests/validator/test.ts > component-slot-dynamic
+ ✓ packages/svelte/tests/validator/test.ts > component-slot-dynamic-attribute
+ ✓ packages/svelte/tests/validator/test.ts > component-slotted-custom-element
+ ✓ packages/svelte/tests/validator/test.ts > component-slotted-custom-element-2
+ ✓ packages/svelte/tests/validator/test.ts > component-slotted-each-block
+ ✓ packages/svelte/tests/validator/test.ts > component-slotted-if-block
+ ✓ packages/svelte/tests/validator/test.ts > const-tag-conflict-1
+ ✓ packages/svelte/tests/validator/test.ts > const-tag-conflict-2
+ ✓ packages/svelte/tests/validator/test.ts > const-tag-placement-1
+ ✓ packages/svelte/tests/validator/test.ts > const-tag-placement-2
+ ✓ packages/svelte/tests/validator/test.ts > const-tag-readonly-1
+ ✓ packages/svelte/tests/validator/test.ts > const-tag-readonly-2
+ ✓ packages/svelte/tests/validator/test.ts > contenteditable-dynamic
+ ✓ packages/svelte/tests/validator/test.ts > contenteditable-missing
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-combinator-selector-1
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-combinator-selector-2
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-combinator-selector-3
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-combinator-selector-4
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-placement
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-placement-2
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-placement-3
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-placement-4
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-placement-5
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-selector
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-selector-2
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-selector-3
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-selector-4
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-selector-5
+ ✓ packages/svelte/tests/validator/test.ts > css-invalid-global-selector-6
+ ✓ packages/svelte/tests/validator/test.ts > css-mismatched-quotes
+ ✓ packages/svelte/tests/validator/test.ts > debug-invalid-args
+ ✓ packages/svelte/tests/validator/test.ts > default-export
+ ✓ packages/svelte/tests/validator/test.ts > default-export-anonymous-class
+ ✓ packages/svelte/tests/validator/test.ts > default-export-anonymous-function
+ ✓ packages/svelte/tests/validator/test.ts > directive-non-expression
+ ✓ packages/svelte/tests/validator/test.ts > dollar-dollar-global-in-markup
+ ✓ packages/svelte/tests/validator/test.ts > dollar-dollar-global-in-script
+ ✓ packages/svelte/tests/validator/test.ts > dollar-global-in-markup
+ ✓ packages/svelte/tests/validator/test.ts > dollar-global-in-script
+ ✓ packages/svelte/tests/validator/test.ts > dynamic-element-invalid-tag
+ ✓ packages/svelte/tests/validator/test.ts > dynamic-element-missing-tag
+ ✓ packages/svelte/tests/validator/test.ts > dynamic-element-this
+ ✓ packages/svelte/tests/validator/test.ts > each-block-destructured-object-rest-comma-after
+ ✓ packages/svelte/tests/validator/test.ts > each-block-invalid-context
+ ✓ packages/svelte/tests/validator/test.ts > each-block-invalid-context-destructured
+ ✓ packages/svelte/tests/validator/test.ts > each-block-invalid-context-destructured-object
+ ✓ packages/svelte/tests/validator/test.ts > each-block-multiple-children
+ ✓ packages/svelte/tests/validator/test.ts > event-attribute
+ ✓ packages/svelte/tests/validator/test.ts > event-modifiers-invalid
+ ✓ packages/svelte/tests/validator/test.ts > event-modifiers-invalid-nonpassive
+ ✓ packages/svelte/tests/validator/test.ts > event-modifiers-invalid-passive
+ ✓ packages/svelte/tests/validator/test.ts > html-block-in-attribute
+ ✓ packages/svelte/tests/validator/test.ts > html-block-in-textarea
+ ✓ packages/svelte/tests/validator/test.ts > ignore-warning
+ ✓ packages/svelte/tests/validator/test.ts > ignore-warnings
+ ✓ packages/svelte/tests/validator/test.ts > ignore-warnings-cumulative
+ ✓ packages/svelte/tests/validator/test.ts > ignore-warnings-newline
+ ✓ packages/svelte/tests/validator/test.ts > ignore-warnings-stacked
+ ✓ packages/svelte/tests/validator/test.ts > import-meta
+ ✓ packages/svelte/tests/validator/test.ts > inline-new-class
+ ✓ packages/svelte/tests/validator/test.ts > inline-new-class-2
+ ✓ packages/svelte/tests/validator/test.ts > inline-new-class-3
+ ✓ packages/svelte/tests/validator/test.ts > inline-new-class-4
+ ✓ packages/svelte/tests/validator/test.ts > inline-new-class-5
+ ✓ packages/svelte/tests/validator/test.ts > let-directive
+ ✓ packages/svelte/tests/validator/test.ts > logic-block-in-attribute
+ ✓ packages/svelte/tests/validator/test.ts > logic-block-in-textarea
+ ✓ packages/svelte/tests/validator/test.ts > module-script-reactive-declaration
+ ✓ packages/svelte/tests/validator/test.ts > multiple-script-default-context
+ ✓ packages/svelte/tests/validator/test.ts > multiple-script-module-context
+ ✓ packages/svelte/tests/validator/test.ts > namespace-invalid
+ ✓ packages/svelte/tests/validator/test.ts > namespace-non-literal
+ ✓ packages/svelte/tests/validator/test.ts > no-missing-declarations-for-same-node-let-variable
+ ✓ packages/svelte/tests/validator/test.ts > no-runes-mode
+ ✓ packages/svelte/tests/validator/test.ts > non-empty-block-dev
+ ✓ packages/svelte/tests/validator/test.ts > reactive-declaration-cyclical
+ ✓ packages/svelte/tests/validator/test.ts > reactive-declaration-non-top-level
+ ✓ packages/svelte/tests/validator/test.ts > reactive-module-const-variable
+ ✓ packages/svelte/tests/validator/test.ts > reactive-module-variable-2
+ ✓ packages/svelte/tests/validator/test.ts > runes-referenced-nonstate
+ ✓ packages/svelte/tests/validator/test.ts > runes-referenced-nonstate-2
+ ✓ packages/svelte/tests/validator/test.ts > script-invalid-context
+ ✓ packages/svelte/tests/validator/test.ts > security-anchor-rel-noreferer
+ ✓ packages/svelte/tests/validator/test.ts > select-multiple
+ ✓ packages/svelte/tests/validator/test.ts > silence-warnings
+ ✓ packages/svelte/tests/validator/test.ts > silence-warnings-2
+ ✓ packages/svelte/tests/validator/test.ts > slot-attribute-invalid
+ ✓ packages/svelte/tests/validator/test.ts > slot-warning
+ ✓ packages/svelte/tests/validator/test.ts > slot-warning-ignore
+ ✓ packages/svelte/tests/validator/test.ts > slot-warning2
+ ✓ packages/svelte/tests/validator/test.ts > static-state-reference
+ ✓ packages/svelte/tests/validator/test.ts > store-looking-like-rune
+ ✓ packages/svelte/tests/validator/test.ts > store-runes-conflict
+ ✓ packages/svelte/tests/validator/test.ts > svelte-fragment-placement
+ ✓ packages/svelte/tests/validator/test.ts > svelte-fragment-placement-2
+ ✓ packages/svelte/tests/validator/test.ts > svelte-head-attributes
+ ✓ packages/svelte/tests/validator/test.ts > svg-child-component-declared-namespace
+ ✓ packages/svelte/tests/validator/test.ts > tag-custom-element-options-true
+ ✓ packages/svelte/tests/validator/test.ts > textarea-value-children
+ ✓ packages/svelte/tests/validator/test.ts > title-no-attributes
+ ✓ packages/svelte/tests/validator/test.ts > title-no-children
+ ✓ packages/svelte/tests/validator/test.ts > transition-duplicate-in
+ ✓ packages/svelte/tests/validator/test.ts > transition-duplicate-in-transition
+ ✓ packages/svelte/tests/validator/test.ts > transition-duplicate-out
+ ✓ packages/svelte/tests/validator/test.ts > transition-duplicate-out-transition
+ ✓ packages/svelte/tests/validator/test.ts > transition-duplicate-transition
+ ✓ packages/svelte/tests/validator/test.ts > transition-duplicate-transition-in
+ ✓ packages/svelte/tests/validator/test.ts > transition-duplicate-transition-out
+ ✓ packages/svelte/tests/validator/test.ts > transition-on-component
+ ✓ packages/svelte/tests/validator/test.ts > valid-reactive-vars
+ ✓ packages/svelte/tests/validator/test.ts > window-binding-invalid
+ ✓ packages/svelte/tests/validator/test.ts > window-binding-invalid-innerwidth
+ ✓ packages/svelte/tests/validator/test.ts > window-binding-online
+ ✓ packages/svelte/tests/validator/test.ts > does not warn if options.name begins with non-alphabetic character
+ ✓ packages/svelte/tests/validator/test.ts > errors if namespace is provided but unrecognised
+ ✓ packages/svelte/tests/validator/test.ts > does not throw error if 'this' is bound for foreign element
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > binding-files
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > binding-width-height-initialize
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > attribute-boolean
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > component-css-custom-properties
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > component-css-custom-properties-dynamic
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > component-css-custom-properties-dynamic-svg
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > component-event-handler-contenteditable-false
+ ✓ packages/svelte/tests/hydration/test.ts > basic
+ ✓ packages/svelte/tests/hydration/test.ts > binding-input
+ ✓ packages/svelte/tests/hydration/test.ts > claim-comment
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > component-slot-binding-dimensions
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > dynamic-element-custom-element
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > inline-style-directive-important
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > inline-style-directive-precedence
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > inline-style-directive-update-with-spread
+ ✓ packages/svelte/tests/hydration/test.ts > claim-static
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > svelte-component-css-custom-properties
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > attribute-dynamic
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > attribute-escape-quotes-spread-2
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > attribute-escaped-quotes
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > attribute-escaped-quotes-spread
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > attribute-spread-with-null
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > attribute-static
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > bindings
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > bindings-empty-string
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > bindings-group
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > bindings-readonly
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > bindings-zero
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > comment
+ ✓ packages/svelte/tests/css/test.ts > at-layer
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > comment-preserve
+ ✓ packages/svelte/tests/compiler-errors/test.ts > attribute-empty
+ ✓ packages/svelte/tests/compiler-errors/test.ts > attribute-unique
+ ✓ packages/svelte/tests/compiler-errors/test.ts > attribute-unique-binding
+ ✓ packages/svelte/tests/compiler-errors/test.ts > attribute-unique-shorthand
+ ✓ packages/svelte/tests/compiler-errors/test.ts > catch-before-closing
+ ✓ packages/svelte/tests/compiler-errors/test.ts > catch-without-await
+ ✓ packages/svelte/tests/compiler-errors/test.ts > class-state-field-static
+ ✓ packages/svelte/tests/compiler-errors/test.ts > comment-unclosed
+ ✓ packages/svelte/tests/compiler-errors/test.ts > component-slot-duplicate-error
+ ✓ packages/svelte/tests/compiler-errors/test.ts > component-slot-duplicate-error-2
+ ✓ packages/svelte/tests/compiler-errors/test.ts > component-slot-duplicate-error-3
+ ✓ packages/svelte/tests/compiler-errors/test.ts > component-slot-duplicate-error-4
+ ✓ packages/svelte/tests/compiler-errors/test.ts > component-slot-nested-error
+ ✓ packages/svelte/tests/compiler-errors/test.ts > component-slot-nested-error-2
+ ✓ packages/svelte/tests/compiler-errors/test.ts > component-slot-nested-error-3
+ ✓ packages/svelte/tests/compiler-errors/test.ts > css
+ ✓ packages/svelte/tests/compiler-errors/test.ts > css-global-without-selector
+ ✓ packages/svelte/tests/compiler-errors/test.ts > dollar-binding-declaration
+ ✓ packages/svelte/tests/compiler-errors/test.ts > dollar-binding-global
+ ✓ packages/svelte/tests/compiler-errors/test.ts > dollar-binding-global-js
+ ✓ packages/svelte/tests/compiler-errors/test.ts > dollar-binding-import
+ ✓ packages/svelte/tests/compiler-errors/test.ts > dynamic-element-binding-invalid
+ ✓ packages/svelte/tests/compiler-errors/test.ts > else-before-closing
+ ✓ packages/svelte/tests/compiler-errors/test.ts > else-before-closing-2
+ ✓ packages/svelte/tests/compiler-errors/test.ts > else-before-closing-3
+ ✓ packages/svelte/tests/compiler-errors/test.ts > else-if-before-closing
+ ✓ packages/svelte/tests/compiler-errors/test.ts > else-if-before-closing-2
+ ✓ packages/svelte/tests/compiler-errors/test.ts > else-if-without-if
+ ✓ packages/svelte/tests/compiler-errors/test.ts > empty-attribute-shorthand
+ ✓ packages/svelte/tests/compiler-errors/test.ts > empty-classname-binding
+ ✓ packages/svelte/tests/compiler-errors/test.ts > empty-directive-name
+ ✓ packages/svelte/tests/compiler-errors/test.ts > export-derived-state
+ ✓ packages/svelte/tests/compiler-errors/test.ts > export-state
+ ✓ packages/svelte/tests/compiler-errors/test.ts > illegal-expression
+ ✓ packages/svelte/tests/compiler-errors/test.ts > legacy-no-const-assignment
+ ✓ packages/svelte/tests/compiler-errors/test.ts > legacy-no-const-update
+ ✓ packages/svelte/tests/compiler-errors/test.ts > multiple-styles
+ ✓ packages/svelte/tests/compiler-errors/test.ts > raw-mustaches-whitespace
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-duplicate-props
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-export-let
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-export-named-state
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-no-const-assignment
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-no-const-update
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-no-derived-assignment
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-no-derived-binding
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-no-derived-state-field-assignment
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-no-derived-state-field-update
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-no-derived-update
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-no-rune-each
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-wrong-derived-args
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-wrong-derived-placement
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-wrong-effect-args
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-wrong-effect-placement
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-wrong-props-args
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-wrong-props-placement
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-wrong-state-args
+ ✓ packages/svelte/tests/compiler-errors/test.ts > runes-wrong-state-placement
+ ✓ packages/svelte/tests/compiler-errors/test.ts > script-unclosed
+ ✓ packages/svelte/tests/compiler-errors/test.ts > script-unclosed-eof
+ ✓ packages/svelte/tests/compiler-errors/test.ts > self-reference
+ ✓ packages/svelte/tests/compiler-errors/test.ts > store-autosub-context-module
+ ✓ packages/svelte/tests/compiler-errors/test.ts > store-global-disallowed
+ ✓ packages/svelte/tests/compiler-errors/test.ts > style-unclosed
+ ✓ packages/svelte/tests/compiler-errors/test.ts > style-unclosed-eof
+ ✓ packages/svelte/tests/compiler-errors/test.ts > svelte-selfdestructive
+ ✓ packages/svelte/tests/compiler-errors/test.ts > then-before-closing
+ ✓ packages/svelte/tests/compiler-errors/test.ts > then-without-await
+ ✓ packages/svelte/tests/compiler-errors/test.ts > unclosed-attribute-self-close-tag
+ ✓ packages/svelte/tests/compiler-errors/test.ts > unexpected-end-of-input
+ ✓ packages/svelte/tests/compiler-errors/test.ts > unexpected-end-of-input-b
+ ✓ packages/svelte/tests/compiler-errors/test.ts > unexpected-end-of-input-c
+ ✓ packages/svelte/tests/compiler-errors/test.ts > unexpected-end-of-input-d
+ ✓ packages/svelte/tests/compiler-errors/test.ts > unmatched-closing-tag
+ ✓ packages/svelte/tests/compiler-errors/test.ts > unmatched-closing-tag-autoclose
+ ✓ packages/svelte/tests/compiler-errors/test.ts > unmatched-closing-tag-autoclose-2
+ ✓ packages/svelte/tests/compiler-errors/test.ts > void-closing
+ ✓ packages/svelte/tests/compiler-errors/test.ts > window-children
+ ✓ packages/svelte/tests/compiler-errors/test.ts > window-duplicate
+ ✓ packages/svelte/tests/compiler-errors/test.ts > window-inside-block
+ ✓ packages/svelte/tests/compiler-errors/test.ts > window-inside-element
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > svelte-component-css-custom-properties-dynamic
+ ✓ packages/svelte/tests/hydration/test.ts > claim-text
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > component
+ ✓ packages/svelte/tests/css/test.ts > attribute-selector-bind
+ ✓ packages/svelte/tests/hydration/test.ts > component
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > component-binding
+ ✓ packages/svelte/tests/css/test.ts > attribute-selector-case-sensitive
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > svelte-component-css-custom-properties2
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > component-binding-renamed
+ ✓ packages/svelte/tests/css/test.ts > attribute-selector-details-open
+ ✓ packages/svelte/tests/hydration/test.ts > component-in-element
+ ✓ packages/svelte/tests/css/test.ts > attribute-selector-dialog-open
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > component-data-dynamic
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > svelte-self-css-custom-properties
+ ✓ packages/svelte/tests/css/test.ts > attribute-selector-only-name
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > component-data-empty
+ ✓ packages/svelte/tests/hydration/test.ts > dynamic-text
+ ✓ packages/svelte/tests/hydration/test.ts > dynamic-text-changed
+ ✓ packages/svelte/tests/hydration/test.ts > dynamic-text-nil
+ ✓ packages/svelte/tests/css/test.ts > attribute-selector-unquoted
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > component-refs
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > svelte-self-css-custom-properties-dynamic
+ ✓ packages/svelte/tests/css/test.ts > attribute-selector-word-arbitrary-whitespace
+ ✓ packages/svelte/tests/hydration/test.ts > each-block
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > component-refs-and-attributes
+ ✓ packages/svelte/tests/sourcemaps/test.ts > binding
+ ✓ packages/svelte/tests/sourcemaps/test.ts > script
+ ✓ packages/svelte/tests/sourcemaps/test.ts > script-after-comment
+ ✓ packages/svelte/tests/sourcemaps/test.ts > two-scripts
+ ✓ packages/svelte/tests/css/test.ts > basic
+ ✓ packages/svelte/tests/hydration/test.ts > each-block-arg-clash
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > component-with-different-extension
+ ✓ packages/svelte/tests/css/test.ts > child-combinator
+ ✓ packages/svelte/tests/hydration/test.ts > each-else
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > component-yield
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > computed
+ ✓ packages/svelte/tests/hydration/test.ts > element-attribute-added
+ ✓ packages/svelte/tests/hydration/test.ts > element-attribute-changed
+ ✓ packages/svelte/tests/css/test.ts > combinator-child
+ ✓ packages/svelte/tests/runtime-browser/test-ssr.ts > runtime-browser (ssr) > svelte-self-css-custom-properties2
+ ✓ packages/svelte/tests/hydration/test.ts > element-attribute-removed
+ ✓ packages/svelte/tests/css/test.ts > comment-html
+ ✓ packages/svelte/tests/hydration/test.ts > element-attribute-unchanged
+ ✓ packages/svelte/tests/css/test.ts > comment-repeated
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > constructor-prefer-passed-context
+ ✓ packages/svelte/tests/hydration/test.ts > element-attribute-unchanged-2
+ ✓ packages/svelte/tests/css/test.ts > container-query
+ ✓ packages/svelte/tests/hydration/test.ts > element-nested
+ ✓ packages/svelte/tests/css/test.ts > css-vars
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > default-data
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > default-data-override
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > directives
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > dynamic-element-string
+ ✓ packages/svelte/tests/css/test.ts > custom-css-hash
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > dynamic-element-variable
+ ✓ packages/svelte/tests/hydration/test.ts > element-nested-sibling
+ ✓ packages/svelte/tests/hydration/test.ts > element-ref
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > dynamic-text
+ ✓ packages/svelte/tests/css/test.ts > descendant-selector-non-top-level-outer
+ ✓ packages/svelte/tests/css/test.ts > directive-special-character
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > dynamic-text-escaped
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > each-block
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > empty-elements-closed
+ ✓ packages/svelte/tests/hydration/test.ts > event-handler
+ ✓ packages/svelte/tests/hydration/test.ts > expression-sibling
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > entities
+ ✓ packages/svelte/tests/css/test.ts > dynamic-element
+ ✓ packages/svelte/tests/css/test.ts > dynamic-element-tag
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > head-html-and-component
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > head-meta-hydrate-duplicate
+ ✓ packages/svelte/tests/css/test.ts > empty-class
+ ✓ packages/svelte/tests/css/test.ts > empty-rule
+ ✓ packages/svelte/tests/hydration/test.ts > head-html-and-component
+ ✓ packages/svelte/tests/hydration/test.ts > head-meta-hydrate-duplicate
+ ✓ packages/svelte/tests/hydration/test.ts > html-tag-hydration
+ ✓ packages/svelte/tests/hydration/test.ts > if-block
+ ✓ packages/svelte/tests/css/test.ts > empty-rule-dev
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > head-multiple-title
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > head-no-duplicates-with-binding
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > head-title
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > helpers
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > if-block-false
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > if-block-true
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator
+ ✓ packages/svelte/tests/hydration/test.ts > if-block-anchor
+ ✓ packages/svelte/tests/hydration/test.ts > if-block-false
+ ✓ packages/svelte/tests/hydration/test.ts > if-block-mismatch
+ ✓ packages/svelte/tests/runtime-runes/test.ts > ambiguous-source (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > ambiguous-source (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > ambiguous-source (ssr)
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-await
+ ✓ packages/svelte/tests/hydration/test.ts > if-block-update
+stderr | packages/svelte/tests/hydration/test.ts > ignore-mismatched-href
+Detected a href attribute value change during hydration. This will not be repaired during hydration, the href value that came from the server will be used. Related element:
+
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-await-not-exhaustive
+ ✓ packages/svelte/tests/hydration/test.ts > ignore-mismatched-href
+ ✓ packages/svelte/tests/hydration/test.ts > raw
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-each
+ ✓ packages/svelte/tests/runtime-runes/test.ts > attribute-spread-casing (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > attribute-spread-casing (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > attribute-spread-casing (ssr)
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-each-2
+ ✓ packages/svelte/tests/hydration/test.ts > raw-repair
+ ✓ packages/svelte/tests/hydration/test.ts > raw-svg
+ ✓ packages/svelte/tests/hydration/test.ts > raw-with-empty-line-at-top
+ ✓ packages/svelte/tests/hydration/test.ts > repairs-apparent-static-content
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-each-else
+ ✓ packages/svelte/tests/runtime-runes/test.ts > bind-state-property (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > bind-state-property (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > bind-state-property (ssr)
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-each-else-nested
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-private-state (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-private-state (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-private-state (ssr)
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > import-non-component
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > raw-mustaches
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > sanitize-name
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > spread-attributes
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > spread-attributes-boolean
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > spread-attributes-white-space
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > static-div
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > static-text
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > text-area-bind
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > textarea-children
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > textarea-value
+ ✓ packages/svelte/tests/server-side-rendering/test.ts > triple
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-private-state-increment (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-private-state-increment (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-private-state-increment (ssr)
+ ✓ packages/svelte/tests/hydration/test.ts > text-fallback
+ ✓ packages/svelte/tests/hydration/test.ts > top-level-text
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-each-nested
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-former-element-in-slot
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-if
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-if-not-exhaustive
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-if-not-exhaustive-with-each
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-nested-slots
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-nested-slots-flattened
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-selects-slot-fallback
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-slot
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-slots-between
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-private-state-init (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-private-state-init (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-private-state-init (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-constructor-closure (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-constructor-closure (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-constructor-closure (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-constructor-closure-private (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-constructor-closure-private (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-constructor-closure-private (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-derived (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-derived (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-derived (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-derived-private (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-derived-private (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-derived-private (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-derived-unowned (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-increment (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-increment (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-increment (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-conflict (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-conflict (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-conflict (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-eager (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-eager (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-eager (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-eager-2 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-eager-2 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-eager-2 (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-eager-3 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-eager-3 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-init-eager-3 (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-public-private (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-public-private (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > class-state-public-private (ssr)
+ ✓ packages/svelte/tests/css/test.ts > general-siblings-combinator-star
+ ✓ packages/svelte/tests/css/test.ts > global
+ ✓ packages/svelte/tests/css/test.ts > global-keyframes
+ ✓ packages/svelte/tests/css/test.ts > global-keyframes-with-no-elements
+ ✓ packages/svelte/tests/css/test.ts > global-with-child-combinator
+ ✓ packages/svelte/tests/css/test.ts > global-with-child-combinator-2
+ ✓ packages/svelte/tests/css/test.ts > global-with-child-combinator-3
+ ✓ packages/svelte/tests/css/test.ts > global-with-unused-descendant
+ ✓ packages/svelte/tests/css/test.ts > host
+ ✓ packages/svelte/tests/css/test.ts > keyframes
+ ✓ packages/svelte/tests/css/test.ts > keyframes-autoprefixed
+ ✓ packages/svelte/tests/css/test.ts > keyframes-from-to
+ ✓ packages/svelte/tests/css/test.ts > local-inside-global
+ ✓ packages/svelte/tests/css/test.ts > media-query
+ ✓ packages/svelte/tests/css/test.ts > media-query-word
+ ✓ packages/svelte/tests/css/test.ts > nested
+ ✓ packages/svelte/tests/css/test.ts > not-selector
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-attribute-selector
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-attribute-selector-contains
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-attribute-selector-equals
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-attribute-selector-equals-case-insensitive
+ ✓ packages/svelte/tests/runtime-runes/test.ts > component-let-directive (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > component-let-directive (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > component-let-directive (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > component-prop-unescaped (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > component-prop-unescaped (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > component-prop-unescaped (ssr)
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-attribute-selector-equals-dynamic
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-attribute-selector-pipe-equals
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-attribute-selector-prefix
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-attribute-selector-suffix
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-attribute-selector-word-equals
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-destructured (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-destructured (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-destructured (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-direct (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-direct (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-direct (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-indirect-arrow-fn (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-indirect-arrow-fn (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-indirect-arrow-fn (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-indirect-fn (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-indirect-fn (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-indirect-fn (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-indirect-fn-2 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-indirect-fn-2 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > derived-indirect-fn-2 (ssr)
+ × packages/svelte/tests/runtime-runes/test.ts > derived-stale-value (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > derived-stale-value (hydrate)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ✓ packages/svelte/tests/runtime-runes/test.ts > directives-with-member-access (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > directives-with-member-access (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > dynamic-style-attr (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > dynamic-style-attr (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > dynamic-style-attr (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > each-bind-this-member (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > each-bind-this-member (hydrate)
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-class-dynamic
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-class-static
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-descendant
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-descendant-global-inner
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-descendant-global-inner-class
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-descendant-global-inner-multiple
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-descendant-global-outer
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-descendant-global-outer-multiple
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-global
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-global-children
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-global-descendants
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-id
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-multiple-descendants
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-whitespace
+ ✓ packages/svelte/tests/css/test.ts > omit-scoping-attribute-whitespace-multiple
+ ✓ packages/svelte/tests/css/test.ts > preserve-specificity
+ ✓ packages/svelte/tests/css/test.ts > pseudo-element
+ ✓ packages/svelte/tests/css/test.ts > quote-mark-inside-string
+ ✓ packages/svelte/tests/css/test.ts > root
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-await
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-await-not-exhaustive
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-each
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-each-2
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-each-else
+ ✓ packages/svelte/tests/runtime-runes/test.ts > each-mutation (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > each-mutation (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > each-mutation (ssr)
+ × packages/svelte/tests/runtime-runes/test.ts > effect (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > effect (hydrate)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-active (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-active (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-active (ssr)
+ × packages/svelte/tests/runtime-runes/test.ts > effect-cleanup (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > effect-cleanup (hydrate)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-loop (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-loop (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-loop (ssr)
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-each-else-nested
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-loop-2 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-loop-2 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-loop-2 (ssr)
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-each-nested
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-former-element-in-slot
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-global
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-if
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-if-not-exhaustive
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-if-not-exhaustive-with-each
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-nested-slots
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-nested-slots-flattened
+ × packages/svelte/tests/runtime-runes/test.ts > effect-order (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > effect-order (hydrate)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > effect-root (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > effect-root (hydrate)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-self-scheduling (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > effect-self-scheduling (hydrate)
+ × packages/svelte/tests/runtime-runes/test.ts > effects-order (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > effects-order (hydrate)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-arguments (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-arguments (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-arguments (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-arguments-2 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-arguments-2 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-arguments-2 (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute (ssr)
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-selects-slot-fallback
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-slot
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-slots-between
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-star
+ ✓ packages/svelte/tests/css/test.ts > siblings-combinator-with-spread
+ ✓ packages/svelte/tests/css/test.ts > spread
+ ✓ packages/svelte/tests/css/test.ts > supports-charset
+ ✓ packages/svelte/tests/css/test.ts > supports-font-face
+ ✓ packages/svelte/tests/css/test.ts > supports-import
+ ✓ packages/svelte/tests/css/test.ts > supports-namespace
+ ✓ packages/svelte/tests/css/test.ts > supports-page
+ ✓ packages/svelte/tests/css/test.ts > supports-query
+ ✓ packages/svelte/tests/css/test.ts > undefined-with-scope
+ ✓ packages/svelte/tests/css/test.ts > universal-selector
+ ✓ packages/svelte/tests/css/test.ts > unknown-at-rule
+ ✓ packages/svelte/tests/css/test.ts > unknown-at-rule-with-following-rules
+ ✓ packages/svelte/tests/css/test.ts > unused-selector
+ ✓ packages/svelte/tests/css/test.ts > unused-selector-child-combinator
+ ✓ packages/svelte/tests/css/test.ts > unused-selector-empty-attribute
+ ✓ packages/svelte/tests/css/test.ts > unused-selector-leading
+ ✓ packages/svelte/tests/css/test.ts > unused-selector-string-concat
+ ✓ packages/svelte/tests/css/test.ts > unused-selector-ternary
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-bubble (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-bubble (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-bubble (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-capture (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-capture (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-capture (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-not-hoistable (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-not-hoistable (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-not-hoistable (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-spread (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-spread (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-spread (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-spread-capture (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-spread-capture (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-spread-capture (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-spread-collision (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-spread-collision (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-spread-collision (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-template (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-template (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-window (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-window (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-attribute-window (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-exported (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-listener-spread (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-listener-spread (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-listener-spread (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > event-used-in-component-and-element (dom)
+ ✓ packages/svelte/tests/css/test.ts > unused-selector-ternary-bailed
+ ✓ packages/svelte/tests/css/test.ts > unused-selector-ternary-concat
+ ✓ packages/svelte/tests/css/test.ts > unused-selector-ternary-nested
+ ✓ packages/svelte/tests/css/test.ts > unused-selector-trailing
+ ✓ packages/svelte/tests/css/test.ts > weird-selectors
+ ✓ packages/svelte/tests/runtime-runes/test.ts > exports1 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > exports1 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > exports2 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > exports2 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > globals-deconflicted (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > globals-deconflicted (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > globals-deconflicted (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > inspect (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > inspect (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > inspect-derived (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > inspect-derived (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > inspect-trace (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > inspect-trace (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > invalidate-effect (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > invalidate-effect (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > legacy-class-transformation (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > legacy-class-transformation (hydrate)
+ × packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children (hydrate)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children-2 (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ✓ packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children-2 (hydrate)
+ × packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children-3 (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children-3 (hydrate)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children-4 (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ✓ packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children-4 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > member-mutation (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > member-mutation (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > member-mutation (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > module-context-export (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > module-context-export (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > module-context-export (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > mutation (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > mutation (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > mutation (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > mutation-both (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > mutation-both (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > mutation-both (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > mutation-local (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > mutation-local (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > mutation-local (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > not-actual-runes (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > not-actual-runes (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > not-actual-runes (ssr)
+ × packages/svelte/tests/runtime-runes/test.ts > nullish-operator (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > nullish-operator (hydrate)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > pre-effect (dom)
+   → expected [ Array(102) ] to deeply equal [ +0, 1 ]
+ × packages/svelte/tests/runtime-runes/test.ts > pre-effect (hydrate)
+   → expected [ Array(102) ] to deeply equal [ +0, 1 ]
+ × packages/svelte/tests/runtime-runes/test.ts > pre-effect-ordering (dom)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ × packages/svelte/tests/runtime-runes/test.ts > pre-effect-ordering (hydrate)
+   → ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-bound (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-bound (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-bound (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-bound-fallback (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-bound-fallback (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-bound-fallback (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-bound-to-normal (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-bound-to-normal (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-bound-to-normal (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-body (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-body (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-body (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-default-value-behavior (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-default-value-behavior (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-default-value-behavior (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-default-value-lazy (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-default-value-lazy (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-default-value-lazy (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-derived (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-quoted (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-quoted (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-quoted (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-in-each (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-in-each (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-in-each (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-spread-fallback (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-spread-fallback (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > props-spread-fallback (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-array (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-array (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-array (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-array-length (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-array-length (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-cyclical (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-cyclical (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-cyclical (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-deep (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-deep (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-deep (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-nested (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-nested (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-nested (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-bound (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-bound (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-bound (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-default-readonly (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-default-readonly (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-default-readonly (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-in-each-destructured (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-in-each-destructured (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-in-each-destructured (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-node-context (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-node-context (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-this (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-this (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-this (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-with-context (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-with-context (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-custom-event-handler-with-context (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-document (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-document (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-document (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-function (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-function (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-function (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-object (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-object (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-object (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-object-deep (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-object-deep (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-object-deep (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-receives-element-mounted (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-receives-element-mounted (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-ternary-template (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-ternary-template (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-ternary-template (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-this (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-this (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-update (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-update (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > action-update (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > apply-directives-in-order (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > apply-directives-in-order (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > apply-directives-in-order (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-default-readonly-reassigned (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-default-readonly-reassigned (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-default-readonly-reassigned (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-readonly (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-readonly (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > proxy-prop-readonly (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > rune-name-used-by-rune (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > rune-name-used-by-rune (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > rune-name-used-by-rune (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > runes-from-func (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > runes-from-func (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > runes-from-func (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > runes-in-module-context (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > runes-in-module-context (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > runes-in-module-context (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > slot (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > slot (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > slot (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-argument (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-argument (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-argument (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-argument-destructured (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-argument-destructured (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-argument-destructured (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-duplicate-children (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-duplicate-children (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-duplicate-children (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > apply-directives-in-order-2 (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > apply-directives-in-order-2 (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > array-literal-spread-deopt (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > array-literal-spread-deopt (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > array-literal-spread-deopt (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > array-rest-is-array-or-object (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > array-rest-is-array-or-object (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > array-rest-is-array-or-object (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > assignment-in-init (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > assignment-in-init (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > assignment-to-computed-property (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > assignment-to-computed-property (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > assignment-to-const1 (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > assignment-to-const1 (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > assignment-to-const1 (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-dynamic-children (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-dynamic-children (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-dynamic-children (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-hoisting (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-hoisting (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-namespace-1 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-namespace-1 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-namespace-1 (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-namespace-2 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-namespace-2 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-namespace-2 (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-explicit (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-explicit (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-explicit (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > assignment-to-const2 (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > assignment-to-const2 (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > assignment-to-const2 (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > async-generator-object-methods (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > async-generator-object-methods (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-case-insensitive (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-case-insensitive (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-case-insensitive (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-false (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-false (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-false (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-hidden (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-hidden (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-hidden (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-indeterminate (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-indeterminate (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-inert (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-inert (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-true (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-true (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-true (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-with-spread (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-with-spread (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-boolean-with-spread (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-casing (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-casing (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-casing (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-explicit-no-args (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-explicit-no-args (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-explicit-no-args (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-implicit (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-implicit (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-implicit (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-reactive (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-reactive (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-prop-reactive (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-reactive (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-reactive (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-reactive (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-reactive-args (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-reactive-args (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-reactive-args (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-scope (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-scope (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-scope (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-spread (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-spread (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-spread (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-validation-error-1 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-validation-error-1 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-validation-error-1 (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-validation-error-2 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-validation-error-2 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > snippet-validation-error-2 (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > state-undefined (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > state-undefined (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > state-undefined (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > store-no-mutation-validation (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > store-no-mutation-validation (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > store-no-mutation-validation (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > tick-timing (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > tick-timing (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-casing-custom-element (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dataset-without-value (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dataset-without-value (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dataset-without-value (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-multiple (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-multiple (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-multiple (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-no-dependencies (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-no-dependencies (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-no-dependencies (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-quotemarks (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-quotemarks (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-quotemarks (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-shorthand (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-shorthand (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-shorthand (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-type (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-type (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-dynamic-type (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-empty (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-empty (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-empty (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-empty-svg (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-empty-svg (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-empty-svg (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-false (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-false (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-false (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-microdata (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-microdata (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-microdata (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-namespaced (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-namespaced (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-namespaced (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classname-no-style (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classname-no-style (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classname-no-style (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-as-expression (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-as-expression (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-as-expression (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-const1 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-const1 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-const1 (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-each-indexed (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-each-indexed (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-each-indexed (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-non-null-expression (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-non-null-expression (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > typescript-non-null-expression (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > unstate (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > unstate (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > unstate (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > untracked (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > untracked (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > untracked (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > wrapped-$state (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > wrapped-$state (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > wrapped-$state (ssr)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > wrapped-$state-2 (dom)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > wrapped-$state-2 (hydrate)
+ ✓ packages/svelte/tests/runtime-runes/test.ts > wrapped-$state-2 (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classname-with-style (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classname-with-style (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classname-with-style (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classnames-no-style (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classnames-no-style (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classnames-no-style (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classnames-with-style (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classnames-with-style (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-classnames-with-style (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classname-no-style (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classname-no-style (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classname-no-style (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classname-with-style (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classname-with-style (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classname-with-style (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classnames-no-style (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classnames-no-style (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classnames-no-style (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classnames-with-style (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classnames-with-style (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-null-func-classnames-with-style (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-partial-number (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-partial-number (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-partial-number (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-prefer-expression (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-prefer-expression (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static-at-symbol (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static-at-symbol (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static-at-symbol (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static-boolean (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static-boolean (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static-boolean (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static-quotemarks (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static-quotemarks (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-static-quotemarks (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-undefined (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-undefined (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-undefined (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-unknown-without-value (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-unknown-without-value (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-unknown-without-value (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-url (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > attribute-url (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > autofocus (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > autofocus (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > autofocus (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-block-func-function (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-block-func-function (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-block-func-function (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-catch-no-expression (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-catch-no-expression (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-catch-no-expression (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-catch-shorthand (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-catch-shorthand (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-catch-shorthand (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-component-oncreate (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-component-oncreate (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-conservative-update (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-conservative-update (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-conservative-update (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-containing-if (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-containing-if (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-containing-if (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-function-promise (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-function-promise (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-in-dynamic-component (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-in-dynamic-component (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-in-each (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-in-each (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-in-each (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-in-removed-if (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-in-removed-if (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-in-removed-if (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-mount-and-unmount-immediately (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-mount-and-unmount-immediately (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-mount-and-unmount-immediately (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-set-simultaneous (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-set-simultaneous (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-set-simultaneous-reactive (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-set-simultaneous-reactive (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-set-simultaneous-reactive (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-blowback-reactive (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-blowback-reactive (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-anchor (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-anchor (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-anchor (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-event (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-event (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-event (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-if (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-if (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-if (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-in-slot (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-in-slot (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-in-slot (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-multiple (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-multiple (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-multiple (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-no-values (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-no-values (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-no-values (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-non-promise (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-non-promise (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-non-promise (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-order (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-order (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-order (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-static (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-static (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-catch-static (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-array (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-array (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-array (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-array-nested-rest (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-array-nested-rest (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-array-nested-rest (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-computed-props (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-computed-props (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-default (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-default (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-number-props (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-number-props (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-number-props (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-object (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-object (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-object (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-object-if (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-object-if (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-object-if (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-rest (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-rest (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-string-props (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-destruct-string-props (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-if (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-if (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-if (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-no-context (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-no-context (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-no-expression (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-no-expression (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-no-expression (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-shorthand (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-shorthand (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-then-shorthand (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-components (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-components (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-update (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-update (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-update (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-update-2 (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-update-2 (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-update-2 (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-update-catch-scope (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-update-catch-scope (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-with-update-catch-scope (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-without-catch (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-without-catch (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > await-without-catch (ssr)
+ × packages/svelte/tests/runtime-legacy/test.ts > binding-backflow (dom)
+   → expected { Object (foo) } to deeply equal { foo: 'kid' }
+ × packages/svelte/tests/runtime-legacy/test.ts > binding-backflow (hydrate)
+   → expected { Object (foo) } to deeply equal { foo: 'kid' }
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-circular (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-circular (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-circular (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-html (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-html (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-html (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-html-initial (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-html-initial (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-html-initial (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-innertext (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-innertext (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-innertext (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-text (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-text (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-text (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-text-initial (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-text-initial (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-contenteditable-text-initial (ssr)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-details-open (dom)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-details-open (hydrate)
+ ✓ packages/svelte/tests/runtime-legacy/test.ts > binding-details-open (ssr)
+ × packages/svelte/tests/runtime-legacy/test.ts > binding-indirect (dom)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/svelte/tests/runtime-browser/test.ts [ packages/svelte/tests/runtime-browser/test.ts ]
+Error: browserType.launch: Executable doesn't exist at /root/.cache/ms-playwright/chromium-1084/chrome-linux/chrome
+╔═════════════════════════════════════════════════════════════════════════╗
+║ Looks like Playwright Test or Playwright was just installed or updated. ║
+║ Please run the following command to download new browsers:              ║
+║                                                                         ║
+║     pnpm exec playwright install                                        ║
+║                                                                         ║
+║ <3 Playwright Team                                                      ║
+╚═════════════════════════════════════════════════════════════════════════╝
+ ❯ packages/svelte/tests/runtime-browser/test.ts:16:27
+     14| 
+     15| beforeAll(async () => {
+     16|  browser = await chromium.launch();
+       |                           ^
+     17|  console.log('[runtime-browser] Launched browser');
+     18| }, 20000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/28]⎯
+
+ FAIL  packages/svelte/tests/runtime-legacy/test.ts [ packages/svelte/tests/runtime-legacy/test.ts ]
+TypeError: Cannot assign to read only property 'Symbol($state)' of object '#<Object>'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/28]⎯
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 27 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/svelte/tests/runtime-legacy/test.ts > binding-backflow (dom)
+ FAIL  packages/svelte/tests/runtime-legacy/test.ts > binding-backflow (hydrate)
+AssertionError: expected { Object (foo) } to deeply equal { foo: 'kid' }
+
+- Expected
++ Received
+
+  Object {
+-   "foo": "kid",
++   "foo": "mon",
+  }
+
+ ❯ Object.test packages/svelte/tests/runtime-legacy/samples/binding-backflow/_config.js:32:10
+     30| 
+     31|   p = parents['reactive_update'];
+     32|   assert.deepEqual(p.value, { foo: 'kid' });
+       |          ^
+     33|   assert.equal(p.updates.length, 2);
+     34| 
+ ❯ run_test_variant packages/svelte/tests/runtime-legacy/shared.ts:291:19
+ ❯ packages/svelte/tests/runtime-legacy/shared.ts:120:4
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/28]⎯
+
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > derived-stale-value (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > derived-stale-value (hydrate)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > effect (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > effect (hydrate)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > effect-cleanup (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > effect-cleanup (hydrate)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > effect-order (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > effect-order (hydrate)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > effect-root (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > effect-root (hydrate)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > nullish-operator (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > nullish-operator (hydrate)
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:498:3
+ ❯ flushSync packages/svelte/src/internal/client/runtime.js:629:3
+ ❯ flushSync packages/svelte/src/internal/client/runtime.js:634:4
+ ❯ flushSync packages/svelte/src/internal/client/runtime.js:634:4
+ ❯ flushSync packages/svelte/src/internal/client/runtime.js:634:4
+ ❯ flushSync packages/svelte/src/internal/client/runtime.js:634:4
+ ❯ flushSync packages/svelte/src/internal/client/runtime.js:634:4
+ ❯ flushSync packages/svelte/src/internal/client/runtime.js:634:4
+ ❯ flushSync packages/svelte/src/internal/client/runtime.js:634:4
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/28]⎯
+
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > effects-order (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > effects-order (hydrate)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children-3 (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > pre-effect-ordering (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > pre-effect-ordering (hydrate)
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:498:3
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:506:6
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:506:6
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/28]⎯
+
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children (hydrate)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children-3 (hydrate)
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ Module.flushSync packages/svelte/src/internal/client/runtime.js:619:3
+ ❯ run_test_variant packages/svelte/tests/runtime-legacy/shared.ts:290:8
+ ❯ packages/svelte/tests/runtime-legacy/shared.ts:120:4
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/28]⎯
+
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children-2 (dom)
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:498:3
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+ ❯ schedule_effect packages/svelte/src/internal/client/runtime.js:540:3
+ ❯ internal_create_effect packages/svelte/src/internal/client/runtime.js:1164:3
+ ❯ Module.pre_effect packages/svelte/src/internal/client/runtime.js:1263:9
+ ❯ Main packages/svelte/tests/runtime-runes/samples/lifecycle-render-order-for-children-2/_output/client/main.svelte.js:24:4
+ ❯ packages/svelte/src/internal/client/render.js:2726:17
+ ❯ execute_signal_fn packages/svelte/src/internal/client/runtime.js:313:72
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/28]⎯
+
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > lifecycle-render-order-for-children-4 (dom)
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:498:3
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+ ❯ schedule_effect packages/svelte/src/internal/client/runtime.js:540:3
+ ❯ internal_create_effect packages/svelte/src/internal/client/runtime.js:1164:3
+ ❯ Module.pre_effect packages/svelte/src/internal/client/runtime.js:1263:9
+ ❯ Main packages/svelte/tests/runtime-runes/samples/lifecycle-render-order-for-children-4/_output/client/main.svelte.js:20:4
+ ❯ packages/svelte/src/internal/client/render.js:2726:17
+ ❯ execute_signal_fn packages/svelte/src/internal/client/runtime.js:313:72
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/28]⎯
+
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > pre-effect (dom)
+ FAIL  packages/svelte/tests/runtime-runes/test.ts > pre-effect (hydrate)
+AssertionError: expected [ Array(102) ] to deeply equal [ +0, 1 ]
+
+- Expected
++ Received
+
+  Array [
+    0,
+    1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
++   1,
+  ]
+
+ ❯ Object.test packages/svelte/tests/runtime-runes/samples/pre-effect/_config.js:14:10
+     12|   await Promise.resolve();
+     13| 
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+     14|   assert.deepEqual(component.log, [0, 1]);
+
+       |          ^
+Vitest caught 6 unhandled errors during the test run.
+     15|  }
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+     16| });
+ ❯ run_test_variant packages/svelte/tests/runtime-legacy/shared.ts:291:6
+ ❯ packages/svelte/tests/runtime-legacy/shared.ts:120:4
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/28]⎯
+
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:498:3
+ ❯ process_microtask packages/svelte/src/internal/client/runtime.js:525:2
+ ❯ node:internal/process/task_queues:140:7
+ ❯ AsyncResource.runInAsyncScope node:async_hooks:206:9
+ ❯ AsyncResource.runMicrotask node:internal/process/task_queues:137:8
+
+This error originated in "packages/svelte/tests/runtime-runes/test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "lifecycle-render-order-for-children (dom)". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:498:3
+ ❯ process_microtask packages/svelte/src/internal/client/runtime.js:526:2
+ ❯ node:internal/process/task_queues:140:7
+ ❯ AsyncResource.runInAsyncScope node:async_hooks:206:9
+ ❯ AsyncResource.runMicrotask node:internal/process/task_queues:137:8
+
+This error originated in "packages/svelte/tests/runtime-runes/test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "lifecycle-render-order-for-children (hydrate)". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:498:3
+ ❯ process_microtask packages/svelte/src/internal/client/runtime.js:525:2
+ ❯ node:internal/process/task_queues:140:7
+ ❯ AsyncResource.runInAsyncScope node:async_hooks:206:9
+ ❯ AsyncResource.runMicrotask node:internal/process/task_queues:137:8
+
+This error originated in "packages/svelte/tests/runtime-runes/test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "lifecycle-render-order-for-children-3 (dom)". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:498:3
+ ❯ process_microtask packages/svelte/src/internal/client/runtime.js:526:2
+ ❯ node:internal/process/task_queues:140:7
+ ❯ AsyncResource.runInAsyncScope node:async_hooks:206:9
+ ❯ AsyncResource.runMicrotask node:internal/process/task_queues:137:8
+
+This error originated in "packages/svelte/tests/runtime-runes/test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "lifecycle-render-order-for-children-3 (hydrate)". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:498:3
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:506:6
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:506:6
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+
+This error originated in "packages/svelte/tests/runtime-runes/test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "pre-effect (dom)". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: ERR_SVELTE_TOO_MANY_UPDATES: Maximum update depth exceeded. This can happen when a reactive block or effect repeatedly sets a new value. Svelte limits the number of nested updates to prevent infinite loops.
+ ❯ infinite_loop_guard packages/svelte/src/internal/client/runtime.js:480:9
+    478| function infinite_loop_guard() {
+    479|  if (flush_count > 100) {
+    480|   throw new Error(
+       |         ^
+    481|    'ERR_SVELTE_TOO_MANY_UPDATES' +
+    482|     (DEV
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:498:3
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:506:6
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+ ❯ flush_queued_effects packages/svelte/src/internal/client/runtime.js:506:6
+ ❯ flush_local_pre_effects packages/svelte/src/internal/client/runtime.js:606:2
+ ❯ execute_effect packages/svelte/src/internal/client/runtime.js:474:3
+
+This error originated in "packages/svelte/tests/runtime-runes/test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "pre-effect (hydrate)". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ Test Files  3 failed | 13 passed (16)
+      Tests  27 failed | 1325 passed | 65 skipped (4121)
+     Errors  6 errors
+   Start at  15:02:49
+   Duration  9.64s (transform 25.59s, setup 1ms, collect 43.85s, tests 9.73s, environment 2.69s, prepare 2.67s)
+
+ ELIFECYCLE  Test failed. See above for more details.

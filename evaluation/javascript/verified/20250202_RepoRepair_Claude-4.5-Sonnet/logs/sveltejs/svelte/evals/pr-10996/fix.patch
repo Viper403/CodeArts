@@ -1,0 +1,61 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -1358,7 +1358,7 @@
+ 				return;
+ 			}
+ 
+-			state.template.push(' ');
++			state.template.push('<!>');
+ 
+ 			const text_id = get_node_id(expression(true), state, 'text');
+ 
+
+--- a/packages/svelte/src/internal/client/dom/hydration.js
++++ b/packages/svelte/src/internal/client/dom/hydration.js
+@@ -30,14 +30,15 @@
+  * @returns {Node}
+  */
+ export function hydrate_anchor(node) {
+-	if (node.nodeType !== 8) {
+-		return node;
++	var current = /** @type {Node | null} */ (node);
++
++	// Skip over non-comment nodes to find the opening hydration marker
++	while (current !== null && (current.nodeType !== 8 || /** @type {Comment} */ (current).data !== '[')) {
++		current = current.nextSibling;
+ 	}
+ 
+-	var current = /** @type {Node | null} */ (node);
+-
+ 	// TODO this could have false positives, if a user comment consisted of `[`. need to tighten that up
+-	if (/** @type {Comment} */ (current)?.data !== '[') {
++	if (current === null || /** @type {Comment} */ (current).data !== '[') {
+ 		return node;
+ 	}
+ 
+
+--- a/packages/svelte/src/internal/client/dom/template.js
++++ b/packages/svelte/src/internal/client/dom/template.js
+@@ -69,7 +69,7 @@
+ 	var node;
+ 
+ 	return () => {
+-		if (hydrating) {
++		if (hydrating && hydrate_nodes) {
+ 			return is_fragment ? hydrate_nodes : /** @type {Node} */ (hydrate_nodes[0]);
+ 		}
+ 
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -133,6 +133,10 @@
+ 			set_hydrating(true);
+ 
+ 			const anchor = hydrate_anchor(first_child);
++			// Ensure hydrate_nodes is set for fragment hydration even when there's whitespace
++			if (hydrate_nodes === null && first_child) {
++				set_hydrate_nodes(array_from(container.childNodes));
++			}
+ 			const instance = _mount(component, { ...options, anchor });
+ 
+ 			// flush_sync will run this callback and then synchronously run any pending effects,

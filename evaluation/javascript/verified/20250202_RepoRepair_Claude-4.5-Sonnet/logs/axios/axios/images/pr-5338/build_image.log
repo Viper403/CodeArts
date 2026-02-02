@@ -1,0 +1,112 @@
+[2026-02-01 18:36:23,505] [docker_util.py] [INFO]: Start building image `mswebench/axios_m_axios:pr-5338`, working directory is `data/workdir_js/axios/axios/images/pr-5338`
+[2026-02-01 18:36:23,637] [docker_util.py] [INFO]: Step 1/9 : FROM mswebench/axios_m_axios:base
+[2026-02-01 18:36:23,637] [docker_util.py] [INFO]: 
+[2026-02-01 18:36:23,650] [docker_util.py] [INFO]: ---> 6a4164f25eb1
+[2026-02-01 18:36:23,651] [docker_util.py] [INFO]: Step 2/9 : COPY fix.patch /home/
+[2026-02-01 18:36:23,651] [docker_util.py] [INFO]: 
+[2026-02-01 18:36:29,584] [docker_util.py] [INFO]: ---> 4dfefcd34008
+[2026-02-01 18:36:29,584] [docker_util.py] [INFO]: Step 3/9 : COPY test.patch /home/
+[2026-02-01 18:36:29,584] [docker_util.py] [INFO]: 
+[2026-02-01 18:36:31,103] [docker_util.py] [INFO]: ---> 42107abf06c6
+[2026-02-01 18:36:31,103] [docker_util.py] [INFO]: Step 4/9 : COPY check_git_changes.sh /home/
+[2026-02-01 18:36:31,103] [docker_util.py] [INFO]: 
+[2026-02-01 18:36:32,607] [docker_util.py] [INFO]: ---> 24a26663e188
+[2026-02-01 18:36:32,607] [docker_util.py] [INFO]: Step 5/9 : COPY prepare.sh /home/
+[2026-02-01 18:36:32,607] [docker_util.py] [INFO]: 
+[2026-02-01 18:36:34,180] [docker_util.py] [INFO]: ---> 6b0d9f46a5aa
+[2026-02-01 18:36:34,180] [docker_util.py] [INFO]: Step 6/9 : COPY run.sh /home/
+[2026-02-01 18:36:34,180] [docker_util.py] [INFO]: 
+[2026-02-01 18:36:35,619] [docker_util.py] [INFO]: ---> 23e7a3faaa1d
+[2026-02-01 18:36:35,619] [docker_util.py] [INFO]: Step 7/9 : COPY test-run.sh /home/
+[2026-02-01 18:36:35,619] [docker_util.py] [INFO]: 
+[2026-02-01 18:36:37,076] [docker_util.py] [INFO]: ---> a0e39e46edfa
+[2026-02-01 18:36:37,076] [docker_util.py] [INFO]: Step 8/9 : COPY fix-run.sh /home/
+[2026-02-01 18:36:37,076] [docker_util.py] [INFO]: 
+[2026-02-01 18:36:38,543] [docker_util.py] [INFO]: ---> c56f5549b221
+[2026-02-01 18:36:38,543] [docker_util.py] [INFO]: Step 9/9 : RUN bash /home/prepare.sh
+[2026-02-01 18:36:38,543] [docker_util.py] [INFO]: 
+[2026-02-01 18:36:38,745] [docker_util.py] [INFO]: ---> Running in 8dd1cf36e524
+[2026-02-01 18:36:39,095] [docker_util.py] [INFO]: HEAD is now at 569f028 fix: added a option to choose between legacy and the new request/response interceptor ordering
+[2026-02-01 18:36:39,111] [docker_util.py] [INFO]: check_git_changes: No uncommitted changes
+[2026-02-01 18:36:39,147] [docker_util.py] [INFO]: [91mNote: switching to '7fbfbbeff69904cd64e8ac62da8969a1e633ee23'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 7fbfbbe chore(release): v1.3.0 (#5513)
+[0m
+[2026-02-01 18:36:39,168] [docker_util.py] [INFO]: check_git_changes: No uncommitted changes
+[2026-02-01 18:36:44,954] [docker_util.py] [INFO]: [91mnpm warn deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+[0m
+[2026-02-01 18:36:45,159] [docker_util.py] [INFO]: [91mnpm warn deprecated url-search-params@0.10.2: now available as @ungap/url-search-params
+[0m
+[2026-02-01 18:36:45,210] [docker_util.py] [INFO]: [91mnpm warn deprecated urix@0.1.0: Please see https://github.com/lydell/urix#deprecated
+[0m
+[2026-02-01 18:36:46,924] [docker_util.py] [INFO]: [91mnpm warn deprecated tar@2.2.2: This version of tar is no longer supported, and will not receive security updates. Please upgrade asap.
+[0m
+[2026-02-01 18:36:47,217] [docker_util.py] [INFO]: [91mnpm warn deprecated source-map-url@0.4.1: See https://github.com/lydell/source-map-url#deprecated
+[0m
+[2026-02-01 18:36:47,339] [docker_util.py] [INFO]: [91mnpm warn deprecated source-map-resolve@0.5.3: See https://github.com/lydell/source-map-resolve#deprecated
+[0m
+[2026-02-01 18:36:48,473] [docker_util.py] [INFO]: [91mnpm warn deprecated samsam@1.3.0: This package has been deprecated in favour of @sinonjs/samsam
+[0m
+[2026-02-01 18:36:49,053] [docker_util.py] [INFO]: [91mnpm warn deprecated resolve-url@0.2.1: https://github.com/lydell/resolve-url#deprecated
+[0m
+[2026-02-01 18:36:49,453] [docker_util.py] [INFO]: [91mnpm warn deprecated request@2.88.2: request has been deprecated, see https://github.com/request/request/issues/3142
+[0m
+[2026-02-01 18:36:50,059] [docker_util.py] [INFO]: [91mnpm warn deprecated querystring@0.2.0: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
+[0m
+[2026-02-01 18:36:53,640] [docker_util.py] [INFO]: [91mnpm warn deprecated har-validator@5.1.5: this library is no longer supported
+[0m
+[2026-02-01 18:36:57,402] [docker_util.py] [INFO]: [91mnpm warn deprecated core-js@2.6.12: core-js@<3.4 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Please, upgrade your dependencies to the actual version of core-js.
+[0m
+[2026-02-01 18:37:00,844] [docker_util.py] [INFO]: [91mnpm warn deprecated chokidar@2.1.8: Chokidar 2 does not receive security updates since 2019. Upgrade to chokidar 3 with 15x fewer dependencies
+[0m
+[2026-02-01 18:37:03,678] [docker_util.py] [INFO]: [91mnpm warn deprecated chokidar@2.1.8: Chokidar 2 does not receive security updates since 2019. Upgrade to chokidar 3 with 15x fewer dependencies
+[0m
+[2026-02-01 18:37:17,765] [docker_util.py] [INFO]: > axios@1.3.0 prepare
+> husky install && npm run prepare:hooks
+[2026-02-01 18:37:17,794] [docker_util.py] [INFO]: husky - Git hooks installed
+[2026-02-01 18:37:17,884] [docker_util.py] [INFO]: > axios@1.3.0 prepare:hooks
+> npx husky set .husky/commit-msg "npx commitlint --edit $1"
+[2026-02-01 18:37:18,148] [docker_util.py] [INFO]: husky - created .husky/commit-msg
+[2026-02-01 18:37:18,183] [docker_util.py] [INFO]: added 2054 packages, and audited 2055 packages in 39s
+
+197 packages are looking for funding
+  run `npm fund` for details
+[2026-02-01 18:37:18,252] [docker_util.py] [INFO]: 100 vulnerabilities (9 low, 32 moderate, 46 high, 13 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+[2026-02-01 18:37:18,253] [docker_util.py] [INFO]: [91mnpm notice
+npm notice New major version of npm available! 10.8.2 -> 11.8.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.8.0
+npm notice To update run: npm install -g npm@11.8.0
+npm notice
+[0m
+[2026-02-01 18:37:35,699] [docker_util.py] [INFO]: ---> Removed intermediate container 8dd1cf36e524
+[2026-02-01 18:37:35,699] [docker_util.py] [INFO]: ---> c50e82f11e93
+[2026-02-01 18:37:35,699] [docker_util.py] [INFO]: sha256:c50e82f11e93ce528aff1e720f23577d14187ec7d02efb1de329a978528aa09f
+[2026-02-01 18:37:35,753] [docker_util.py] [INFO]: Successfully built c50e82f11e93
+[2026-02-01 18:37:35,767] [docker_util.py] [INFO]: Successfully tagged mswebench/axios_m_axios:pr-5338
+[2026-02-01 18:37:35,769] [docker_util.py] [INFO]: image(data/workdir_js/axios/axios/images/pr-5338) build success: mswebench/axios_m_axios:pr-5338

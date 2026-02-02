@@ -1,0 +1,45 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -894,6 +894,15 @@
+ 
+ /** @type {import('./types').Visitors} */
+ const runes_scope_tweaker = {
++	CatchClause(node, { state, next }) {
++		// The catch clause parameter should be scoped to the catch block only
++		if (node.param) {
++			const catch_scope = state.scope;
++			next({ ...state, scope: catch_scope });
++		} else {
++			next();
++		}
++	},
+ 	CallExpression(node, { state, next }) {
+ 		const rune = get_rune(node, state.scope);
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -895,6 +895,11 @@
+  * @type {import('zimmerframe').Visitors<import('#compiler').SvelteNode, import('./types.js').AnalysisState>}
+  */
+ export const validation_runes_js = {
++	CatchClause(node, { state, next }) {
++		// Catch clause parameters have their own scope
++		// Visit children with the catch clause's scope, not the parent scope
++		next();
++	},
+ 	ExportSpecifier(node, { state }) {
+ 		validate_export(node, state.scope, node.local.name);
+ 	},
+
+--- a/packages/svelte/src/compiler/phases/scope.js
++++ b/packages/svelte/src/compiler/phases/scope.js
+@@ -506,7 +506,7 @@
+ 				scopes.set(node, scope);
+ 
+ 				for (const id of extract_identifiers(node.param)) {
+-					state.scope.declare(id, 'normal', 'let');
++					scope.declare(id, 'normal', 'let');
+ 				}
+ 
+ 				next({ scope });

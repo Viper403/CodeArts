@@ -1,0 +1,111 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -1430,32 +1430,38 @@
+ 
+ 			let name = parent.property.type === 'Literal' ? parent.property.value : parent.property.name;
+ 			let slot_name = name;
+-			const existing_prop = state.props.find((prop) => prop.slot_name === name);
+-			if (existing_prop) {
+-				name = existing_prop.local;
+-			} else if (name !== 'default') {
++		const existing_slot_prop = state.props.find((prop) => prop.slot_name === name);
++		if (existing_slot_prop) {
++			name = existing_slot_prop.local;
++		} else if (name !== 'default') {
++			// Check if there's already a prop with this name (not a slot prop)
++			const conflicting_prop = state.props.find((prop) => prop.local === name && !prop.slot_name);
++			if (conflicting_prop) {
++				// Generate a unique name to avoid shadowing the existing prop
+ 				name = state.scope.generate(name);
+-			}
+-
+-			name = name === 'default' ? 'children' : name;
+-
+-			if (!existing_prop) {
+-				state.props.push({
+-					local: name,
+-					exported: name,
+-					init: '',
+-					bindable: false,
+-					optional: true,
+-					slot_name,
+-					// if it's the first time we encounter this slot
+-					// we start with any and delegate to when the slot
+-					// is actually rendered (it might not happen in that case)
+-					// any is still a safe bet
+-					type: `import('svelte').Snippet<[any]>}`,
+-					needs_refine_type: true
+-				});
+-			}
+-
++			} else {
++				name = state.scope.generate(name);
++			}
++		}
++
++		name = name === 'default' ? 'children' : name;
++
++		if (!existing_slot_prop) {
++			state.props.push({
++				local: name,
++				exported: name,
++				init: '',
++				bindable: false,
++				optional: true,
++				slot_name,
++				// if it's the first time we encounter this slot
++				// we start with any and delegate to when the slot
++				// is actually rendered (it might not happen in that case)
++				// any is still a safe bet
++				type: `import('svelte').Snippet<[any]>}`,
++				needs_refine_type: true
++			});
++		}
+ 			state.str.update(
+ 				/** @type {number} */ (node.start),
+ 				parent.property.start,
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/component.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/component.js
+@@ -81,6 +81,14 @@
+ 	/** @type {Record<string, AST.Fragment['nodes']>} */
+ 	const nodes = { default: [] };
+ 
++	// Collect prop names to check for conflicts with slot names
++	const prop_names = new Set();
++	for (const attribute of node.attributes) {
++		if (attribute.type === 'Attribute') {
++			prop_names.add(attribute.name);
++		}
++	}
++
+ 	for (const child of node.fragment.nodes) {
+ 		if (child.type === 'Comment') {
+ 			comments.push(child);
+@@ -94,6 +102,13 @@
+ 	}
+ 
+ 	const component_slots = new Set();
++	
++	// Pre-populate component_slots, excluding slots that conflict with prop names
++	for (const slot_name in nodes) {
++		if (slot_name !== 'default' && !prop_names.has(slot_name)) {
++			component_slots.add(slot_name);
++		}
++	}
+ 
+ 	for (const slot_name in nodes) {
+ 		const state = {
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/SvelteComponent.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/SvelteComponent.js
+@@ -14,5 +14,9 @@
+ 
+ 	context.visit(node.expression);
+ 
++	// For svelte:component, props and slots can have the same name without shadowing
++	const previous_allow_prop_slot_overlap = context.state.allow_prop_slot_overlap;
++	context.state.allow_prop_slot_overlap = true;
+ 	visit_component(node, context);
++	context.state.allow_prop_slot_overlap = previous_allow_prop_slot_overlap;
+ }

@@ -1,0 +1,40 @@
+--- a/src/index.js
++++ b/src/index.js
+@@ -229,7 +229,7 @@
+       const date = this.clone().set(C.DATE, 1)
+       date.$d[name](arg)
+       date.init()
+-      this.$d = date.set(C.DATE, Math.min(this.$D, date.daysInMonth())).toDate()
++      this.$d = date.set(C.DATE, Math.min(this.$D, date.daysInMonth())).$d
+     } else if (name) this.$d[name](arg)
+ 
+     this.init()
+
+--- a/src/plugin/badMutable/index.js
++++ b/src/plugin/badMutable/index.js
+@@ -11,7 +11,8 @@
+ 
+   const oldStartOf = proto.startOf
+   proto.startOf = function (units, startOf) {
+-    this.$d = oldStartOf.bind(this)(units, startOf).toDate()
++    const result = oldStartOf.bind(this)(units, startOf)
++    this.$d = result.$d
+     this.init()
+     return this
+   }
+
+--- a/src/plugin/calendar/index.js
++++ b/src/plugin/calendar/index.js
+@@ -12,7 +12,11 @@
+   const proto = c.prototype
+   proto.calendar = function (referenceTime, formats) {
+     const format = formats || this.$locale().calendar || calendarFormat
+-    const referenceStartOfDay = d(referenceTime || undefined).startOf('d')
++    const reference = referenceTime ? d(referenceTime) : d()
++    // Preserve the UTC offset from the current instance
++    const referenceStartOfDay = this.utcOffset() !== reference.utcOffset() 
++      ? reference.utcOffset(this.utcOffset()).startOf('d')
++      : reference.startOf('d')
+     const diff = this.diff(referenceStartOfDay, 'd', true)
+     const sameElse = 'sameElse'
+     /* eslint-disable no-nested-ternary */

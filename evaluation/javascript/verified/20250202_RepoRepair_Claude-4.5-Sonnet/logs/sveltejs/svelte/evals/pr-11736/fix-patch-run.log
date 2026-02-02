@@ -1,0 +1,157 @@
+Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [48.0 kB]
+Get:4 http://deb.debian.org/debian bookworm-updates/main amd64 Packages.diff/Index [21.8 kB]
+Ign:4 http://deb.debian.org/debian bookworm-updates/main amd64 Packages.diff/Index
+Get:5 http://deb.debian.org/debian bookworm/main amd64 Packages [8792 kB]
+Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [293 kB]
+Get:7 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+Fetched 9368 kB in 5s (1773 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+patch is already the newest version (2.7.6-7).
+0 upgraded, 0 newly installed, 0 to remove and 146 not upgraded.
+
+> svelte-monorepo@0.0.1 test /home/svelte
+> vitest run "--reporter" "verbose"
+
+
+ RUN  v1.2.1 /home/svelte
+
+ ✓ packages/svelte/tests/store/test.ts > writable > creates a writable store
+ ✓ packages/svelte/tests/store/test.ts > writable > creates an undefined writable store
+ ✓ packages/svelte/tests/store/test.ts > writable > calls provided subscribe handler
+ ✓ packages/svelte/tests/store/test.ts > writable > does not assume immutable data
+ ✓ packages/svelte/tests/store/test.ts > writable > only calls subscriber once initially, including on resubscriptions
+ ✓ packages/svelte/tests/store/test.ts > writable > no error even if unsubscribe calls twice
+ ✓ packages/svelte/tests/store/test.ts > readable > creates a readable store
+ ✓ packages/svelte/tests/store/test.ts > readable > passes an optional update function
+ ✓ packages/svelte/tests/store/test.ts > readable > creates an undefined readable store
+ ✓ packages/svelte/tests/store/test.ts > readable > creates a readable store without updater
+ ✓ packages/svelte/tests/store/test.ts > derived > maps a single store
+ ✓ packages/svelte/tests/store/test.ts > derived > maps multiple stores
+ ✓ packages/svelte/tests/store/test.ts > derived > passes optional set function
+ ✓ packages/svelte/tests/store/test.ts > derived > passes optional set and update functions
+ ✓ packages/svelte/tests/store/test.ts > derived > prevents glitches
+ ✓ packages/svelte/tests/store/test.ts > derived > prevents diamond dependency problem
+ ✓ packages/svelte/tests/store/test.ts > derived > derived dependency does not update and shared ancestor updates
+ ✓ packages/svelte/tests/store/test.ts > derived > is updated with safe_not_equal logic
+ ✓ packages/svelte/tests/store/test.ts > derived > calls a cleanup function
+ ✓ packages/svelte/tests/store/test.ts > derived > discards non-function return values
+ ✓ packages/svelte/tests/store/test.ts > derived > allows derived with different types
+ ✓ packages/svelte/tests/store/test.ts > derived > works with RxJS-style observables
+ ✓ packages/svelte/tests/store/test.ts > derived > doesn't restart when unsubscribed from another store with a shared ancestor
+ ✓ packages/svelte/tests/store/test.ts > derived > errors on undefined stores #1
+ ✓ packages/svelte/tests/store/test.ts > derived > errors on undefined stores #2
+ ✓ packages/svelte/tests/store/test.ts > get > gets the current value of a store
+ ✓ packages/svelte/tests/store/test.ts > get > works with RxJS-style observables
+ ✓ packages/svelte/tests/store/test.ts > readonly > makes a store readonly
+ ✓ packages/svelte/tests/motion/test.ts > motion > spring > handles initially undefined values
+ ✓ packages/svelte/tests/motion/test.ts > motion > tweened > handles initially undefined values
+ ✓ packages/svelte/tests/motion/test.ts > motion > tweened > sets immediately when duration is 0
+ ✓ packages/svelte/tests/motion/test.ts > motion > tweened > updates correctly when initialized with a `null`-ish value
+ ✓ packages/svelte/src/reactivity/url.test.ts > url.hash
+ ✓ packages/svelte/src/reactivity/url.test.ts > url.searchParams
+ ✓ packages/svelte/src/reactivity/url.test.ts > URLSearchParams
+ ✓ packages/svelte/src/reactivity/map.test.ts > map.values()
+ ✓ packages/svelte/src/reactivity/map.test.ts > map.get(...)
+ ✓ packages/svelte/src/reactivity/map.test.ts > map.has(...)
+ ✓ packages/svelte/src/reactivity/map.test.ts > map.forEach(...)
+ ✓ packages/svelte/src/reactivity/map.test.ts > map.delete(...)
+ ✓ packages/svelte/src/reactivity/map.test.ts > map handling of undefined values
+ ✓ packages/svelte/src/reactivity/set.test.ts > set.values()
+ ✓ packages/svelte/src/reactivity/set.test.ts > set.has(...)
+ ✓ packages/svelte/src/reactivity/set.test.ts > set.delete(...)
+ ✓ packages/svelte/src/reactivity/set.test.ts > set.forEach()
+ ✓ packages/svelte/tests/signals/test.ts > signals > effect with state and derived in it (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > effect with state and derived in it (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > multiple effects with state and derived in it#1 (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > multiple effects with state and derived in it#1 (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > multiple effects with state and derived in it#2 (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > multiple effects with state and derived in it#2 (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > derived from state (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > derived from state (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > derived from derived (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > derived from derived (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > https://perf.js.hyoo.ru/#!bench=9h2as6_u0mfnn (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > https://perf.js.hyoo.ru/#!bench=9h2as6_u0mfnn (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > effects correctly handle unowned derived values that do not change (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > effects correctly handle unowned derived values that do not change (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > correctly cleanup onowned nested derived values (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > correctly cleanup onowned nested derived values (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > effect with derived using unowned derived every time (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > effect with derived using unowned derived every time (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > two effects with an unowned derived that has no depedencies (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > two effects with an unowned derived that has no depedencies (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > two effects with an unowned derived that has some depedencies (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > two effects with an unowned derived that has some depedencies (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > schedules rerun when writing to signal before reading it (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > schedules rerun when writing to signal before reading it (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > schedules rerun when writing to signal before reading it (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > schedules rerun when writing to signal before reading it (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > effect teardown is removed on re-run (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > effect teardown is removed on re-run (runes mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > creating effects within a derived correctly handles ownership (legacy mode)
+ ✓ packages/svelte/tests/signals/test.ts > signals > creating effects within a derived correctly handles ownership (runes mode)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 15 ⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/svelte/tests/runtime-browser/test-ssr.ts [ packages/svelte/tests/runtime-browser/test-ssr.ts ]
+ FAIL  packages/svelte/tests/runtime-legacy/test.ts [ packages/svelte/tests/runtime-legacy/test.ts ]
+ FAIL  packages/svelte/tests/runtime-runes/test.ts [ packages/svelte/tests/runtime-runes/test.ts ]
+ FAIL  packages/svelte/tests/server-side-rendering/test.ts [ packages/svelte/tests/server-side-rendering/test.ts ]
+Error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+ ❯ formatError node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:63773:46
+ ❯ TransformContext.error node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:63767:19
+ ❯ TransformContext.transform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:61984:22
+ ❯ Object.transform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:64068:30
+ ❯ loadAndTransform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:49741:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  packages/svelte/tests/compiler-errors/test.ts [ packages/svelte/tests/compiler-errors/test.ts ]
+ FAIL  packages/svelte/tests/migrate/test.ts [ packages/svelte/tests/migrate/test.ts ]
+ FAIL  packages/svelte/tests/parser-legacy/test.ts [ packages/svelte/tests/parser-legacy/test.ts ]
+ FAIL  packages/svelte/tests/parser-modern/test.ts [ packages/svelte/tests/parser-modern/test.ts ]
+ FAIL  packages/svelte/tests/preprocess/test.ts [ packages/svelte/tests/preprocess/test.ts ]
+ FAIL  packages/svelte/tests/snapshot/test.ts [ packages/svelte/tests/snapshot/test.ts ]
+ FAIL  packages/svelte/tests/sourcemaps/test.ts [ packages/svelte/tests/sourcemaps/test.ts ]
+ FAIL  packages/svelte/tests/validator/test.ts [ packages/svelte/tests/validator/test.ts ]
+Error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+ ❯ formatError node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:63773:46
+ ❯ TransformContext.error node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:63767:19
+ ❯ TransformContext.transform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:61984:22
+ ❯ Object.transform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:64068:30
+ ❯ loadAndTransform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:49741:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  packages/svelte/tests/css/test.ts [ packages/svelte/tests/css/test.ts ]
+ FAIL  packages/svelte/tests/hydration/test.ts [ packages/svelte/tests/hydration/test.ts ]
+Error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+ ❯ formatError node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:63773:46
+ ❯ TransformContext.error node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:63767:19
+ ❯ TransformContext.transform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:61984:22
+ ❯ Object.transform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:64068:30
+ ❯ loadAndTransform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:49741:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  packages/svelte/tests/runtime-browser/test.ts [ packages/svelte/tests/runtime-browser/test.ts ]
+Error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+ ❯ formatError node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:63773:46
+ ❯ TransformContext.error node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:63767:19
+ ❯ TransformContext.transform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:61984:22
+ ❯ Object.transform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:64068:30
+ ❯ loadAndTransform node_modules/.pnpm/vite@5.0.13_@types+node@20.11.5_lightningcss@1.23.0_sass@1.70.0/node_modules/vite/dist/node/chunks/dep-dh3wN_2j.js:49741:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ Test Files  15 failed | 6 passed (21)
+      Tests  75 passed (75)
+   Start at  14:14:35
+   Duration  1.79s (transform 1.27s, setup 2ms, collect 2.45s, tests 301ms, environment 2.15s, prepare 2.63s)
+
+ ELIFECYCLE  Test failed. See above for more details.

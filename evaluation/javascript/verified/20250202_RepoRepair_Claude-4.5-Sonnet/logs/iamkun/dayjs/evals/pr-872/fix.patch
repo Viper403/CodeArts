@@ -1,0 +1,81 @@
+--- a/src/index.js
++++ b/src/index.js
+@@ -328,10 +328,37 @@
+     return str.replace(C.REGEX_FORMAT, (match, $1) => $1 || matches[match] || zoneStr.replace(':', '')) // 'ZZ'
+   }
+ 
+-  utcOffset() {
++  utcOffset(input) {
+     // Because a bug at FF24, we're rounding the timezone offset around 15 minutes
+     // https://github.com/moment/moment/pull/1871
+-    return -Math.round(this.$d.getTimezoneOffset() / 15) * 15
++    const currentOffset = this.$offset != null ? this.$offset : -Math.round(this.$d.getTimezoneOffset() / 15) * 15
++    
++    if (Utils.u(input)) {
++      return currentOffset
++    }
++    
++    // Set offset
++    let offset = input
++    if (typeof input === 'string') {
++      const match = input.match(/^([+-])(\d{2}):?(\d{2})$/)
++      if (match) {
++        const sign = match[1] === '-' ? -1 : 1
++        offset = sign * (parseInt(match[2], 10) * 60 + parseInt(match[3], 10))
++      } else {
++        return this
++      }
++    }
++    
++    if (offset === currentOffset) {
++      return this
++    }
++    
++    const diff = (offset - currentOffset) * C.MILLISECONDS_A_MINUTE
++    const ins = this.clone()
++    ins.$offset = offset
++    ins.$d = new Date(this.valueOf() + diff)
++    ins.init()
++    return ins
+   }
+ 
+   diff(input, units, float) {
+
+--- a/src/plugin/advancedFormat/index.js
++++ b/src/plugin/advancedFormat/index.js
+@@ -12,7 +12,13 @@
+   proto.format = function (formatStr) {
+     const locale = this.$locale()
+     const utils = this.$utils()
+-    const str = formatStr || FORMAT_DEFAULT
++    // If no format string provided and offset is set, include timezone in default format
++    let str = formatStr
++    if (!str) {
++      str = (this.$offset !== undefined && this.$offset !== 0) || this.$x?.$offset !== undefined
++        ? 'YYYY-MM-DDTHH:mm:ssZ'
++        : FORMAT_DEFAULT
++    }
+     const result = str.replace(/\[([^\]]+)]|Q|wo|ww|w|gggg|Do|X|x|k{1,2}|S/g, (match) => {
+       switch (match) {
+         case 'Q':
+
+--- a/src/plugin/badMutable/index.js
++++ b/src/plugin/badMutable/index.js
+@@ -49,5 +49,17 @@
+   proto.isAfter = function (that, units) {
+     return oldIsAfter.bind(this.clone())(that, units)
+   }
++
++  const oldUtcOffset = proto.utcOffset
++  proto.utcOffset = function (input, keepLocalTime) {
++    if (this.$utils().u(input)) {
++      return oldUtcOffset.bind(this)()
++    }
++    const ins = oldUtcOffset.bind(this)(input, keepLocalTime)
++    this.$d = ins.$d
++    this.$offset = ins.$offset
++    this.init()
++    return this
++  }
+ }
+ 

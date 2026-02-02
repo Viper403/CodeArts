@@ -1,0 +1,114 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -516,6 +516,18 @@
+ 		end = parser.index;
+ 	} else if (parser.match_regex(regex_starts_with_quote_characters)) {
+ 		error(parser.index, 'expected-token', '=');
++	} else {
++		// For boolean attributes without a value, convert to array format for consistency
++		value = [
++			{
++				start: end,
++				end: end,
++				type: 'Text',
++				raw: '',
++				data: '',
++				parent: null
++			}
++		];
+ 	}
+ 
+ 	if (type) {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -1984,28 +1984,27 @@
+ 					continue;
+ 				}
+ 
+-				if (
+-					attribute.name !== 'autofocus' &&
+-					(attribute.value === true || is_text_attribute(attribute))
+-				) {
+-					const name = get_attribute_name(node, attribute, context);
+-					const literal_value = /** @type {import('estree').Literal} */ (
+-						serialize_attribute_value(attribute.value, context)[1]
+-					).value;
+-					if (name !== 'class' || literal_value) {
+-						// TODO namespace=foreign probably doesn't want to do template stuff at all and instead use programmatic methods
+-						// to create the elements it needs.
+-						context.state.template.push(
+-							` ${attribute.name}${
+-								DOMBooleanAttributes.includes(name) && literal_value === true
+-									? ''
+-									: `="${literal_value === true ? '' : escape_html(String(literal_value), true)}"`
+-							}`
+-						);
+-						continue;
+-					}
++			if (
++				attribute.name !== 'autofocus' &&
++				(attribute.value === true || is_text_attribute(attribute))
++			) {
++				const name = get_attribute_name(node, attribute, context);
++				const literal_value = /** @type {import('estree').Literal} */ (
++					serialize_attribute_value(attribute.value, context)[1]
++				).value;
++				if (name !== 'class' || literal_value) {
++					// TODO namespace=foreign probably doesn't want to do template stuff at all and instead use programmatic methods
++					// to create the elements it needs.
++					context.state.template.push(
++						` ${attribute.name}${
++							(DOMBooleanAttributes.includes(name) || attribute.value === true) && literal_value === true
++								? ''
++								: `="${literal_value === true ? '' : escape_html(String(literal_value), true)}"`
++						}`
++					);
++					continue;
+ 				}
+-
++			}
+ 				const is =
+ 					is_custom_element && child_metadata.namespace !== 'foreign'
+ 						? serialize_custom_element_attribute_update_assignment(node_id, attribute, context)
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -1837,10 +1837,11 @@
+ 					)
+ 				).value;
+ 				if (name !== 'class' || literal_value) {
++					const element_name = node.type === 'RegularElement' ? node.name : '';
+ 					context.state.template.push(
+ 						t_string(
+ 							` ${attribute.name}${
+-								DOMBooleanAttributes.includes(name) && literal_value === true
++								is_boolean_attribute(name, element_name) && literal_value === true
+ 									? ''
+ 									: `="${literal_value === true ? '' : String(literal_value)}"`
+ 							}`
+@@ -1851,7 +1852,8 @@
+ 			}
+ 
+ 			const name = get_attribute_name(node, attribute, context);
+-			const is_boolean = DOMBooleanAttributes.includes(name);
++			const element_name = node.type === 'RegularElement' ? node.name : '';
++			const is_boolean = is_boolean_attribute(name, element_name);
+ 			const value = serialize_attribute_value(
+ 				attribute.value,
+ 				context,
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -2600,6 +2600,11 @@
+ 					value += css_hash;
+ 				}
+ 
++				// Handle boolean attributes - if value is true, set to empty string
++				if (value === true) {
++					value = '';
++				}
++
+ 				attr(dom, name, value);
+ 			}
+ 		}

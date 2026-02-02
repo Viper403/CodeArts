@@ -1,0 +1,38 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -422,16 +422,11 @@
+ 					/** @type {number} */ (node.body.expression.start),
+ 					'let '
+ 				);
+-				state.str.prependRight(
+-					/** @type {number} */ (node.body.expression.right.start),
+-					'$derived('
+-				);
+-				if (node.body.expression.right.end !== node.end) {
+-					state.str.update(
+-						/** @type {number} */ (node.body.expression.right.end),
+-						/** @type {number} */ (node.end),
+-						');'
+-					);
++				const right_start = /** @type {number} */ (node.body.expression.right.start);
++				const right_end = /** @type {number} */ (node.body.expression.right.end);
++				state.str.prependLeft(right_start, '$derived(');
++				if (right_end !== node.end) {
++					state.str.update(right_end, /** @type {number} */ (node.end), ');');
+ 				} else {
+ 					state.str.appendLeft(/** @type {number} */ (node.end), ');');
+ 				}
+
+--- a/packages/svelte/src/compiler/phases/1-parse/read/expression.js
++++ b/packages/svelte/src/compiler/phases/1-parse/read/expression.js
+@@ -15,7 +15,9 @@
+ 		let num_parens = 0;
+ 
+ 		for (let i = parser.index; i < /** @type {number} */ (node.start); i += 1) {
+-			if (parser.template[i] === '(') num_parens += 1;
++			const char = parser.template[i];
++			if (char === '(') num_parens += 1;
++			else if (char === ')') num_parens -= 1;
+ 		}
+ 
+ 		let index = /** @type {number} */ (node.end);

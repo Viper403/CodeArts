@@ -1,0 +1,59 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -269,7 +269,7 @@
+ 		if (attribute.type === 'Attribute') {
+ 			const name = get_attribute_name(element, attribute, context);
+ 			// TODO: handle contains_call_expression
+-			const [, value] = serialize_attribute_value(attribute.value, context);
++			let [, value] = serialize_attribute_value(attribute.value, context);
+ 
+ 			if (
+ 				is_event_attribute(attribute) &&
+@@ -281,6 +281,10 @@
+ 				context.state.init.push(b.var(id, value));
+ 				values.push(b.init(attribute.name, b.id(id)));
+ 			} else {
++				// For boolean attributes, convert false to undefined so the attribute gets removed
++				if (DOMBooleanAttributes.includes(name)) {
++					value = b.conditional(value, value, b.id('undefined'));
++				}
+ 				values.push(b.init(name, value));
+ 			}
+ 		} else {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -892,7 +892,20 @@
+ 				context,
+ 				WhitespaceInsensitiveAttributes.includes(name)
+ 			);
+-			values.push(b.object([b.prop('init', b.literal(name), value)]));
++			const is_boolean = DOMBooleanAttributes.includes(name);
++			
++			// For boolean attributes, conditionally include them only when truthy
++			if (is_boolean && attribute.value !== true) {
++				values.push(
++					b.conditional(
++						value,
++						b.object([b.prop('init', b.literal(name), b.true)]),
++						b.object([])
++					)
++				);
++			} else {
++				values.push(b.object([b.prop('init', b.literal(name), value)]));
++			}
+ 		} else {
+ 			values.push(/** @type {import('estree').Expression} */ (context.visit(attribute)));
+ 		}
+
+--- a/packages/svelte/src/internal/client/dom/elements/attributes.js
++++ b/packages/svelte/src/internal/client/dom/elements/attributes.js
+@@ -151,7 +151,7 @@
+ 					delegate([event_name]);
+ 				}
+ 			}
+-		} else if (value == null) {
++		} else if (value == null || (key === 'hidden' && value === false)) {
+ 			attributes[key] = null;
+ 			element.removeAttribute(key);
+ 		} else if (key === 'style') {

@@ -1,0 +1,37 @@
+--- a/packages/svelte/src/internal/client/proxy.js
++++ b/packages/svelte/src/internal/client/proxy.js
+@@ -186,6 +186,7 @@
+ 		set(target, prop, value, receiver) {
+ 			var s = sources.get(prop);
+ 			var has = prop in target;
++			var proxied_value = proxy(value, metadata);
+ 
+ 			// If we haven't yet created a source for this property, we need to ensure
+ 			// we do so otherwise if we read it later, then the write won't be tracked and
+@@ -194,12 +195,12 @@
+ 			if (s === undefined) {
+ 				if (!has || get_descriptor(target, prop)?.writable) {
+ 					s = source(undefined);
+-					set(s, proxy(value, metadata));
++					set(s, proxied_value);
+ 					sources.set(prop, s);
+ 				}
+ 			} else {
+ 				has = s.v !== UNINITIALIZED;
+-				set(s, proxy(value, metadata));
++				set(s, proxied_value);
+ 			}
+ 
+ 			if (DEV) {
+
+--- a/packages/svelte/src/internal/client/reactivity/props.js
++++ b/packages/svelte/src/internal/client/reactivity/props.js
+@@ -346,7 +346,7 @@
+ 		}
+ 
+ 		if (arguments.length > 0) {
+-			const new_value = mutation ? get(current_value) : runes && bindable ? proxy(value) : value;
++			const new_value = mutation ? value : runes && bindable ? proxy(value) : value;
+ 
+ 			if (!current_value.equals(new_value)) {
+ 				from_child = true;

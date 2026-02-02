@@ -1,0 +1,102 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -568,6 +568,15 @@
+ 			}
+ 		}
+ 
++		if (node.name === 'form') {
++			const path = context.path;
++			for (let parent of path) {
++				if (parent.type === 'RegularElement' && parent.name === 'form') {
++					e.node_invalid_placement(node, `<form>`, 'form');
++				}
++			}
++		}
++
+ 		if (interactive_elements.has(node.name)) {
+ 			const path = context.path;
+ 			for (let parent of path) {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -2858,7 +2858,12 @@
+ 					if (parent?.type === 'RegularElement' && parent.name === 'select') {
+ 						call_expr = b.call(`$.bind_select_value`, state.node, getter, setter);
+ 					} else {
+-						call_expr = b.call(`$.bind_value`, state.node, getter, setter);
++						// Check if we're in a nested form situation (invalid HTML)
++						// In this case, pass an additional flag to handle the edge case gracefully
++						const has_ancestor_form = path.some(
++							(ancestor) => ancestor.type === 'RegularElement' && ancestor.name === 'form'
++						);
++						call_expr = b.call(`$.bind_value`, state.node, getter, setter, has_ancestor_form && b.true);
+ 					}
+ 					break;
+ 				}
+
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/input.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/input.js
+@@ -186,6 +186,8 @@
+  * @param {(value: FileList | null) => void} update
+  */
+ export function bind_files(input, get_value, update) {
++	if (!input) return;
++	
+ 	listen_to_event_and_reset_event(input, 'change', () => {
+ 		update(input.files);
+ 	});
+
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/this.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/this.js
+@@ -36,12 +36,20 @@
+ 			parts = get_parts?.() || [];
+ 
+ 			untrack(() => {
+-				if (element_or_component !== get_value(...parts)) {
+-					update(element_or_component, ...parts);
+-					// If this is an effect rerun (cause: each block context changes), then nullfiy the binding at
+-					// the previous position if it isn't already taken over by a different effect.
+-					if (old_parts && is_bound_this(get_value(...old_parts), element_or_component)) {
+-						update(null, ...old_parts);
++				try {
++					if (element_or_component !== get_value(...parts)) {
++						update(element_or_component, ...parts);
++						// If this is an effect rerun (cause: each block context changes), then nullfiy the binding at
++						// the previous position if it isn't already taken over by a different effect.
++						if (old_parts && is_bound_this(get_value(...old_parts), element_or_component)) {
++							update(null, ...old_parts);
++						}
++					}
++				} catch (e) {
++					// Binding may fail in edge cases like nested forms (invalid HTML)
++					// Silently ignore to avoid breaking the application
++					if (import.meta.env.DEV) {
++						console.warn('Binding failed:', e);
+ 					}
+ 				}
+ 			});
+
+--- a/packages/svelte/src/internal/client/errors.js
++++ b/packages/svelte/src/internal/client/errors.js
+@@ -310,4 +310,21 @@
+ 		// TODO print a link to the documentation
+ 		throw new Error("svelte_component_invalid_this_value");
+ 	}
++}
++
++/**
++ * Bind directive on `<%element%>` is unable to find a parent form element. This may be caused by invalid HTML structure, such as nested forms (which are not allowed)
++ * @param {string} element
++ * @returns {never}
++ */
++export function bind_invalid_form_structure(element) {
++	if (DEV) {
++		const error = new Error(`${"bind_invalid_form_structure"}\n${`Bind directive on \`<${element}>\` is unable to find a parent form element. This may be caused by invalid HTML structure, such as nested forms (which are not allowed)`}`);
++
++		error.name = 'Svelte error';
++		throw error;
++	} else {
++		// TODO print a link to the documentation
++		throw new Error("bind_invalid_form_structure");
++	}
+ }

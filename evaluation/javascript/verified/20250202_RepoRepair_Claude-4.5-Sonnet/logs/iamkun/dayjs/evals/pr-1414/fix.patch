@@ -1,0 +1,45 @@
+--- a/src/locale/es.js
++++ b/src/locale/es.js
+@@ -7,7 +7,7 @@
+   weekdays: 'domingo_lunes_martes_mi��rcoles_jueves_viernes_s��bado'.split('_'),
+   weekdaysShort: 'dom._lun._mar._mi��._jue._vie._s��b.'.split('_'),
+   weekdaysMin: 'do_lu_ma_mi_ju_vi_s��'.split('_'),
+-  months: 'Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre'.split('_'),
++  months: 'enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre'.split('_'),
+   weekStart: 1,
+   formats: {
+     LT: 'H:mm',
+
+--- a/src/plugin/advancedFormat/index.js
++++ b/src/plugin/advancedFormat/index.js
+@@ -3,12 +3,14 @@
+ export default (o, c, d) => { // locale needed later
+   const proto = c.prototype
+   const oldFormat = proto.format
+-  d.en.ordinal = (number) => {
+-    const s = ['th', 'st', 'nd', 'rd']
+-    const v = number % 100
+-    return `[${number}${(s[(v - 20) % 10] || s[v] || s[0])}]`
++  // Only set English ordinal if not already defined, don't override other locales
++  if (!d.en.ordinal) {
++    d.en.ordinal = (number) => {
++      const s = ['th', 'st', 'nd', 'rd']
++      const v = number % 100
++      return `[${number}${(s[(v - 20) % 10] || s[v] || s[0])}]`
++    }
+   }
+-  // extend en locale here
+   proto.format = function (formatStr) {
+     const locale = this.$locale()
+     const utils = this.$utils()
+
+--- a/src/plugin/arraySupport/index.js
++++ b/src/plugin/arraySupport/index.js
+@@ -20,6 +20,6 @@
+   const oldParse = proto.parse
+   proto.parse = function (cfg) {
+     cfg.date = parseDate.bind(this)(cfg)
+-    oldParse.bind(this)(cfg)
++    return oldParse.bind(this)(cfg)
+   }
+ }

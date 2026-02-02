@@ -1,0 +1,104 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/utils.js
+@@ -46,10 +46,6 @@
+ 
+ 		if (node.type === 'Text') {
+ 			quasi.value.raw += sanitize_template_string(node.data);
+-		} else if (node.type === 'ExpressionTag' && node.expression.type === 'Literal') {
+-			if (node.expression.value != null) {
+-				quasi.value.raw += sanitize_template_string(node.expression.value + '');
+-			}
+ 		} else {
+ 			if (contains_multiple_call_expression) {
+ 				const id = b.id(state.scope.generate('stringified_text'));
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/visitors/shared/element.js
+@@ -355,50 +355,60 @@
+  *
+  * @param {ClassDirective[]} class_directives
+  * @param {Attribute | null} class_attribute
++ * @param {ComponentContext} context
+  * @returns
+  */
+-function build_class_directives(class_directives, class_attribute) {
++function build_class_directives(class_directives, class_attribute, context) {
+ 	const expressions = class_directives.map((directive) =>
+ 		b.conditional(directive.expression, b.literal(directive.name), b.literal(''))
+ 	);
+ 
++	// Add CSS hash for scoped styles
++	if (context.state.analysis.css.hash) {
++		expressions.unshift(b.literal(context.state.analysis.css.hash));
++	}
++
+ 	if (class_attribute === null) {
+ 		class_attribute = create_attribute('class', -1, -1, []);
+ 	}
+ 
+ 	const chunks = get_attribute_chunks(class_attribute.value);
+-	const last = chunks.at(-1);
+-
+-	if (last?.type === 'Text') {
+-		last.data += ' ';
+-		last.raw += ' ';
+-	} else if (last) {
++	
++	// Only add separator and expressions if there are any
++	if (expressions.length > 0) {
++		const last = chunks.at(-1);
++
++		if (last?.type === 'Text') {
++			last.data += ' ';
++			last.raw += ' ';
++		} else if (last) {
++			chunks.push({
++				type: 'Text',
++				start: -1,
++				end: -1,
++				parent: class_attribute,
++				data: ' ',
++				raw: ' '
++			});
++		}
++
+ 		chunks.push({
+-			type: 'Text',
++			type: 'ExpressionTag',
+ 			start: -1,
+ 			end: -1,
+ 			parent: class_attribute,
+-			data: ' ',
+-			raw: ' '
++			expression: b.call(
++				b.member(
++					b.call(b.member(b.array(expressions), b.id('filter')), b.id('Boolean')),
++					b.id('join')
++				),
++				b.literal(' ')
++			),
++			metadata: {
++				expression: create_expression_metadata()
++			}
+ 		});
+ 	}
+-
+-	chunks.push({
+-		type: 'ExpressionTag',
+-		start: -1,
+-		end: -1,
+-		parent: class_attribute,
+-		expression: b.call(
+-			b.member(
+-				b.call(b.member(b.array(expressions), b.id('filter')), b.id('Boolean')),
+-				b.id('join')
+-			),
+-			b.literal(' ')
+-		),
+-		metadata: {
+-			expression: create_expression_metadata()
+-		}
+-	});
+ 
+ 	class_attribute.value = chunks;
+ 	return class_attribute;

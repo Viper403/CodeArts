@@ -1,0 +1,128 @@
+--- a/packages/svelte/src/compiler/errors.js
++++ b/packages/svelte/src/compiler/errors.js
+@@ -6,13 +6,15 @@
+ class InternalCompileError extends Error {
+ 	message = ''; // ensure this property is enumerable
+ 	#diagnostic;
++	partial_result;
+ 
+ 	/**
+ 	 * @param {string} code
+ 	 * @param {string} message
+ 	 * @param {[number, number] | undefined} position
++	 * @param {any} [partial_result]
+ 	 */
+-	constructor(code, message, position) {
++	constructor(code, message, position, partial_result) {
+ 		super(message);
+ 		this.stack = ''; // avoid unnecessary noise; don't set it as a class property or it becomes enumerable
+ 		// We want to extend from Error so that various bundler plugins properly handle it.
+@@ -21,6 +23,7 @@
+ 		this.#diagnostic = new CompileDiagnostic(code, message, position);
+ 		Object.assign(this, this.#diagnostic);
+ 		this.name = 'CompileError';
++		this.partial_result = partial_result;
+ 	}
+ 
+ 	toString() {
+@@ -28,7 +31,11 @@
+ 	}
+ 
+ 	toJSON() {
+-		return this.#diagnostic.toJSON();
++		const json = this.#diagnostic.toJSON();
++		if (this.partial_result !== undefined) {
++			json.partial_result = this.partial_result;
++		}
++		return json;
+ 	}
+ }
+ 
+
+--- a/packages/svelte/src/compiler/index.js
++++ b/packages/svelte/src/compiler/index.js
+@@ -107,7 +107,16 @@
+ 	state.reset_warning_filter(() => false);
+ 	state.reset(source, { filename: filename ?? '(unknown)', rootDir });
+ 
+-	const ast = _parse(source);
++	let ast;
++	try {
++		ast = _parse(source);
++	} catch (error) {
++		// If parsing fails, try to attach any partial parse results to the error
++		if (error && typeof error === 'object' && 'partial' in error) {
++			error.ast = to_public_ast(source, error.partial, modern);
++		}
++		throw error;
++	}
+ 	return to_public_ast(source, ast, modern);
+ }
+ 
+
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -438,13 +438,27 @@
+ 			code: str.toString()
+ 		};
+ 	} catch (e) {
++		const error_message = /** @type {any} */ (e).message;
++		const is_parse_error = error_message && (
++			error_message.includes('Unexpected') || 
++			error_message.includes('Expected') ||
++			error_message.includes('Unterminated')
++		);
++		
+ 		if (!(e instanceof MigrationError)) {
+ 			// eslint-disable-next-line no-console
+ 			console.error('Error while migrating Svelte code', e);
+ 		}
++		
+ 		has_migration_task = true;
++		
++		// For parse errors on incomplete code, provide a more helpful message
++		const task_comment = is_parse_error
++			? `<!-- @migration-task Incomplete or invalid syntax - please complete the code before migrating: ${error_message} -->\n`
++			: `<!-- @migration-task Error while migrating Svelte code: ${error_message} -->\n`;
++		
+ 		return {
+-			code: `<!-- @migration-task Error while migrating Svelte code: ${/** @type {any} */ (e).message} -->\n${og_source}`
++			code: `${task_comment}${og_source}`
+ 		};
+ 	} finally {
+ 		if (has_migration_task) {
+
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -278,6 +278,8 @@
+  */
+ export function parse(template) {
+ 	const parser = new Parser(template);
++	// Even if there was an error during parsing, return the partial root
++	// This allows language servers to work with incomplete/inconsistent content
+ 	return parser.root;
+ }
+ 
+
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -320,7 +320,18 @@
+ 
+ 	const self_closing = parser.eat('/') || is_void(name);
+ 
+-	parser.eat('>', true);
++	// Try to eat the closing bracket, but don't throw if it's missing
++	// This allows partial parsing for IDE support
++	const has_closing_bracket = parser.eat('>');
++	
++	if (!has_closing_bracket) {
++		// Element is incomplete - set end position and throw error with partial results
++		element.end = parser.index;
++		// The error will be thrown by parser.eat('>', true) but the element
++		// has already been appended to provide partial parse results
++		parser.eat('>', true);
++		return; // This line won't be reached, but kept for clarity
++	}
+ 
+ 	if (self_closing) {
+ 		// don't push self-closing elements onto the stack

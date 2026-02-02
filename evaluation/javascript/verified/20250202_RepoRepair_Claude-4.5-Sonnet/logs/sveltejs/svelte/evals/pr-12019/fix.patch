@@ -1,0 +1,29 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -724,7 +724,8 @@
+ 					init: '',
+ 					bindable: false,
+ 					optional: true,
+-					type: '(event: any) => void'
++					type: '(event: any) => void',
++					comment: ''
+ 				});
+ 			}
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -878,6 +878,13 @@
+ 				for (const id of extract_identifiers(declarator.id)) {
+ 					const binding = /** @type {import('#compiler').Binding} */ (state.scope.get(id.name));
+ 					binding.kind = 'bindable_prop';
++					// Preserve JSDoc comments for migration tool
++					if (declarator.leadingComments) {
++						binding.jsdoc = declarator.leadingComments
++							.filter(comment => comment.type === 'Block' && comment.value.startsWith('*'))
++							.map(comment => comment.value)
++							.join('\n');
++					}
+ 				}
+ 			}
+ 		}

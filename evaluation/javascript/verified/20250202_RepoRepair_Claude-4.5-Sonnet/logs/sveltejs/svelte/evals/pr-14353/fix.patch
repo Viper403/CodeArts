@@ -1,0 +1,24 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -437,7 +437,8 @@
+ 				: '',
+ 			keyframes: []
+ 		},
+-		source
++		source,
++		static_html: false
+ 	};
+ 
+ 	if (!runes) {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/index.js
++++ b/packages/svelte/src/compiler/phases/3-transform/index.js
+@@ -28,7 +28,7 @@
+ 	}
+ 
+ 	const program =
+-		options.generate === 'server'
++		options.generate === 'server' || options.generate === 'server-static'
+ 			? server_component(analysis, options)
+ 			: client_component(analysis, options);
+ 

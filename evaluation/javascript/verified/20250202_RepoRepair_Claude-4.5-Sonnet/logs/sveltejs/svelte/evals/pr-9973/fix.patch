@@ -1,0 +1,217 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -47,7 +47,7 @@
+ 			throw new TypeError('Template must be a string');
+ 		}
+ 
+-		this.template = template.trimRight();
++		this.template = template.trimEnd();
+ 
+ 		this.ts = regex_lang_attribute.exec(template)?.[2] === 'ts';
+ 
+
+--- a/packages/svelte/src/compiler/phases/1-parse/read/expression.js
++++ b/packages/svelte/src/compiler/phases/1-parse/read/expression.js
+@@ -17,7 +17,7 @@
+ 		}
+ 
+ 		let index = /** @type {number} */ (node.end);
+-		while (num_parens > 0) {
++		while (num_parens > 0 && index < parser.template.length) {
+ 			const char = parser.template[index];
+ 
+ 			if (char === ')') {
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
+@@ -118,7 +118,7 @@
+ 			instance_state,
+ 			combine_visitors(
+ 				set_scope(analysis.instance.scopes),
+-				{ ...remove_types, ImportDeclaration: undefined, ExportNamedDeclaration: undefined },
++				remove_types,
+ 				global_visitors,
+ 				// @ts-expect-error TODO
+ 				javascript_visitors,
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -1637,6 +1637,7 @@
+ 		if (node.type === 'Text') {
+ 			const last = /** @type {import('estree').TemplateElement} */ (quasis.at(-1));
+ 			last.value.raw += node.data;
++			last.value.cooked += node.data;
+ 		} else {
+ 			if (node.type === 'ExpressionTag' && node.metadata.contains_call_expression) {
+ 				contains_call_expression = true;
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -638,113 +638,60 @@
+ 			return b.literal(false);
+ 		}
+ 
+-		if (rune === '$inspect' || rune === '$inspect().with') {
+-			return transform_inspect_rune(node, context);
+-		}
+-
+-		context.next();
+-	}
+-};
+-
+-/**
+- *
+- * @param {true | Array<import('#compiler').Text | import('#compiler').ExpressionTag>} attribute_value
+- * @param {import('./types').ComponentContext} context
+- * @param {boolean} trim_whitespace
+- * @param {boolean} is_component
+- * @returns {import('estree').Expression}
+- */
+-function serialize_attribute_value(
+-	attribute_value,
+-	context,
+-	trim_whitespace = false,
+-	is_component = false
+-) {
+-	if (attribute_value === true) {
+-		return b.true;
+-	}
+-
+-	if (attribute_value.length === 0) {
+-		return b.literal(''); // is this even possible?
+-	}
+-
+-	if (attribute_value.length === 1) {
+-		const value = attribute_value[0];
+-		if (value.type === 'Text') {
+-			let data = value.data;
+-			if (trim_whitespace) {
+-				data = data.replace(regex_whitespaces_strict, ' ').trim();
+-			}
+-
+-			return b.literal(is_component ? data : escape_html(data, true));
+-		} else {
+-			return /** @type {import('estree').Expression} */ (context.visit(value.expression));
+-		}
+-	}
+-
+-	/** @type {import('estree').TemplateElement[]} */
+-	const quasis = [];
+-
+-	/** @type {import('estree').Expression[]} */
+-	const expressions = [];
+-
+-	if (attribute_value[0].type !== 'Text') {
+-		quasis.push(b.quasi('', false));
+-	}
+-
+-	let i = 0;
+-	for (const node of attribute_value) {
+-		i++;
+-		if (node.type === 'Text') {
+-			let data = node.data;
+-			if (trim_whitespace) {
+-				// don't trim, space could be important to separate from expression tag
+-				data = data.replace(regex_whitespaces_strict, ' ');
+-			}
+-			quasis.push(b.quasi(data, i === attribute_value.length));
+-		} else {
+-			expressions.push(
+-				b.call(
+-					'$.stringify',
+-					/** @type {import('estree').Expression} */ (context.visit(node.expression))
+-				)
+-			);
+-			if (i === attribute_value.length) {
+-				quasis.push(b.quasi('', true));
+-			}
+-		}
+-	}
+-
+-	return b.template(quasis, expressions);
+-}
+-
+-/**
+- *
+- * @param {import('#compiler').RegularElement | import('#compiler').SvelteElement} element
+- * @param {Array<import('#compiler').Attribute | import('#compiler').SpreadAttribute>} attributes
+- * @param {import('#compiler').StyleDirective[]} style_directives
+- * @param {import('#compiler').ClassDirective[]} class_directives
+- * @param {import('./types').ComponentContext} context
+- */
+-function serialize_element_spread_attributes(
+-	element,
+-	attributes,
+-	style_directives,
+-	class_directives,
+-	context
+-) {
+-	/** @type {import('estree').Expression[]} */
+-	const values = [];
+-
+-	for (const attribute of attributes) {
+-		if (attribute.type === 'Attribute') {
+-			const name = get_attribute_name(element, attribute, context);
+-			const value = serialize_attribute_value(
+-				attribute.value,
+-				context,
+-				WhitespaceInsensitiveAttributes.includes(name)
+-			);
+-			values.push(b.object([b.prop('init', b.literal(name), value)]));
++		if 		if (attribute.value.length === 1) {
++			const value = attribute.value[0];
++			if (value.type === 'Text') {
++				let data = value.data;
++				if (trim_whitespace) {
++					data = data.replace(regex_whitespaces_strict, ' ').trim();
++				}
++
++				return b.literal(is_component ? data : escape_html(data, true));
++			} else {
++				const visited = /** @type {import('estree').Expression} */ (context.visit(value.expression));
++				// If the visited expression is a template literal, we need to wrap it in $.stringify
++				// to ensure proper handling of nested template literals
++				if (visited.type === 'TemplateLiteral') {
++					return b.call('$.stringify', visited);
++				}
++				return visited;
++			}
++		}
++
++		/** @type {import('estree').TemplateElement[]} */
++		const quasis = [];
++
++		/** @type {import('estree').Expression[]} */
++		const expressions = [];
++
++		if (attribute.value[0].type !== 'Text') {
++			quasis.push(b.quasi('', false));
++		}
++
++		let i = 0;
++		for (const node of attribute.value) {
++			i++;
++			if (node.type === 'Text') {
++				let data = node.data;
++				if (trim_whitespace) {
++					// don't trim, space could be important to separate from expression tag
++					data = data.replace(regex_whitespaces_strict, ' ');
++				}
++				quasis.push(b.quasi(data, i === attribute.value.length));
++			} else {
++				expressions.push(
++					b.call(
++						'$.stringify',
++						/** @type {import('estree').Expression} */ (context.visit(node.expression))
++					)
++				);
++				if (i === attribute.value.length) {
++					quasis.push(b.quasi('', true));
++				}
++			}
++		}
++
++		return b.template(quasis, expressions);literal(name), value)]));
+ 		} else {
+ 			values.push(/** @type {import('estree').Expression} */ (context.visit(attribute)));
+ 		}

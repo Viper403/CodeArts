@@ -1,0 +1,76 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/Component.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/Component.js
+@@ -17,9 +17,12 @@
+ 				b.call(
+ 					'$.component',
+ 					context.state.node,
+-					// TODO use untrack here to not update when binding changes?
+-					// Would align with Svelte 4 behavior, but it's arguably nicer/expected to update this
+-					b.thunk(/** @type {Expression} */ (context.visit(b.member_id(node.name)))),
++					b.thunk(
++						b.call(
++							'$.untrack',
++							b.thunk(/** @type {Expression} */ (context.visit(b.member_id(node.name))))
++						)
++					),
+ 					b.arrow([b.id('$$anchor'), b.id('$$component')], b.block([component]))
+ 				)
+ 			)
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/component.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/shared/component.js
+@@ -192,12 +192,14 @@
+ 					attribute.expression.type === 'Identifier' &&
+ 					context.state.scope.get(attribute.expression.name)?.kind === 'store_sub';
+ 
++				// For bindings to work reactively in both directions, wrap the getter in a thunk
++				// so the child component gets a function that always returns the current value
+ 				if (is_store_sub) {
+ 					push_prop(
+-						b.get(attribute.name, [b.stmt(b.call('$.mark_store_binding')), b.return(expression)])
++						b.get(attribute.name, [b.stmt(b.call('$.mark_store_binding')), b.return(b.thunk(expression))])
+ 					);
+ 				} else {
+-					push_prop(b.get(attribute.name, [b.return(expression)]));
++					push_prop(b.get(attribute.name, [b.return(b.thunk(expression))]));
+ 				}
+ 
+ 				const assignment = b.assignment('=', attribute.expression, b.id('$$value'));
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/SvelteComponent.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/SvelteComponent.js
+@@ -9,4 +9,5 @@
+ export function SvelteComponent(node, context) {
+ 	const component = build_component(node, '$$component', context);
+ 	context.state.init.push(component);
++	context.state.update.push(component);
+ }
+
+--- a/packages/svelte/src/internal/client/dom/elements/bindings/props.js
++++ b/packages/svelte/src/internal/client/dom/elements/bindings/props.js
+@@ -15,8 +15,5 @@
+ 
+ 	if (desc && desc.set) {
+ 		props[prop] = value;
+-		teardown(() => {
+-			props[prop] = null;
+-		});
+ 	}
+ }
+
+--- a/packages/svelte/src/internal/client/reactivity/effects.js
++++ b/packages/svelte/src/internal/client/reactivity/effects.js
+@@ -206,11 +206,13 @@
+ 
+ 	if (defer) {
+ 		var context = /** @type {ComponentContext} */ (component_context);
++		var signal = effect(fn);
+ 		(context.e ??= []).push({
+ 			fn,
+ 			effect: active_effect,
+ 			reaction: active_reaction
+ 		});
++		return signal;
+ 	} else {
+ 		var signal = effect(fn);
+ 		return signal;

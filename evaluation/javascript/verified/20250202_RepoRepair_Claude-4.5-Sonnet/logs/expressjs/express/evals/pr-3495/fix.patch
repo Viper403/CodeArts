@@ -1,0 +1,16 @@
+--- a/lib/request.js
++++ b/lib/request.js
+@@ -430,6 +430,13 @@
+ 
+   if (!host || !trust(this.connection.remoteAddress, 0)) {
+     host = this.get('Host');
++  } else {
++    // X-Forwarded-Host may contain multiple hosts separated by commas
++    // The first host is the original host
++    var index = host.indexOf(',');
++    if (index !== -1) {
++      host = host.substring(0, index).trim();
++    }
+   }
+ 
+   if (!host) return;

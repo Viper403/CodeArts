@@ -1,0 +1,73 @@
+--- a/packages/svelte/src/internal/client/reactivity/effects.js
++++ b/packages/svelte/src/internal/client/reactivity/effects.js
+@@ -244,7 +244,15 @@
+ 	var context = /** @type {import('#client').ComponentContextLegacy} */ (current_component_context);
+ 
+ 	/** @type {{ effect: null | import('#client').Effect, ran: boolean }} */
+-	var token = { effect: null, ran: false };
++	var token = { ran: false };
++	
++	// Define effect as non-enumerable to prevent it from being cloned
++	define_property(token, 'effect', {
++		writable: true,
++		enumerable: false,
++		value: null
++	});
++	
+ 	context.l.r1.push(token);
+ 
+ 	token.effect = render_effect(() => {
+
+--- a/packages/svelte/src/internal/client/reactivity/equality.js
++++ b/packages/svelte/src/internal/client/reactivity/equality.js
+@@ -12,7 +12,7 @@
+ export function safe_not_equal(a, b) {
+ 	return a != a
+ 		? b == b
+-		: a !== b || (a !== null && typeof a === 'object') || typeof a === 'function';
++		: a !== b || (a !== b && ((a !== null && typeof a === 'object') || typeof a === 'function'));
+ }
+ 
+ /** @type {Equals} */
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -1146,7 +1146,11 @@
+ 				const get = descriptors[key].get;
+ 				if (get) {
+ 					try {
+-						get.call(value);
++						const got_value = get.call(value);
++						// Skip functions as they can't be cloned
++						if (typeof got_value !== 'function') {
++							deep_read(got_value, visited);
++						}
+ 					} catch (e) {
+ 						// continue
+ 					}
+
+--- a/packages/svelte/src/reactivity/utils.js
++++ b/packages/svelte/src/reactivity/utils.js
+@@ -10,7 +10,9 @@
+  */
+ export function map(iterable, fn, name) {
+ 	return {
+-		[Symbol.iterator]: get_this,
++		[Symbol.iterator]() {
++			return this;
++		},
+ 		next() {
+ 			for (const value of iterable) {
+ 				return { done: false, value: fn(value) };
+@@ -25,11 +27,6 @@
+ 	};
+ }
+ 
+-/** @this {any} */
+-function get_this() {
+-	return this;
+-}
+-
+ /** @param {import('#client').Source<number>} source */
+ export function increment(source) {
+ 	set(source, source.v + 1);

@@ -1,0 +1,112 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/template.js
+@@ -1879,8 +1879,6 @@
+ 		context.state.template.push('<!>');
+ 		const callee = unwrap_optional(node.expression).callee;
+ 		const raw_args = unwrap_optional(node.expression).arguments;
+-		const is_reactive =
+-			callee.type !== 'Identifier' || context.state.scope.get(callee.name)?.kind !== 'normal';
+ 
+ 		/** @type {import('estree').Expression[]} */
+ 		const args = [context.state.node];
+@@ -1893,20 +1891,10 @@
+ 			snippet_function = b.call('$.validate_snippet', snippet_function);
+ 		}
+ 
+-		if (is_reactive) {
+-			context.state.after_update.push(
+-				b.stmt(b.call('$.snippet_effect', b.thunk(snippet_function), ...args))
+-			);
+-		} else {
+-			context.state.after_update.push(
+-				b.stmt(
+-					(node.expression.type === 'CallExpression' ? b.call : b.maybe_call)(
+-						snippet_function,
+-						...args
+-					)
+-				)
+-			);
+-		}
++		// Always use snippet_effect to ensure proper cleanup of subscriptions and reactive dependencies
++		context.state.after_update.push(
++			b.stmt(b.call('$.snippet_effect', b.thunk(snippet_function), ...args))
++		);
+ 	},
+ 	AnimateDirective(node, { state, visit }) {
+ 		const expression =
+
+--- a/packages/svelte/src/internal/client/reactivity/effects.js
++++ b/packages/svelte/src/internal/client/reactivity/effects.js
+@@ -50,9 +50,9 @@
+ 
+ 	if (current_effect !== null) {
+ 		signal.l = current_effect.l + 1;
+-		if ((type & MANAGED) === 0) {
+-			push_reference(current_effect, signal);
+-		}
++		// Always track child effects for cleanup, even MANAGED ones
++		// MANAGED effects still need to be destroyed when their parent effect is destroyed
++		push_reference(current_effect, signal);
+ 	}
+ 
+ 	if (schedule) {
+
+--- a/packages/svelte/src/internal/client/reactivity/store.js
++++ b/packages/svelte/src/internal/client/reactivity/store.js
+@@ -40,6 +40,16 @@
+ 		entry.store = store ?? null;
+ 		entry.unsubscribe = connect_store_to_signal(store, entry.value);
+ 	}
++
++	// Ensure cleanup happens when the reactive context that called store_get is destroyed
++	user_effect(() => () => {
++		const current_entry = stores[store_name];
++		// Only unsubscribe if this is still the same entry (hasn't been reassigned)
++		if (current_entry === entry) {
++			entry.unsubscribe();
++			entry.last_value = get(entry.value) === UNINITIALIZED ? entry.last_value : get(entry.value);
++		}
++	});
+ 
+ 	const value = get(entry.value);
+ 	// This could happen if the store was cleaned up because the component was destroyed and there's a leak on the user side.
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -343,9 +343,9 @@
+ 		}
+ 	}
+ 	if (consumers_length === 0 && (dependency.f & UNOWNED) !== 0) {
+-		// If the signal is unowned then we need to make sure to change it to dirty.
+-		set_signal_status(dependency, DIRTY);
+-		remove_consumers(/** @type {import('./types.js').Reaction} **/ (dependency), 0);
++		// If the signal is unowned then we need to make sure to destroy it properly.
++		// This ensures that any teardown functions (like store unsubscribe) are called.
++		destroy_signal(/** @type {import('./types.js').Reaction} **/ (dependency));
+ 	}
+ }
+ 
+
+--- a/packages/svelte/src/store/index.js
++++ b/packages/svelte/src/store/index.js
+@@ -178,13 +178,17 @@
+ 			subscribe_to_store(
+ 				store,
+ 				(value) => {
++					if (!started) {
++						return;
++					}
+ 					values[i] = value;
+ 					pending &= ~(1 << i);
+-					if (started) {
+-						sync();
+-					}
++					sync();
+ 				},
+ 				() => {
++					if (!started) {
++						return;
++					}
+ 					pending |= 1 << i;
+ 				}
+ 			)

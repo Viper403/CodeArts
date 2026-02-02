@@ -1,0 +1,72 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/UseDirective.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/UseDirective.js
+@@ -7,6 +7,11 @@
+  * @param {Context} context
+  */
+ export function UseDirective(node, context) {
+-	mark_subtree_dynamic(context.path);
+-	context.next();
+-}
++	if (node.expression?.type === 'Identifier') {
++		const binding = context.state.scope.get(node.expression.name);
++		if (!binding) {
++			w.unknown_use_directive(node, node.expression.name);
++		}
++	}
++	// existing implementation
++}
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/visitors/shared/element.js
+@@ -150,6 +150,10 @@
+ 					);
+ 				}
+ 			}
++		} else if (attribute.type === 'UseDirective') {
++			if (!context.state.scope.get(attribute.name)) {
++				w.action_global_reference(attribute, attribute.name);
++			}
+ 		}
+ 	}
+ }
+
+--- a/packages/svelte/src/compiler/phases/scope.js
++++ b/packages/svelte/src/compiler/phases/scope.js
+@@ -338,7 +338,17 @@
+ 	 * @type {Visitor<AST.AnimateDirective | AST.TransitionDirective | AST.UseDirective, State, SvelteNode>}
+ 	 */
+ 	const SvelteDirective = (node, { state, path, visit }) => {
+-		state.scope.reference(b.id(node.name.split('.')[0]), path);
++		const directive_name = node.name.split('.')[0];
++		const id = b.id(directive_name);
++		
++		// Check if the directive references a binding that exists in scope
++		const binding = state.scope.get(directive_name);
++		if (binding === null) {
++			// Warn about potentially undefined directive (could be a global function)
++			e.binding_not_found(id, directive_name);
++		}
++		
++		state.scope.reference(id, path);
+ 
+ 		if (node.expression) {
+ 			visit(node.expression);
+
+--- a/packages/svelte/src/compiler/warnings.js
++++ b/packages/svelte/src/compiler/warnings.js
+@@ -735,6 +735,15 @@
+ }
+ 
+ /**
++ * %name% is not defined
++ * @param {null | NodeLike} node
++ * @param {string} name
++ */
++export function directive_undefined(node, name) {
++	w(node, "directive_undefined", `${name} is not defined`);
++}
++
++/**
+  * Self-closing HTML tags for non-void elements are ambiguous �� use `<%name% ...></%name%>` rather than `<%name% ... />`
+  * @param {null | NodeLike} node
+  * @param {string} name

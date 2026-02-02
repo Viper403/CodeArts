@@ -1,0 +1,75 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -569,7 +569,7 @@
+ 						/** @type {number} */ (labeled_statement.end)
+ 					);
+ 					state.str.appendRight(
+-						/** @type {number} */ (declarator.id.typeAnnotation?.end ?? declarator.id.end),
++						/** @type {number} */ (declarator.end),
+ 						')'
+ 					);
+ 					state.derived_labeled_statements.add(labeled_statement);
+@@ -599,7 +599,7 @@
+ 						);
+ 					}
+ 					state.str.appendRight(
+-						/** @type {number} */ (declarator.id.typeAnnotation?.end ?? declarator.id.end),
++						/** @type {number} */ (declarator.end),
+ 						')'
+ 					);
+ 				}
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
+@@ -366,7 +366,7 @@
+ 
+ 	const component_block = b.block([
+ 		...store_setup,
+-		...legacy_reactive_declarations,
++		...legacy_reactive_declarations.filter(Boolean),
+ 		...group_binding_declarations,
+ 		...analysis.top_level_snippets,
+ 		.../** @type {ESTree.Statement[]} */ (instance.body),
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/visitors/VariableDeclaration.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/visitors/VariableDeclaration.js
+@@ -263,13 +263,11 @@
+ 				continue;
+ 			}
+ 
+-			declarations.push(
+-				...create_state_declarators(
+-					declarator,
+-					context.state,
+-					/** @type {Expression} */ (declarator.init && context.visit(declarator.init))
+-				)
+-			);
++			const init_value = declarator.init
++				? /** @type {Expression} */ (context.visit(declarator.init))
++				: undefined;
++			
++			declarations.push(...create_state_declarators(declarator, context.state, init_value));
+ 		}
+ 	}
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/visitors/VariableDeclaration.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/visitors/VariableDeclaration.js
+@@ -146,13 +146,10 @@
+ 				continue;
+ 			}
+ 
+-			declarations.push(
+-				...create_state_declarators(
+-					declarator,
+-					context.state.scope,
+-					/** @type {Expression} */ (declarator.init && context.visit(declarator.init))
+-				)
+-			);
++			const init = declarator.init
++				? /** @type {Expression} */ (context.visit(declarator.init))
++				: undefined;
++			declarations.push(...create_state_declarators(declarator, context.state.scope, init));
+ 		}
+ 	}
+ 

@@ -1,0 +1,325 @@
+Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [48.0 kB]
+Get:4 http://deb.debian.org/debian bookworm-updates/main amd64 Packages.diff/Index [21.8 kB]
+Ign:4 http://deb.debian.org/debian bookworm-updates/main amd64 Packages.diff/Index
+Get:5 http://deb.debian.org/debian bookworm/main amd64 Packages [8792 kB]
+Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [293 kB]
+Get:7 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+Fetched 9368 kB in 5s (1796 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+patch is already the newest version (2.7.6-7).
+0 upgraded, 0 newly installed, 0 to remove and 146 not upgraded.
+
+> dayjs@0.0.0-development test
+> jest && TZ=Pacific/Auckland npm run test-tz && TZ=Europe/London npm run test-tz && npm run test-tz --verbose
+
+PASS test/get-set.test.js
+FAIL test/manipulate.test.js
+  ● StartOf EndOf › StartOf EndOf Week with week start setting
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      1769990400000
+    Received:
+      1769904000000
+
+      22 |
+      23 |   it('StartOf EndOf Week with week start setting', () => {
+    > 24 |     expect(dayjs().locale({ name: 'test', weekStart: 1 }).startOf('week').valueOf()).toBe(moment().startOf('week').add(1, 'day').valueOf())
+      25 |   })
+      26 |
+      27 |   it('StartOf EndOf Other -> no change', () => {
+      
+      at Object.<anonymous> (test/manipulate.test.js:24:86)
+
+PASS test/plugin/dayOfYear.test.js
+PASS test/timezone.test.js
+PASS test/locale.test.js
+PASS test/plugin/isSameOrAfter.test.js
+PASS test/parse.test.js
+PASS test/plugin/advancedFormat.test.js
+PASS test/query.test.js
+PASS test/plugin/localizableFormat.test.js
+PASS test/plugin/quarterOfYear.test.js
+PASS test/plugin/buddhistEra.test.js
+PASS test/display.test.js
+PASS test/constructor.test.js
+PASS test/plugin.test.js
+PASS test/utils.test.js
+PASS test/plugin/isSameOrBefore.test.js
+PASS test/plugin/isLeapYear.test.js
+PASS test/plugin/weekOfYear.test.js
+PASS test/plugin/relativeTime.test.js
+FAIL test/plugin/customParseFormat.test.js
+  ● parse padded string
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      1525219323004
+    Received:
+      1525226523004
+
+      22 |   const input = '2018-05-02 01:02:03.004 AM +01:00'
+      23 |   const format = 'YYYY-MM-DD HH:mm:ss.SSS A Z'
+    > 24 |   expect(dayjs(input, format).valueOf()).toBe(moment(input, format).valueOf())
+      25 | })
+      26 |
+      27 | it('parse unpadded string', () => {
+      
+      at Object.<anonymous> (test/plugin/customParseFormat.test.js:24:42)
+
+  ● parse unpadded string
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      1525269723400
+    Received:
+      1525262523400
+
+      28 |   const input = '2.5.18 1:2:3.4 PM -0100'
+      29 |   const format = 'D.M.YY H:m:s.S A ZZ'
+    > 30 |   expect(dayjs(input, format).valueOf()).toBe(moment(input, format).valueOf())
+      31 | })
+      32 |
+      33 | it('parse time zone abbreviation', () => {
+      
+      at Object.<anonymous> (test/plugin/customParseFormat.test.js:30:42)
+
+  ● parse time zone abbreviation
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      -21081476996
+    Received:
+      -21074276996
+
+      34 |   const input = '05/02/69 1:02:03.004 AM +01:00 (CET)'
+      35 |   const format = 'MM/DD/YY h:mm:ss.SSS A Z (z)'
+    > 36 |   expect(dayjs(input, format).valueOf()).toBe(moment(input, format).valueOf())
+      37 | })
+      38 |
+      39 | it('parse time zone abbreviation2', () => {
+      
+      at Object.<anonymous> (test/plugin/customParseFormat.test.js:36:42)
+
+  ● parse time zone abbreviation2
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      -21081476960
+    Received:
+      -21074276960
+
+      40 |   const input = '05/02/69 1:02:03.04 AM +01:00 (CET)'
+      41 |   const format = 'MM/DD/YY h:mm:ss.SS A Z (z)'
+    > 42 |   expect(dayjs(input, format).valueOf()).toBe(moment(input, format).valueOf())
+      43 | })
+      44 |
+      45 | it('recognizes midnight in small letters', () => {
+      
+      at Object.<anonymous> (test/plugin/customParseFormat.test.js:42:42)
+
+PASS test/plugin/isBetween.test.js
+PASS test/comparison.test.js
+PASS test/locale/keys.test.js
+------------------------------|----------|----------|----------|----------|-------------------|
+File                          |  % Stmts | % Branch |  % Funcs |  % Lines | Uncovered Line #s |
+------------------------------|----------|----------|----------|----------|-------------------|
+All files                     |    98.11 |    92.43 |    99.32 |    98.05 |                   |
+ src                          |    98.61 |    94.57 |      100 |    98.51 |                   |
+  constant.js                 |      100 |      100 |      100 |      100 |                   |
+  index.js                    |    98.22 |    93.58 |      100 |     98.1 |       180,181,182 |
+  utils.js                    |      100 |      100 |      100 |      100 |                   |
+ src/locale                   |      100 |      100 |      100 |      100 |                   |
+  ar.js                       |      100 |      100 |      100 |      100 |                   |
+  bg.js                       |      100 |      100 |      100 |      100 |                   |
+  ca.js                       |      100 |      100 |      100 |      100 |                   |
+  cs.js                       |      100 |      100 |      100 |      100 |                   |
+  da.js                       |      100 |      100 |      100 |      100 |                   |
+  de.js                       |      100 |      100 |      100 |      100 |                   |
+  el.js                       |      100 |      100 |      100 |      100 |                   |
+  es-do.js                    |      100 |      100 |      100 |      100 |                   |
+  es-us.js                    |      100 |      100 |      100 |      100 |                   |
+  es.js                       |      100 |      100 |      100 |      100 |                   |
+  et.js                       |      100 |      100 |      100 |      100 |                   |
+  fa.js                       |      100 |      100 |      100 |      100 |                   |
+  fi.js                       |      100 |      100 |      100 |      100 |                   |
+  fr.js                       |      100 |      100 |      100 |      100 |                   |
+  he.js                       |      100 |      100 |      100 |      100 |                   |
+  hr.js                       |      100 |      100 |      100 |      100 |                   |
+  hu.js                       |      100 |      100 |      100 |      100 |                   |
+  id.js                       |      100 |      100 |      100 |      100 |                   |
+  it.js                       |      100 |      100 |      100 |      100 |                   |
+  ja.js                       |      100 |      100 |      100 |      100 |                   |
+  ka.js                       |      100 |      100 |      100 |      100 |                   |
+  kk.js                       |      100 |      100 |      100 |      100 |                   |
+  ko.js                       |      100 |      100 |      100 |      100 |                   |
+  lt.js                       |      100 |      100 |      100 |      100 |                   |
+  nb.js                       |      100 |      100 |      100 |      100 |                   |
+  nl.js                       |      100 |      100 |      100 |      100 |                   |
+  nn.js                       |      100 |      100 |      100 |      100 |                   |
+  pl.js                       |      100 |      100 |      100 |      100 |                   |
+  pt-br.js                    |      100 |      100 |      100 |      100 |                   |
+  pt.js                       |      100 |      100 |      100 |      100 |                   |
+  ro.js                       |      100 |      100 |      100 |      100 |                   |
+  ru.js                       |      100 |      100 |      100 |      100 |                   |
+  sk.js                       |      100 |      100 |      100 |      100 |                   |
+  sr-cyrl.js                  |      100 |      100 |      100 |      100 |                   |
+  sr.js                       |      100 |      100 |      100 |      100 |                   |
+  sv.js                       |      100 |      100 |      100 |      100 |                   |
+  th.js                       |      100 |      100 |      100 |      100 |                   |
+  tr.js                       |      100 |      100 |      100 |      100 |                   |
+  uk.js                       |      100 |      100 |      100 |      100 |                   |
+  zh-cn.js                    |      100 |      100 |      100 |      100 |                   |
+  zh-tw.js                    |      100 |      100 |      100 |      100 |                   |
+ src/plugin/advancedFormat    |    94.74 |    93.75 |      100 |    94.74 |                   |
+  index.js                    |    94.74 |    93.75 |      100 |    94.74 |                31 |
+ src/plugin/buddhistEra       |      100 |      100 |      100 |      100 |                   |
+  index.js                    |      100 |      100 |      100 |      100 |                   |
+ src/plugin/customParseFormat |      100 |      100 |      100 |      100 |                   |
+  index.js                    |      100 |      100 |      100 |      100 |                   |
+ src/plugin/dayOfYear         |    64.71 |    28.57 |       75 |    64.71 |                   |
+  index.js                    |    64.71 |    28.57 |       75 |    64.71 |  9,10,12,13,14,22 |
+ src/plugin/isBetween         |      100 |      100 |      100 |      100 |                   |
+  index.js                    |      100 |      100 |      100 |      100 |                   |
+ src/plugin/isLeapYear        |      100 |      100 |      100 |      100 |                   |
+  index.js                    |      100 |      100 |      100 |      100 |                   |
+ src/plugin/isSameOrAfter     |      100 |      100 |      100 |      100 |                   |
+  index.js                    |      100 |      100 |      100 |      100 |                   |
+ src/plugin/isSameOrBefore    |      100 |      100 |      100 |      100 |                   |
+  index.js                    |      100 |      100 |      100 |      100 |                   |
+ src/plugin/localizedFormat   |      100 |      100 |      100 |      100 |                   |
+  index.js                    |      100 |      100 |      100 |      100 |                   |
+ src/plugin/quarterOfYear     |      100 |      100 |      100 |      100 |                   |
+  index.js                    |      100 |      100 |      100 |      100 |                   |
+ src/plugin/relativeTime      |      100 |      100 |      100 |      100 |                   |
+  index.js                    |      100 |      100 |      100 |      100 |                   |
+ src/plugin/weekOfYear        |      100 |    88.89 |      100 |      100 |                   |
+  index.js                    |      100 |    88.89 |      100 |      100 |                18 |
+------------------------------|----------|----------|----------|----------|-------------------|
+Handlebars: Access has been denied to resolve the property "statements" because it is not an "own property" of its parent.
+You can add a runtime option to disable the check or this warning:
+See https://handlebarsjs.com/api-reference/runtime-options.html#options-to-control-prototype-access for details
+Handlebars: Access has been denied to resolve the property "branches" because it is not an "own property" of its parent.
+You can add a runtime option to disable the check or this warning:
+See https://handlebarsjs.com/api-reference/runtime-options.html#options-to-control-prototype-access for details
+Handlebars: Access has been denied to resolve the property "functions" because it is not an "own property" of its parent.
+You can add a runtime option to disable the check or this warning:
+See https://handlebarsjs.com/api-reference/runtime-options.html#options-to-control-prototype-access for details
+Handlebars: Access has been denied to resolve the property "lines" because it is not an "own property" of its parent.
+You can add a runtime option to disable the check or this warning:
+See https://handlebarsjs.com/api-reference/runtime-options.html#options-to-control-prototype-access for details
+
+Summary of all failing tests
+FAIL test/manipulate.test.js
+  ● StartOf EndOf › StartOf EndOf Week with week start setting
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      1769990400000
+    Received:
+      1769904000000
+
+      22 |
+      23 |   it('StartOf EndOf Week with week start setting', () => {
+    > 24 |     expect(dayjs().locale({ name: 'test', weekStart: 1 }).startOf('week').valueOf()).toBe(moment().startOf('week').add(1, 'day').valueOf())
+      25 |   })
+      26 |
+      27 |   it('StartOf EndOf Other -> no change', () => {
+      
+      at Object.<anonymous> (test/manipulate.test.js:24:86)
+
+FAIL test/plugin/customParseFormat.test.js
+  ● parse padded string
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      1525219323004
+    Received:
+      1525226523004
+
+      22 |   const input = '2018-05-02 01:02:03.004 AM +01:00'
+      23 |   const format = 'YYYY-MM-DD HH:mm:ss.SSS A Z'
+    > 24 |   expect(dayjs(input, format).valueOf()).toBe(moment(input, format).valueOf())
+      25 | })
+      26 |
+      27 | it('parse unpadded string', () => {
+      
+      at Object.<anonymous> (test/plugin/customParseFormat.test.js:24:42)
+
+  ● parse unpadded string
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      1525269723400
+    Received:
+      1525262523400
+
+      28 |   const input = '2.5.18 1:2:3.4 PM -0100'
+      29 |   const format = 'D.M.YY H:m:s.S A ZZ'
+    > 30 |   expect(dayjs(input, format).valueOf()).toBe(moment(input, format).valueOf())
+      31 | })
+      32 |
+      33 | it('parse time zone abbreviation', () => {
+      
+      at Object.<anonymous> (test/plugin/customParseFormat.test.js:30:42)
+
+  ● parse time zone abbreviation
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      -21081476996
+    Received:
+      -21074276996
+
+      34 |   const input = '05/02/69 1:02:03.004 AM +01:00 (CET)'
+      35 |   const format = 'MM/DD/YY h:mm:ss.SSS A Z (z)'
+    > 36 |   expect(dayjs(input, format).valueOf()).toBe(moment(input, format).valueOf())
+      37 | })
+      38 |
+      39 | it('parse time zone abbreviation2', () => {
+      
+      at Object.<anonymous> (test/plugin/customParseFormat.test.js:36:42)
+
+  ● parse time zone abbreviation2
+
+    expect(received).toBe(expected) // Object.is equality
+    
+    Expected value to be:
+      -21081476960
+    Received:
+      -21074276960
+
+      40 |   const input = '05/02/69 1:02:03.04 AM +01:00 (CET)'
+      41 |   const format = 'MM/DD/YY h:mm:ss.SS A Z (z)'
+    > 42 |   expect(dayjs(input, format).valueOf()).toBe(moment(input, format).valueOf())
+      43 | })
+      44 |
+      45 | it('recognizes midnight in small letters', () => {
+      
+      at Object.<anonymous> (test/plugin/customParseFormat.test.js:42:42)
+
+
+Test Suites: 2 failed, 22 passed, 24 total
+Tests:       5 failed, 169 passed, 174 total
+Snapshots:   0 total
+Time:        5.109s
+Ran all test suites.
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.8.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.8.0
+npm notice To update run: npm install -g npm@11.8.0
+npm notice

@@ -1,0 +1,91 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -446,6 +446,19 @@
+ 			}
+ 		}
+ 		next();
++	},
++	MethodDefinition(node, { state }) {
++		// Check for constructor parameters with access modifiers (public, private, protected, readonly)
++		if (node.kind === 'constructor' && node.value?.params) {
++			for (const param of node.value.params) {
++				// @ts-expect-error - accessibility and readonly are TypeScript-specific properties
++				if (param.accessibility || param.readonly) {
++					throw new MigrationError(
++						'Constructor parameters with access modifiers (public, private, protected, readonly) are not supported. Please convert them to regular class properties.'
++					);
++				}
++			}
++		}
+ 	},
+ 	Identifier(node, { state, path }) {
+ 		handle_identifier(node, state, path);
+
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -54,7 +54,7 @@
+ 		let match_lang;
+ 
+ 		do match_lang = regex_lang_attribute.exec(template);
+-		while (match_lang && match_lang[0][1] !== 's'); // ensure it starts with '<s' to match script tags
++		while (match_lang && !match_lang[0].startsWith('<s')); // ensure it starts with '<s' to match script tags
+ 
+ 		regex_lang_attribute.lastIndex = 0; // reset matched index to pass tests - otherwise declare the regex inside the constructor
+ 
+
+--- a/packages/svelte/src/compiler/phases/1-parse/read/script.js
++++ b/packages/svelte/src/compiler/phases/1-parse/read/script.js
+@@ -37,6 +37,11 @@
+ 		ast = acorn.parse(source, parser.ts);
+ 	} catch (err) {
+ 		parser.acorn_error(err);
++	}
++
++	// Validate no constructor parameter properties (TypeScript parameter properties)
++	if (parser.ts) {
++		validate_no_constructor_properties(ast, parser);
+ 	}
+ 
+ 	// TODO is this necessary?
+
+--- a/packages/svelte/src/compiler/errors.js
++++ b/packages/svelte/src/compiler/errors.js
+@@ -1075,20 +1075,24 @@
+  * @param {null | number | NodeLike} node
+  * @returns {never}
+  */
+-export function script_invalid_context(node) {
+-	e(node, "script_invalid_context", "If the context attribute is supplied, its value must be \"module\"");
+-}
+-
+-/**
+- * The `%name%` attribute is reserved and cannot be used
+- * @param {null | number | NodeLike} node
+- * @param {string} name
+- * @returns {never}
+- */
+-export function script_reserved_attribute(node, name) {
+-	e(node, "script_reserved_attribute", `The \`${name}\` attribute is reserved and cannot be used`);
+-}
+-
++/**
++ * @param {null | number | NodeLike} node
++ * @param {string} name
++ */
++export function class_duplicate_property(node, name) {
++	e(node, 'class_duplicate_property', `Duplicate property '${name}'`);
++}
++
++/**
++ * @param {null | number | NodeLike} node
++ */
++export function class_constructor_invalid_parameter_properties(node) {
++	e(
++		node,
++		'class_constructor_invalid_parameter_properties',
++		`Constructor parameters with access modifiers (public, private, protected, readonly) are not supported in Svelte components. Use regular class properties instead`
++	);
++}
+ /**
+  * Duplicate slot name '%name%' in <%component%>
+  * @param {null | number | NodeLike} node

@@ -1,0 +1,35 @@
+--- a/lib/adapters/http.js
++++ b/lib/adapters/http.js
+@@ -401,7 +401,7 @@
+     if (config.socketPath) {
+       options.socketPath = config.socketPath;
+     } else {
+-      options.hostname = parsed.hostname;
++      options.hostname = parsed.hostname.startsWith('[') ? parsed.hostname.slice(1, -1) : parsed.hostname;
+       options.port = parsed.port;
+       setProxy(options, config.proxy, protocol + '//' + parsed.hostname + (parsed.port ? ':' + parsed.port : '') + options.path);
+     }
+
+--- a/lib/adapters/xhr.js
++++ b/lib/adapters/xhr.js
+@@ -246,7 +246,7 @@
+ 
+     const protocol = parseProtocol(fullPath);
+ 
+-    if (protocol && platform.protocols.indexOf(protocol) === -1) {
++    if (protocol && platform.protocols && platform.protocols.indexOf(protocol) === -1) {
+       reject(new AxiosError('Unsupported protocol ' + protocol + ':', AxiosError.ERR_BAD_REQUEST, config));
+       return;
+     }
+
+--- a/lib/core/buildFullPath.js
++++ b/lib/core/buildFullPath.js
+@@ -14,7 +14,7 @@
+  * @returns {string} The combined full path
+  */
+ export default function buildFullPath(baseURL, requestedURL) {
+-  if (baseURL && !isAbsoluteURL(requestedURL)) {
++  if (baseURL && baseURL !== '/' && !isAbsoluteURL(requestedURL)) {
+     return combineURLs(baseURL, requestedURL);
+   }
+   return requestedURL;

@@ -1,0 +1,78 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
+@@ -427,7 +427,8 @@
+ 		analysis.uses_props ||
+ 		analysis.uses_rest_props ||
+ 		analysis.uses_slots ||
+-		analysis.slot_names.size > 0;
++		analysis.slot_names.size > 0 ||
++		properties.length > 0;
+ 
+ 	const body = [...state.hoisted, ...module.body];
+ 
+
+--- a/packages/svelte/src/internal/client/reactivity/effects.js
++++ b/packages/svelte/src/internal/client/reactivity/effects.js
+@@ -455,7 +455,11 @@
+ 	// If a dependency of this effect changed while it was paused,
+ 	// apply the change now
+ 	if (check_dirtiness(effect)) {
+-		execute_effect(effect);
++		if ((effect.f & (RENDER_EFFECT | BRANCH_EFFECT)) !== 0) {
++			schedule_effect(effect);
++		} else {
++			execute_effect(effect);
++		}
+ 	}
+ 
+ 	var child = effect.first;
+
+--- a/packages/svelte/src/internal/client/reactivity/props.js
++++ b/packages/svelte/src/internal/client/reactivity/props.js
+@@ -309,10 +309,6 @@
+ 		// legacy nonsense �� need to ensure the source is invalidated when necessary
+ 		// also needed for when handling inspect logic so we can inspect the correct source signal
+ 		if (is_signals_recorded || (DEV && inspect_fn)) {
+-			// set this so that we don't reset to the parent value if `d`
+-			// is invalidated because of `invalidate_inner_signals` (rather
+-			// than because the parent or child value changed)
+-			from_child = was_from_child;
+ 			// invoke getters so that signals are picked up by `invalidate_inner_signals`
+ 			getter();
+ 			get(inner_current_value);
+
+--- a/packages/svelte/src/internal/client/reactivity/sources.js
++++ b/packages/svelte/src/internal/client/reactivity/sources.js
+@@ -114,11 +114,12 @@
+ 			is_runes() &&
+ 			initialized &&
+ 			current_effect !== null &&
+-			(current_effect.f & CLEAN) !== 0 &&
+ 			(current_effect.f & BRANCH_EFFECT) === 0
+ 		) {
+ 			if (current_dependencies !== null && current_dependencies.includes(signal)) {
+-				set_signal_status(current_effect, DIRTY);
++				if ((current_effect.f & CLEAN) !== 0) {
++					set_signal_status(current_effect, DIRTY);
++				}
+ 				schedule_effect(current_effect);
+ 			} else {
+ 				if (current_untracked_writes === null) {
+
+--- a/packages/svelte/src/internal/client/render.js
++++ b/packages/svelte/src/internal/client/render.js
+@@ -259,12 +259,13 @@
+ 				ctx.c = context;
+ 			}
+ 
++			should_intro = intro;
++			
+ 			if (events) {
+ 				// We can't spread the object or else we'd lose the state proxy stuff, if it is one
+ 				/** @type {any} */ (props).$$events = events;
+ 			}
+ 
+-			should_intro = intro;
+ 			// @ts-expect-error the public typings are not what the actual function looks like
+ 			component = Component(anchor, props) || {};
+ 			should_intro = true;

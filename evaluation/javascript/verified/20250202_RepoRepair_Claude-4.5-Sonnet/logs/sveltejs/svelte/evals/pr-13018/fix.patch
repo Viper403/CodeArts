@@ -1,0 +1,11 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -135,7 +135,7 @@
+ 
+ 	if (node.params.length === 0) {
+ 		if (hoisted_params.length > 0) {
+-			// For the event object
++			// For the event object or transition options
+ 			params.push(b.id('_'));
+ 		}
+ 	} else {

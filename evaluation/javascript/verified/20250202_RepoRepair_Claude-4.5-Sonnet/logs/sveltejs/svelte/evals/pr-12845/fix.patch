@@ -1,0 +1,68 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/server/visitors/Component.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/visitors/Component.js
+@@ -8,5 +8,5 @@
+  * @param {ComponentContext} context
+  */
+ export function Component(node, context) {
+-	build_inline_component(node, b.id(node.name), context);
++	return build_inline_component(node, b.id(node.name), context);
+ }
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/visitors/SvelteComponent.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/visitors/SvelteComponent.js
+@@ -8,5 +8,5 @@
+  * @param {ComponentContext} context
+  */
+ export function SvelteComponent(node, context) {
+-	build_inline_component(node, /** @type {Expression} */ (context.visit(node.expression)), context);
++	return build_inline_component(node, /** @type {Expression} */ (context.visit(node.expression)), context);
+ }
+
+--- a/packages/svelte/src/internal/client/runtime.js
++++ b/packages/svelte/src/internal/client/runtime.js
+@@ -168,8 +168,8 @@
+ 			var i;
+ 
+ 			if ((flags & DISCONNECTED) !== 0) {
+-				for (i = 0; i < dependencies.length; i++) {
+-					(dependencies[i].reactions ??= new Set()).add(reaction);
++				for (var j = 0; j < dependencies.length; j++) {
++					(dependencies[j].reactions ??= new Set()).add(reaction);
+ 				}
+ 
+ 				reaction.f ^= DISCONNECTED;
+
+--- a/packages/svelte/src/internal/server/errors.js
++++ b/packages/svelte/src/internal/server/errors.js
+@@ -6,6 +6,9 @@
+  * @returns {never}
+  */
+ export function lifecycle_function_unavailable(name) {
++	if (typeof name !== 'string') {
++		name = 'unknown';
++	}
+ 	const error = new Error(`lifecycle_function_unavailable\n\`${name}(...)\` is not available on the server`);
+ 
+ 	error.name = 'Svelte error';
+
+--- a/packages/svelte/src/internal/server/index.js
++++ b/packages/svelte/src/internal/server/index.js
+@@ -105,8 +105,16 @@
+ 		/** @type {Component} */ (current_component).c = options.context;
+ 	}
+ 
+-	// @ts-expect-error
+-	component(payload, options.props ?? {}, {}, {});
++	// Check if component is a legacy Svelte component constructor
++	if (typeof component === 'function' && component.prototype && '$$render' in component.prototype) {
++		// @ts-expect-error - Legacy component instantiation
++		const instance = new component({ props: options.props ?? {} });
++		// @ts-expect-error - Call legacy $$render method
++		payload.out += instance.$$render(payload);
++	} else {
++		// @ts-expect-error - Modern component function
++		component(payload, options.props ?? {}, {}, {});
++	}
+ 
+ 	if (options.context) {
+ 		pop();

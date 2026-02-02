@@ -1,0 +1,52 @@
+--- a/packages/svelte/src/compiler/errors.js
++++ b/packages/svelte/src/compiler/errors.js
+@@ -105,7 +105,7 @@
+ 		`:global(...) cannot be used to modify a selector, or be modified by another selector`,
+ 
+ 	'invalid-css-selector': () => `Invalid selector`,
+-	'invalid-css-identifier': () => 'Expected a valid CSS identifier'
++	'invalid-css-identifier': () => 'Expected a valid CSS identifier (if you are using pseudo-class functions like :nth-child() or :nth-of-type(), ensure the formula syntax is correct)'
+ };
+ 
+ /** @satisfies {Errors} */
+
+--- a/packages/svelte/src/compiler/phases/1-parse/index.js
++++ b/packages/svelte/src/compiler/phases/1-parse/index.js
+@@ -192,14 +192,19 @@
+ 		return result;
+ 	}
+ 
+-	/** @param {any} allow_reserved */
+-	read_identifier(allow_reserved = false) {
++	/**
++	 * @param {any} allow_reserved
++	 * @param {boolean} [allow_digit_start] - Whether to allow identifiers starting with digits (for CSS)
++	 */
++	read_identifier(allow_reserved = false, allow_digit_start = false) {
+ 		const start = this.index;
+ 
+ 		let i = this.index;
+ 
+ 		const code = full_char_code_at(this.template, i);
+-		if (!isIdentifierStart(code, true)) return null;
++		const is_valid_start = isIdentifierStart(code, true) || (allow_digit_start && code >= 48 && code <= 57);
++		
++		if (!is_valid_start) return null;
+ 
+ 		i += code <= 0xffff ? 1 : 2;
+ 
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/css/Selector.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/css/Selector.js
+@@ -806,6 +806,11 @@
+ 
+ 	/** @param {import('#compiler').Css.SimpleSelector} selector */
+ 	add(selector) {
++		// Skip Percentage nodes as they are not valid in regular selectors
++		// (they appear in @keyframes but shouldn't be in component selectors)
++		if (selector.type === 'Percentage') {
++			return;
++		}
+ 		if (this.selectors.length === 0) {
+ 			this.start = selector.start;
+ 			this.host = selector.type === 'PseudoClassSelector' && selector.name === 'host';

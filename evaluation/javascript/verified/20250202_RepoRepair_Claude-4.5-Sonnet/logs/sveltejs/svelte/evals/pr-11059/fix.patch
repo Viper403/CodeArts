@@ -1,0 +1,80 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -1138,7 +1138,18 @@
+ 				binding.is_called = true;
+ 			}
+ 
+-			if (get_rune(node, context.state.scope) === '$derived') {
++			const rune = get_rune(node, context.state.scope);
++
++			if (rune === '$host') {
++				// $host() can only be used when compiling as a custom element
++				if (!context.state.analysis.custom_element) {
++					error(node, 'invalid-host-usage');
++				}
++				context.next();
++				return;
++			}
++
++			if (rune === '$derived') {
+ 				// special case �� `$derived(foo)` is treated as `$derived(() => foo)`
+ 				// for the purposes of identifying static state references
+ 				context.next({
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -847,6 +847,12 @@
+ 		}
+ 	}
+ 
++	if (rune === '$host') {
++		if (node.arguments.length !== 0) {
++			error(node, 'invalid-rune-args-length', rune, [0]);
++		}
++	}
++
+ 	if (rune === '$inspect') {
+ 		if (node.arguments.length < 1) {
+ 			error(node, 'invalid-rune-args-length', rune, [1, 'more']);
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/utils.js
+@@ -469,17 +469,15 @@
+ 				);
+ 			} else if (!state.analysis.runes) {
+ 				if (binding.kind === 'bindable_prop') {
+-					return b.call(
+-						left,
+-						b.sequence([
+-							b.assignment(
+-								node.operator,
+-								/** @type {import('estree').Pattern} */ (visit(node.left)),
+-								value
+-							),
+-							b.call(left)
+-						])
++					const assignment = b.assignment(
++						node.operator,
++						/** @type {import('estree').Pattern} */ (visit(node.left)),
++						value
+ 					);
++					return b.sequence([
++						assignment,
++						b.call(left, b.call(left))
++					]);
+ 				} else {
+ 					return b.call(
+ 						'$.mutate',
+
+--- a/packages/svelte/src/internal/client/dom/elements/custom-element.js
++++ b/packages/svelte/src/internal/client/dom/elements/custom-element.js
+@@ -138,7 +138,8 @@
+ 					target: this.shadowRoot || this,
+ 					props: {
+ 						...this.$$d,
+-						$$slots
++						$$slots,
++						$$host: this
+ 					}
+ 				});
+ 

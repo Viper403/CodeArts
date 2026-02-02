@@ -1,0 +1,2 @@
+[2026-02-01 21:00:59,624] [docker_util.py] [INFO]: Start building image `mswebench/sveltejs_m_svelte:pr-13145`, working directory is `data/workdir_js/sveltejs/svelte/images/pr-13145`
+[2026-02-01 21:01:09,646] [docker_util.py] [ERROR]: Unknown build error occurred: Credentials store docker-credential-desktop.exe exited with "".

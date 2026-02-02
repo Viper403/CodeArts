@@ -1,0 +1,77 @@
+--- a/packages/svelte/src/compiler/phases/1-parse/read/context.js
++++ b/packages/svelte/src/compiler/phases/1-parse/read/context.js
+@@ -73,14 +73,16 @@
+ 		// because we added a `(` in front of the pattern_string,
+ 		// which shifted the entire string to right by 1
+ 		// so we offset it by removing 1 character in the `space_with_newline`
+-		// to achieve that, we remove the 1st space encountered,
++		// to achieve that, we remove the 1st non-newline character encountered,
+ 		// so it will not affect the `column` of the node
+ 		let space_with_newline = parser.template
+ 			.slice(0, start)
+ 			.replace(regex_not_newline_characters, ' ');
+-		const first_space = space_with_newline.indexOf(' ');
+-		space_with_newline =
+-			space_with_newline.slice(0, first_space) + space_with_newline.slice(first_space + 1);
++		const first_non_newline = space_with_newline.search(/[^\n]/);
++		if (first_non_newline !== -1) {
++			space_with_newline =
++				space_with_newline.slice(0, first_non_newline) + space_with_newline.slice(first_non_newline + 1);
++		}
+ 
+ 		const expression = /** @type {any} */ (
+ 			parse_expression_at(`${space_with_newline}(${pattern_string} = 1)`, parser.ts, start - 1)
+
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -747,21 +747,21 @@
+ 			flush(parser.index);
+ 			return chunks;
+ 		} else if (parser.eat('{')) {
++			const brace_start = parser.index - 1;
++			parser.allow_whitespace();
++			
+ 			if (parser.match('#')) {
+-				const index = parser.index - 1;
+ 				parser.eat('#');
+ 				const name = parser.read_until(/[^a-z]/);
+-				e.block_invalid_placement(index, name, location);
++				e.block_invalid_placement(brace_start, name, location);
+ 			} else if (parser.match('@')) {
+-				const index = parser.index - 1;
+ 				parser.eat('@');
+ 				const name = parser.read_until(/[^a-z]/);
+-				e.tag_invalid_placement(index, name, location);
+-			}
+-
+-			flush(parser.index - 1);
+-
+-			parser.allow_whitespace();
++				e.tag_invalid_placement(brace_start, name, location);
++			}
++
++			flush(brace_start);
++
+ 			const expression = read_expression(parser);
+ 			parser.allow_whitespace();
+ 			parser.eat('}', true);
+
+--- a/packages/svelte/src/compiler/phases/1-parse/state/tag.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/tag.js
+@@ -473,11 +473,11 @@
+ 	parser.pop();
+ }
+ 
+-/** @param {import('../index.js').Parser} parser */
+-function special(parser) {
+-	let start = parser.index;
+-	while (parser.template[start] !== '{') start -= 1;
+-
++/**
++ * @param {import('../index.js').Parser} parser
++ * @param {number} start
++ */
++function special(parser, start) {
+ 	if (parser.eat('html')) {
+ 		// {@html content} tag
+ 		parser.require_whitespace();

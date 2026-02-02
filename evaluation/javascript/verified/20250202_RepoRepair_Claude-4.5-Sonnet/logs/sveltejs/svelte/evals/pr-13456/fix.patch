@@ -1,0 +1,81 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -104,6 +104,57 @@
+ 
+ 		state = { ...state, scope: analysis.template.scope };
+ 		walk(parsed.fragment, state, template);
++
++		// Handle svelte:options - remove deprecated options like accessors
++		if (parsed.options) {
++			for (const node of parsed.fragment.nodes) {
++				if (node.type === 'SvelteOptions') {
++					const deprecated_options = ['accessors'];
++					const attributes_to_keep = node.attributes.filter(
++						(attr) => !deprecated_options.includes(attr.name)
++					);
++
++					if (attributes_to_keep.length === 0) {
++						// Remove the entire svelte:options tag
++						let start = /** @type {number} */ (node.start);
++						let end = /** @type {number} */ (node.end);
++						// Include surrounding whitespace/newlines
++						while (str.original[start - 1] === ' ' || str.original[start - 1] === '\t') {
++							start--;
++						}
++						if (str.original[start - 1] === '\n' || str.original[start - 1] === '\r') {
++							start--;
++							if (str.original[start - 1] === '\r') start--;
++						}
++						while (str.original[end] === ' ' || str.original[end] === '\t') {
++							end++;
++						}
++						if (str.original[end] === '\n' || str.original[end] === '\r') {
++							end++;
++							if (str.original[end] === '\n') end++;
++						}
++						str.remove(start, end);
++					} else if (attributes_to_keep.length < node.attributes.length) {
++						// Remove only the deprecated attributes
++						for (const attr of node.attributes) {
++							if (deprecated_options.includes(attr.name)) {
++								let start = /** @type {number} */ (attr.start);
++								let end = /** @type {number} */ (attr.end);
++								// Include surrounding whitespace
++								while (str.original[start - 1] === ' ' || str.original[start - 1] === '\t') {
++									start--;
++								}
++								while (str.original[end] === ' ' || str.original[end] === '\t') {
++									end++;
++								}
++								str.remove(start, end);
++							}
++						}
++					}
++					break;
++				}
++			}
++		}
+ 
+ 		let insertion_point = parsed.instance
+ 			? /** @type {number} */ (parsed.instance.content.start)
+
+--- a/packages/svelte/src/compiler/phases/1-parse/state/element.js
++++ b/packages/svelte/src/compiler/phases/1-parse/state/element.js
+@@ -271,6 +271,17 @@
+ 		}
+ 	}
+ 
++	if (element.type === 'SvelteOptions') {
++		// Filter out deprecated 'accessors' option
++		const accessors_index = element.attributes.findIndex(
++			/** @param {any} attr */
++			(attr) => attr.type === 'Attribute' && attr.name === 'accessors'
++		);
++		if (accessors_index !== -1) {
++			element.attributes.splice(accessors_index, 1);
++		}
++	}
++
+ 	if (is_top_level_script_or_style) {
+ 		parser.eat('>', true);
+ 

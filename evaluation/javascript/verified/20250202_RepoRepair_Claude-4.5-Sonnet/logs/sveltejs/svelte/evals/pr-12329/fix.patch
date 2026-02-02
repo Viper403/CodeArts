@@ -1,0 +1,112 @@
+--- a/packages/svelte/src/compiler/migrate/index.js
++++ b/packages/svelte/src/compiler/migrate/index.js
+@@ -371,6 +371,52 @@
+ 			const bindings = ids.map((id) => state.scope.get(id.name));
+ 			const reassigned_bindings = bindings.filter((b) => b?.reassigned);
+ 			if (reassigned_bindings.length === 0 && !bindings.some((b) => b?.kind === 'store_sub')) {
++				// $derived - check if any referenced variables are declared after this statement
++				const right_ids = extract_identifiers(node.body.expression.right);
++				const max_declaration_end = right_ids.reduce((max, id) => {
++					const binding = state.scope.get(id.name);
++					if (binding && binding.kind === 'state' && binding.initial && binding.initial.end > node.start) {
++						// This variable is declared after the reactive statement
++						return Math.max(max, binding.initial.end);
++					}
++					return max;
++				}, 0);
++
++				if (max_declaration_end > 0) {
++					// There are variables declared after this reactive statement that it depends on
++					// We need to move this $derived statement to after those declarations
++					
++					// Extract the entire line of the labeled statement
++					let line_start = /** @type {number} */ (node.start);
++					while (line_start > 0 && state.str.original[line_start - 1] !== '\n') {
++						line_start--;
++					}
++					let line_end = /** @type {number} */ (node.end);
++					while (line_end < state.str.original.length && state.str.original[line_end] === ' ' || state.str.original[line_end] === '\t') {
++						line_end++;
++					}
++					if (state.str.original[line_end] === '\n') {
++						line_end++;
++					}
++					
++					const statement_text = state.str.original.substring(line_start, line_end);
++					
++					// Remove from current location
++					state.str.remove(line_start, line_end);
++					
++					// Find where to insert - after the last declaration
++					let insert_pos = max_declaration_end;
++					while (insert_pos < state.str.original.length && state.str.original[insert_pos] !== '\n') {
++						insert_pos++;
++					}
++					if (state.str.original[insert_pos] === '\n') {
++						insert_pos++;
++					}
++					
++					// Insert at new location
++					state.str.appendLeft(insert_pos, statement_text);
++				}
++				
+ 				// $derived
+ 				state.str.update(
+ 					/** @type {number} */ (node.start),
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -945,6 +945,26 @@
+ 		)
+ 			return;
+ 
++		// Check for forward references in $derived (and $derived.by)
++		if (rune === '$derived' || rune === '$derived.by') {
++			const expression = rune === '$derived.by' && init.arguments[0]?.type === 'ArrowFunctionExpression'
++				? init.arguments[0].body
++				: init.arguments[0];
++			
++			if (expression) {
++				// Get all referenced identifiers in the derived expression
++				const referenced_identifiers = extract_all_identifiers_from_expression(expression)[1];
++				
++				for (const id of referenced_identifiers) {
++					const binding = state.scope.get(id.name);
++					// Check if the binding exists in the same scope and is declared after this node
++					if (binding && binding.scope === state.scope && binding.node.start > node.start) {
++						e.state_invalid_placement(node, '$derived', id.name);
++					}
++				}
++			}
++		}
++
+ 		for (const path of extract_paths(node.id)) {
+ 			// @ts-ignore this fails in CI for some insane reason
+ 			const binding = /** @type {import('#compiler').Binding} */ (state.scope.get(path.node.name));
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -1291,6 +1291,9 @@
+ 				w.derived_iife(node);
+ 			}
+ 		}
++
++		// Note: Temporal dead zone issues (referencing variables before declaration in the same scope)
++		// are automatically caught by JavaScript. Migration tools should ensure proper declaration order.
+ 	},
+ 	SlotElement(node, { state }) {
+ 		if (!state.analysis.custom_element) {
+
+--- a/packages/svelte/src/compiler/phases/scope.js
++++ b/packages/svelte/src/compiler/phases/scope.js
+@@ -355,8 +355,8 @@
+ 			if (path.length > 1 || !allow_reactive_declarations) return next();
+ 			if (node.label.name !== '$') return next();
+ 
+-			// create a scope for the $: block
+-			const scope = state.scope.child();
++			// create a scope for the $: block (porous so it doesn't block var hoisting)
++			const scope = state.scope.child(true);
+ 			scopes.set(node, scope);
+ 
+ 			if (

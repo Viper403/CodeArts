@@ -1,0 +1,70 @@
+--- a/packages/svelte/src/compiler/phases/3-transform/server/visitors/shared/element.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/visitors/shared/element.js
+@@ -274,6 +274,11 @@
+ 				WHITESPACE_INSENSITIVE_ATTRIBUTES.includes(name)
+ 			);
+ 
++			// For boolean attributes, skip rendering if the value is a literal false
++			if (is_boolean_attribute(name) && value.type === 'Literal' && value.value === false) {
++				continue;
++			}
++
+ 			context.state.template.push(
+ 				b.call('$.attr', b.literal(name), value, is_boolean_attribute(name) && b.true)
+ 			);
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/visitors/shared/utils.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/visitors/shared/utils.js
+@@ -176,6 +176,10 @@
+ 		return b.true;
+ 	}
+ 
++	if (value === false) {
++		return b.false;
++	}
++
+ 	if (!Array.isArray(value) || value.length === 1) {
+ 		const chunk = Array.isArray(value) ? value[0] : value;
+ 
+
+--- a/packages/svelte/src/internal/server/index.js
++++ b/packages/svelte/src/internal/server/index.js
+@@ -526,6 +526,23 @@
+ 	};
+ }
+ 
++/**
++ * Server-side attr function that always checks for boolean attributes
++ * @param {string} name
++ * @param {unknown} value
++ * @param {boolean} [is_boolean]
++ * @returns {string}
++ */
++function attr(name, value, is_boolean) {
++	// In SSR, always check if it's a boolean attribute if not explicitly provided
++	// This ensures attributes like 'inert' are handled correctly even when the
++	// compiler doesn't pass the boolean flag
++	if (is_boolean === undefined) {
++		is_boolean = is_boolean_attribute(name);
++	}
++	return attr_base(name, value, is_boolean);
++}
++
+ export { attr, clsx };
+ 
+ export { html } from './blocks/html.js';
+
+--- a/packages/svelte/src/internal/shared/attributes.js
++++ b/packages/svelte/src/internal/shared/attributes.js
+@@ -22,6 +22,11 @@
+  * @returns {string}
+  */
+ export function attr(name, value, is_boolean = false) {
++	// Ensure inert is always treated as a boolean attribute
++	if (name === 'inert') {
++		is_boolean = true;
++	}
++	
+ 	if (value == null || (!value && is_boolean) || (value === '' && name === 'class')) return '';
+ 	const normalized = (name in replacements && replacements[name].get(value)) || value;
+ 	const assignment = is_boolean ? '' : `="${escape_html(normalized, true)}"`;

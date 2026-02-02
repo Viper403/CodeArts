@@ -1,0 +1,51 @@
+--- a/packages/svelte/src/internal/server/index.js
++++ b/packages/svelte/src/internal/server/index.js
+@@ -572,3 +572,24 @@
+ export function inspect(args, inspect = console.log) {
+ 	inspect('init', ...args);
+ }
++
++/**
++ * @param {() => void} fn
++ * @returns {void}
++ */
++export function onDestroy(fn) {
++	// Server-side onDestroy: collect destroy callbacks to run after SSR completes
++	const context = $.current_component_context;
++	if (context) {
++		(context.d ??= []).push(fn);
++	}
++}
++
++/**
++ * @template {Record<string, any>} [EventMap = any]
++ * @returns {(type: string, detail?: any) => void}
++ */
++export function createEventDispatcher() {
++	// No-op on server since there are no events during SSR
++	return noop;
++}
+
+--- a/packages/svelte/src/main/main-client.js
++++ b/packages/svelte/src/main/main-client.js
+@@ -135,6 +135,11 @@
+ 		throw new Error('createEventDispatcher can only be used during component initialisation.');
+ 	}
+ 
++	// In SSR, event dispatchers are a no-op
++	if (is_ssr) {
++		return (type, detail, options) => true;
++	}
++
+ 	return (type, detail, options) => {
+ 		const events = /** @type {Record<string, Function | Function[]>} */ (
+ 			component_context.s.$$events
+@@ -142,8 +147,6 @@
+ 
+ 		if (events) {
+ 			const callbacks = is_array(events) ? events.slice() : [events];
+-			// TODO are there situations where events could be dispatched
+-			// in a server (non-DOM) environment?
+ 			const event = create_custom_event(/** @type {string} */ (type), detail, options);
+ 			for (const fn of callbacks) {
+ 				fn.call(component_context.a, event);

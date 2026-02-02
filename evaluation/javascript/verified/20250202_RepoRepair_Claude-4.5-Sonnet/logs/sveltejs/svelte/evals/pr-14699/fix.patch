@@ -1,0 +1,59 @@
+--- a/packages/svelte/src/reactivity/window/index.js
++++ b/packages/svelte/src/reactivity/window/index.js
+@@ -121,6 +121,56 @@
+ );
+ 
+ /**
++ * Creates a media query and provides a `current` property that reflects whether or not it matches.
++ * Use it carefully �� during server-side rendering, there is no way to know what the correct value should be,
++ * potentially causing content to change upon hydration. If you can use the media query in CSS to achieve the
++ * same effect, do that.
++ *
++ * ```svelte
++ * <script>
++ *   import { MediaQuery } from 'svelte/reactivity';
++ *
++ *   const large = new MediaQuery('(min-width: 800px)');
++ * </script>
++ *
++ * <h1>{large.current ? 'large screen' : 'small screen'}</h1>
++ * ```
++ * @since 5.11.0
++ */
++export class MediaQuery {
++	#query;
++	#matches = source(false);
++
++	/**
++	 * @param {string} query A media query string
++	 */
++	constructor(query) {
++		this.#query = query;
++
++		if (BROWSER) {
++			const mql = window.matchMedia(query);
++			set(this.#matches, mql.matches);
++
++			on(mql, 'change', (e) => {
++				set(this.#matches, e.matches);
++			});
++		}
++	}
++
++	get current() {
++		get(this.#matches);
++
++		if (BROWSER) {
++			// Return the live value instead of the snapshot value to ensure
++			// that it's always up-to-date even if read outside the effect
++			return window.matchMedia(this.#query).matches;
++		}
++
++		return false;
++	}
++}
++
++/**
+  * `devicePixelRatio.current` is a reactive view of `window.devicePixelRatio`. On the server it is `undefined`.
+  * Note that behaviour differs between browsers �� on Chrome it will respond to the current zoom level,
+  * on Firefox and Safari it won't.

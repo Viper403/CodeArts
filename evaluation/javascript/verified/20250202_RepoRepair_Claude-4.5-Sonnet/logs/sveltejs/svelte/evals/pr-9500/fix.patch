@@ -1,0 +1,98 @@
+--- a/packages/svelte/src/compiler/phases/2-analyze/index.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/index.js
+@@ -674,10 +674,12 @@
+ 		}
+ 	},
+ 	ExportSpecifier(node, { state }) {
+-		state.analysis.exports.push({
+-			name: node.local.name,
+-			alias: node.exported.name
+-		});
++		if (state.ast_type === 'instance') {
++			state.analysis.exports.push({
++				name: node.local.name,
++				alias: node.exported.name
++			});
++		}
+ 	},
+ 	ExportNamedDeclaration(node, { next, state }) {
+ 		if (!node.declaration) {
+@@ -688,17 +690,21 @@
+ 			node.declaration.type === 'FunctionDeclaration' ||
+ 			node.declaration.type === 'ClassDeclaration'
+ 		) {
+-			state.analysis.exports.push({
+-				name: /** @type {import('estree').Identifier} */ (node.declaration.id).name,
+-				alias: null
+-			});
++			if (state.ast_type === 'instance') {
++				state.analysis.exports.push({
++					name: /** @type {import('estree').Identifier} */ (node.declaration.id).name,
++					alias: null
++				});
++			}
+ 			return next();
+ 		}
+ 
+ 		if (node.declaration.type === 'VariableDeclaration' && node.declaration.kind === 'const') {
+-			for (const declarator of node.declaration.declarations) {
+-				for (const node of extract_identifiers(declarator.id)) {
+-					state.analysis.exports.push({ name: node.name, alias: null });
++			if (state.ast_type === 'instance') {
++				for (const declarator of node.declaration.declarations) {
++					for (const node of extract_identifiers(declarator.id)) {
++						state.analysis.exports.push({ name: node.name, alias: null });
++					}
+ 				}
+ 			}
+ 		}
+
+--- a/packages/svelte/src/compiler/phases/2-analyze/validation.js
++++ b/packages/svelte/src/compiler/phases/2-analyze/validation.js
+@@ -645,11 +645,14 @@
+ 	ExportNamedDeclaration(node, { state }) {
+ 		if (node.declaration?.type !== 'VariableDeclaration') return;
+ 		if (node.declaration.kind !== 'let') return;
+-		if (state.analysis.instance.scope !== state.scope) return;
+-		error(node, 'invalid-legacy-export');
++		if (state.analysis.instance.scope === state.scope) {
++			error(node, 'invalid-legacy-export');
++		}
+ 	},
+ 	ExportSpecifier(node, { state }) {
+-		validate_export(node, state.scope, node.local.name);
++		if (state.analysis.instance.scope === state.scope) {
++			validate_export(node, state.scope, node.local.name);
++		}
+ 	},
+ 	CallExpression(node, { state, path }) {
+ 		validate_call_expression(node, state.scope, path);
+
+--- a/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
++++ b/packages/svelte/src/compiler/phases/3-transform/client/transform-client.js
+@@ -412,7 +412,9 @@
+ 
+ 		const slots_str = b.array([...analysis.slot_names.keys()].map((name) => b.literal(name)));
+ 		const accessors_str = b.array(
+-			analysis.exports.map(({ name, alias }) => b.literal(alias ?? name))
++			analysis.exports
++				.filter(({ name }) => analysis.instance.scope.get(name))
++				.map(({ name, alias }) => b.literal(alias ?? name))
+ 		);
+ 		const use_shadow_dom = typeof ce === 'boolean' || ce.shadow !== 'none' ? true : false;
+ 
+
+--- a/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
++++ b/packages/svelte/src/compiler/phases/3-transform/server/transform-server.js
+@@ -2034,7 +2034,10 @@
+ 		}
+ 	}
+ 	for (const { name, alias } of analysis.exports) {
+-		props.push(b.init(alias ?? name, b.id(name)));
++		// Only include exports from the instance scope, not module scope
++		if (analysis.instance.scope.get(name)) {
++			props.push(b.init(alias ?? name, b.id(name)));
++		}
+ 	}
+ 	if (props.length > 0) {
+ 		template.body.push(b.stmt(b.call('$.bind_props', b.id('$$props'), b.object(props))));
