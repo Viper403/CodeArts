@@ -2,7 +2,6 @@
     "total_instances": 334,
     "submitted_instances": 334,
     "completed_instances": 334,
-    "incomplete_instances": 0,
     "resolved_instances": 61,
     "unresolved_instances": 273,
     "empty_error_patch_instances": 0,
@@ -680,7 +679,7 @@
         "anuraghazra/github-readme-stats:pr-105",
         "anuraghazra/github-readme-stats:pr-58"
     ],
-    "resolved_ids": [
+    "resolved": [
         "sveltejs/svelte:pr-15086",
         "sveltejs/svelte:pr-15013",
         "sveltejs/svelte:pr-14942",
